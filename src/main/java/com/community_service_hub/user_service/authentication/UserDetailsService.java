@@ -1,4 +1,4 @@
-package com.community_service_hub.user_service.authenticationService;
+package com.community_service_hub.user_service.authentication;
 
 import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.UserRepo;

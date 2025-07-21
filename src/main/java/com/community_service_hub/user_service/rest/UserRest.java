@@ -2,6 +2,9 @@ package com.community_service_hub.user_service.rest;
 
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserPayloadDTO;
+import com.community_service_hub.user_service.dto.UserRole;
+import com.community_service_hub.user_service.models.NGO;
+import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
 import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -17,15 +20,31 @@ import java.util.UUID;
 public class UserRest {
 
     private final UserServiceImpl userService;
+    private final NGOServiceImpl ngoService;
 
     @Autowired
-    public UserRest(UserServiceImpl userService) {
+    public UserRest(UserServiceImpl userService, NGOServiceImpl ngoService) {
         this.userService = userService;
+        this.ngoService = ngoService;
     }
 
     @PostMapping
     public ResponseEntity<ResponseDTO> createUser(@RequestBody @Valid UserPayloadDTO user){
-        return userService.createUser(user);
+        if (user.getRole().equalsIgnoreCase(UserRole.VOLUNTEER.toString())){
+            return userService.createUser(user);
+        }
+
+        NGO ngo = NGO
+                .builder()
+                .name(user.getName())
+                .address(user.getAddress())
+                .password(user.getPassword())
+                .email(user.getEmail())
+                .latitude(user.getLatitude())
+                .longitude(user.getLongitude())
+                .description(user.getDescription())
+                .build();
+        return ngoService.saveNGO(ngo);
     }
 
     @GetMapping

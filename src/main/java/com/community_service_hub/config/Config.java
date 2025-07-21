@@ -1,7 +1,7 @@
 package com.community_service_hub.config;
 
-import com.community_service_hub.user_service.authenticationService.CustomFilter;
-import com.community_service_hub.user_service.authenticationService.UserDetailsService;
+import com.community_service_hub.user_service.authentication.CustomFilter;
+import com.community_service_hub.user_service.authentication.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

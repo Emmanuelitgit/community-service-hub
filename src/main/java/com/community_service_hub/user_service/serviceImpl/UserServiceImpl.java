@@ -8,14 +8,9 @@ import com.community_service_hub.user_service.dto.*;
 import com.community_service_hub.user_service.exception.BadRequestException;
 import com.community_service_hub.user_service.exception.NotFoundException;
 import com.community_service_hub.user_service.exception.ServerException;
-import com.community_service_hub.user_service.models.RoleSetup;
-import com.community_service_hub.user_service.models.User;
-import com.community_service_hub.user_service.models.UserLocation;
+import com.community_service_hub.user_service.models.*;
 import com.community_service_hub.user_service.models.UserRole;
-import com.community_service_hub.user_service.repo.RoleSetupRepo;
-import com.community_service_hub.user_service.repo.UserLocationRepo;
-import com.community_service_hub.user_service.repo.UserRepo;
-import com.community_service_hub.user_service.repo.UserRoleRepo;
+import com.community_service_hub.user_service.repo.*;
 import com.community_service_hub.user_service.service.UserService;
 import com.community_service_hub.user_service.util.AppUtils;
 import jakarta.transaction.Transactional;
@@ -43,9 +38,10 @@ public class UserServiceImpl implements UserService {
     private final RestTemplate restTemplate;
     private final AppProperties appProperties;
     private final OTPServiceImpl otpService;
+    private final NGORepo ngoRepo;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, UserLocationRepo userLocationRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, UserLocationRepo userLocationRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
@@ -57,6 +53,7 @@ public class UserServiceImpl implements UserService {
         this.restTemplate = restTemplate;
         this.appProperties = appProperties;
         this.otpService = otpService;
+        this.ngoRepo = ngoRepo;
     }
 
     /**
@@ -84,7 +81,8 @@ public class UserServiceImpl implements UserService {
             * check if email already exist
             */
            Optional<User> userEmailExist =  userRepo.findUserByEmail(userPayloadDTO.getEmail());
-           if (userEmailExist.isPresent()){
+           NGO ngo = ngoRepo.findByEmail(userPayloadDTO.getEmail());
+           if (userEmailExist.isPresent() || ngo != null){
                ResponseDTO  response = AppUtils.getResponseDto("email already exist", HttpStatus.ALREADY_REPORTED);
                return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
            }
