@@ -147,20 +147,6 @@ public class AppUtils {
     }
 
     /**
-     * This method is used to get authenticated username.
-     * @return username string
-     * @auther Emmanuel Yidana
-     * @createdAt 19h May 2025
-     */
-    public String getAuthenticatedUsername(){
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User user = userRepo.findById(UUID.fromString(userId))
-                .orElseThrow(()-> new NotFoundException("user record not found"));
-        return user.getUsername();
-    }
-
-    /**
      * This method is used to get authenticated user id.
      * @return UUID string
      * @auther Emmanuel Yidana

@@ -80,7 +80,7 @@ public class OTPServiceImpl implements OTPService {
             Context context = new Context();
             otpPayload.setOtpCode(generateOTP());
             context.setVariable("otp", otpPayload.getOtpCode());
-            context.setVariable("fullName", user.getFirstName() + " " + user.getLastName());
+            context.setVariable("fullName", user.getName());
 
             String htmlContent = templateEngine.process("OTPTemplate", context);
             helper.setText(htmlContent, true);

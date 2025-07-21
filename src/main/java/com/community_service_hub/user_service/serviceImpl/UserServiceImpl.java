@@ -90,15 +90,6 @@ public class UserServiceImpl implements UserService {
            }
 
            /**
-            * check if username already exist
-            */
-           Optional<User> usernameExist =  userRepo.findUserByUsername(userPayloadDTO.getUsername());
-           if (usernameExist.isPresent()){
-               ResponseDTO  response = AppUtils.getResponseDto("username already exist", HttpStatus.ALREADY_REPORTED);
-               return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
-           }
-
-           /**
             * hashing user password
             */
            userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
@@ -122,22 +113,6 @@ public class UserServiceImpl implements UserService {
            saveUserLocation(location);
 
            /**
-            * checking role availability from the db
-            */
-           Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(userPayloadDTO.getRole());
-           if (roleSetupOptional.isEmpty()){
-               ResponseDTO  response = AppUtils.getResponseDto("role record not found", HttpStatus.NOT_FOUND);
-               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-           }
-
-           /**
-            * saving user role
-            */
-           RoleSetup role = roleSetupOptional.get();
-           saveUserRole(userResponse.getId(), userPayloadDTO.getRole());
-           log.info("User created successfully:->>>>>>");
-
-           /**
             * sending an otp email notification to user
             */
            log.info("About to send an otp code to user->>>");
@@ -157,8 +132,7 @@ public class UserServiceImpl implements UserService {
            /**
             * returning response if everything is successfully
             */
-           UserDTO userDTO = DTOMapper.toUserDTO(userResponse, role.getName());
-           ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTO);
+           ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userResponse);
            return new ResponseEntity<>(response, HttpStatus.CREATED);
 
        } catch (Exception e) {
@@ -230,37 +204,28 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload, UUID userId) {
         try{
             log.info("In update user method:->>>>>>{}", userPayload);
+
+            /**
+             * checking if user record exist by id
+             */
             User existingData = userRepo.findById(userId)
                     .orElseThrow(()-> new NotFoundException("user record not found"));
 
+            /**
+             * building payload details to be saved
+             */
             existingData.setEmail(userPayload.getEmail() !=null ? userPayload.getEmail() : existingData.getEmail());
-            existingData.setFirstName(userPayload.getFirstName() !=null ? userPayload.getFirstName() : existingData.getFirstName());
-            existingData.setLastName(userPayload.getLastName() !=null ? userPayload.getLastName() : existingData.getLastName());
-            existingData.setUsername(userPayload.getUsername() !=null ? userPayload.getUsername() : existingData.getUsername());
+            existingData.setName(userPayload.getName() !=null ? userPayload.getName() : existingData.getName());
             existingData.setPhone(userPayload.getPhone() !=null ? userPayload.getPhone() : existingData.getPhone());
             User userResponse = userRepo.save(existingData);
 
             /**
-             * getting the role name from the role setup db
+             * returning response if successfully
              */
-           RoleSetup role =  new RoleSetup();
-            if (userPayload.getRole() != null){
-                RoleSetup roleData  = roleSetupRepo.findById(userPayload.getRole())
-                        .orElseThrow(()-> new NotFoundException("role record not found"));
-                role.setName(roleData.getName());
-                role.setId(roleData.getId());
-            }
-
-            /**
-             * update user role. we first remove the existing role and save the new one
-             */
-            removeUser(userResponse.getId());
-            saveUserRole(userResponse.getId(), role.getId());
-
             log.info("user records updated successfully:->>>>>>");
-            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getName());
-            ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
+            ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);

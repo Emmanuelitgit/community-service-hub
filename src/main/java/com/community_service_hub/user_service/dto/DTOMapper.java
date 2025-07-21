@@ -11,12 +11,10 @@ public class DTOMapper {
        return UserDTO
                 .builder()
                 .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .name(user.getName())
                 .email(user.getEmail())
                 .role(role)
                 .phone(user.getPhone())
-                .username(user.getUsername())
                 .build();
     }
 
@@ -28,9 +26,7 @@ public class DTOMapper {
                 .password(user.getPassword())
                 .phone(user.getPhone())
                 .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .username(user.getUsername())
+                .name(user.getName())
                 .build();
     }
 

@@ -13,12 +13,8 @@ import java.util.UUID;
 @Data
 public class UserPayloadDTO {
     private UUID id;
-    @NotNull(message = "first name cannot be null")
-    @Size(message = "first name is too long")
-    private String firstName;
-    @NotNull(message = "last name cannot be null")
-    @Size(message = "last name is too long")
-    private String lastName;
+    @NotNull(message = "name cannot be null")
+    private String name;
     @NotNull(message = "email cannot be null")
     @Email(message = "invalid email")
     private String email;
@@ -31,9 +27,7 @@ public class UserPayloadDTO {
 //            message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character")
     private String password;
     @NotNull(message = "username cannot be null")
-    private String username;
-    @NotNull(message = "role id cannot be null")
-    private UUID role;
+    private String role;
     @NotNull(message = "latitude cannot be null")
     private Double latitude;
     @NotNull(message = "longitude cannot be null")

@@ -17,10 +17,9 @@ public class User extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
     private String phone;
-    private String username;
     private String password;
+    private String userRole;
 }
