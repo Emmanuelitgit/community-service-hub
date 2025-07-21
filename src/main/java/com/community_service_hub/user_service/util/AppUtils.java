@@ -96,7 +96,7 @@ public class AppUtils {
     public String getUserRole(String username) {
         UserDTOProjection role = userRepo.getUserRole(username);
         log.info("fetched role from db->>>>>");
-        return role.getRole();
+        return role.getUserRole();
     }
 
     /**

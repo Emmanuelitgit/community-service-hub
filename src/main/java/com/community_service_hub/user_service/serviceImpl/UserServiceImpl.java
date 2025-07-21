@@ -98,6 +98,7 @@ public class UserServiceImpl implements UserService {
            /**
             * saving user record
             */
+           userPayloadDTO.setRole(userPayloadDTO.getRole().toUpperCase());
            User userResponse = userRepo.save(user);
 
            /**
@@ -123,16 +124,11 @@ public class UserServiceImpl implements UserService {
 
            otpService.sendOtp(otpPayload);
 
-         /*  HttpHeaders headers = new HttpHeaders();
-           headers.setContentType(MediaType.APPLICATION_JSON);
-
-           HttpEntity<OTPPayload> request = new HttpEntity<>(otpPayload, headers);
-           restTemplate.exchange(appProperties.getSendOtpUrl(), HttpMethod.POST, request, ResponseDTO.class);*/
-
            /**
             * returning response if everything is successfully
             */
-           ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userResponse);
+           UserDTO userDTOResponse = DTOMapper.toUserDTO(user);
+           ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTOResponse);
            return new ResponseEntity<>(response, HttpStatus.CREATED);
 
        } catch (Exception e) {

@@ -10,10 +10,9 @@ import java.util.UUID;
  */
 public interface UserDTOProjection {
     UUID getId();
-    String getFirstName();
-    String getLastName();
+    String getName();
     String getEmail();
     String getPhone();
-    String getUsername();
-    String getRole();
+    String getUserRole();
+    String getAddress();
 }

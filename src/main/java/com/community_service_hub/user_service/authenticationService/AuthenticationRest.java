@@ -79,10 +79,9 @@ public class AuthenticationRest {
              * building response details
              */
             Map<String, String> tokenData = new HashMap<>();
-            tokenData.put("username", user.getUsername());
             tokenData.put("email", credentials.getEmail());
-            tokenData.put("role", user.getRole());
-            tokenData.put("full name", AppUtils.getFullName(user.getFirstName(), user.getLastName()));
+            tokenData.put("role", user.getUserRole());
+            tokenData.put("full name", user.getName());
             tokenData.put("token", token);
 
             /**

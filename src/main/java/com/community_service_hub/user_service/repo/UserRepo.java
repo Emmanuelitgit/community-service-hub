@@ -13,10 +13,9 @@ import java.util.UUID;
 @Repository
 public interface UserRepo extends JpaRepository<User, UUID> {
 
-    @Query(value = "SELECT u.id AS id, u.first_name, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
+    @Query(value = "SELECT u.id AS id, u.name, u.user_role, ul.address, u.email, u.phone " +
             "FROM user_tb u " +
-            "JOIN user_role_tb ur ON u.id = ur.user_id " +
-            "JOIN role_setup_tb rs ON ur.role_id = rs.id", nativeQuery = true)
+            "JOIN user_location_tb ul ON u.id = ul.user_id ", nativeQuery = true)
     List<UserDTOProjection> getUsersDetails();
 
     @Query(value = "SELECT u.id AS id, u.first_name, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
@@ -38,9 +37,7 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "JOIN user_tb u ON u.id = ur.user_id " +
             "JOIN role_setup_tb rs ON rs.id = ur.role_id " +
             "WHERE u.email = ?1", nativeQuery = true)
-    UserDTOProjection getUserRole(String username);
-
-    Optional<User> findUserByUsername(String username);
+    UserDTOProjection getUserRole(String email);
 
     Optional<User> findUserByEmail(String email);
 }
