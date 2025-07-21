@@ -1,0 +1,384 @@
+package com.community_service_hub.user_service.serviceImpl;
+
+
+import com.community_service_hub.config.AppProperties;
+import com.community_service_hub.notification_service.dto.OTPPayload;
+import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
+import com.community_service_hub.user_service.dto.*;
+import com.community_service_hub.user_service.exception.BadRequestException;
+import com.community_service_hub.user_service.exception.NotFoundException;
+import com.community_service_hub.user_service.exception.ServerException;
+import com.community_service_hub.user_service.models.RoleSetup;
+import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.models.UserLocation;
+import com.community_service_hub.user_service.models.UserRole;
+import com.community_service_hub.user_service.repo.RoleSetupRepo;
+import com.community_service_hub.user_service.repo.UserLocationRepo;
+import com.community_service_hub.user_service.repo.UserRepo;
+import com.community_service_hub.user_service.repo.UserRoleRepo;
+import com.community_service_hub.user_service.service.UserService;
+import com.community_service_hub.user_service.util.AppUtils;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
+
+@Slf4j
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepo userRepo;
+    private final DTOMapper dtoMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRoleServiceImpl userRoleServiceImpl;
+    private final RoleSetupRepo roleSetupRepo;
+    private final RoleSetupServiceImpl roleSetupServiceImpl;
+    private final UserRoleRepo userRoleRepo;
+    private final UserLocationRepo userLocationRepo;
+    private final RestTemplate restTemplate;
+    private final AppProperties appProperties;
+    private final OTPServiceImpl otpService;
+
+    @Autowired
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, UserLocationRepo userLocationRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService) {
+        this.userRepo = userRepo;
+        this.dtoMapper = dtoMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.userRoleServiceImpl = userRoleServiceImpl;
+        this.roleSetupRepo = roleSetupRepo;
+        this.roleSetupServiceImpl = roleSetupServiceImpl;
+        this.userRoleRepo = userRoleRepo;
+        this.userLocationRepo = userLocationRepo;
+        this.restTemplate = restTemplate;
+        this.appProperties = appProperties;
+        this.otpService = otpService;
+    }
+
+    /**
+     * @description This method is used to save user to the db
+     * @param userPayloadDTO the payload data of the user to be added
+     * @return ResponseEntity containing the saved user record and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    @Transactional
+    @Override
+    public ResponseEntity<ResponseDTO> createUser(UserPayloadDTO userPayloadDTO) {
+       try {
+           log.info("In create user method:->>>>>>");
+
+           /**
+            * check if payload is null
+            */
+           if (userPayloadDTO  == null){
+               ResponseDTO  response = AppUtils.getResponseDto("user payload cannot be null", HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
+
+           /**
+            * check if email already exist
+            */
+           Optional<User> userEmailExist =  userRepo.findUserByEmail(userPayloadDTO.getEmail());
+           if (userEmailExist.isPresent()){
+               ResponseDTO  response = AppUtils.getResponseDto("email already exist", HttpStatus.ALREADY_REPORTED);
+               return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
+           }
+
+           /**
+            * check if username already exist
+            */
+           Optional<User> usernameExist =  userRepo.findUserByUsername(userPayloadDTO.getUsername());
+           if (usernameExist.isPresent()){
+               ResponseDTO  response = AppUtils.getResponseDto("username already exist", HttpStatus.ALREADY_REPORTED);
+               return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
+           }
+
+           /**
+            * hashing user password
+            */
+           userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
+           User user = dtoMapper.toUserEntity(userPayloadDTO);
+
+           /**
+            * saving user record
+            */
+           User userResponse = userRepo.save(user);
+
+           /**
+            * saving user location
+            */
+           UserLocation location = UserLocation
+                   .builder()
+                   .userId(userResponse.getId())
+                   .latitude(userPayloadDTO.getLatitude())
+                   .longitude(userPayloadDTO.getLongitude())
+                   .address(userPayloadDTO.getAddress())
+                   .build();
+           saveUserLocation(location);
+
+           /**
+            * checking role availability from the db
+            */
+           Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(userPayloadDTO.getRole());
+           if (roleSetupOptional.isEmpty()){
+               ResponseDTO  response = AppUtils.getResponseDto("role record not found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+
+           /**
+            * saving user role
+            */
+           RoleSetup role = roleSetupOptional.get();
+           saveUserRole(userResponse.getId(), userPayloadDTO.getRole());
+           log.info("User created successfully:->>>>>>");
+
+           /**
+            * sending an otp email notification to user
+            */
+           log.info("About to send an otp code to user->>>");
+           OTPPayload otpPayload = OTPPayload
+                   .builder()
+                   .email(userResponse.getEmail())
+                   .build();
+
+           otpService.sendOtp(otpPayload);
+
+         /*  HttpHeaders headers = new HttpHeaders();
+           headers.setContentType(MediaType.APPLICATION_JSON);
+
+           HttpEntity<OTPPayload> request = new HttpEntity<>(otpPayload, headers);
+           restTemplate.exchange(appProperties.getSendOtpUrl(), HttpMethod.POST, request, ResponseDTO.class);*/
+
+           /**
+            * returning response if everything is successfully
+            */
+           UserDTO userDTO = DTOMapper.toUserDTO(userResponse, role.getName());
+           ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTO);
+           return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+       } catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+           ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+           return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+    }
+
+    /**
+     * @description This method is used to get all users from the db
+     * @return ResponseEntity containing a list of users nd status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> getUsers() {
+       try{
+           log.info("In get all users method:->>>>>>");
+           List<UserDTOProjection> users = userRepo.getUsersDetails();
+           if (users.isEmpty()){
+               ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+           ResponseDTO  response = AppUtils.getResponseDto("users records fetched successfully", HttpStatus.OK, users);
+           return new ResponseEntity<>(response, HttpStatus.OK);
+       } catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+           ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+           return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+    }
+
+    /**
+     * @description This method is used to get user records given the user id.
+     * @param userId the id of the user to be retrieved
+     * @return ResponseEntity containing the retrieved user record and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> getUserById(UUID userId) {
+       try{
+           log.info("In get user by id method:->>>>>>");
+           UserDTOProjection user = userRepo.getUsersDetailsByUserId(userId);
+           if (user == null){
+               ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+           ResponseDTO  response = AppUtils.getResponseDto("user records fetched successfully", HttpStatus.OK, user);
+           return new ResponseEntity<>(response, HttpStatus.OK);
+       } catch (Exception e) {
+           log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+           ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+           return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+    }
+
+    /**
+     * @description This method is used to update user records.
+     * @param userPayload the payload data of the user to be updated
+     * @param userId the id of the user to be updated
+     * @return ResponseEntity containing the saved user role and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    @Transactional
+    @Override
+    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload, UUID userId) {
+        try{
+            log.info("In update user method:->>>>>>{}", userPayload);
+            User existingData = userRepo.findById(userId)
+                    .orElseThrow(()-> new NotFoundException("user record not found"));
+
+            existingData.setEmail(userPayload.getEmail() !=null ? userPayload.getEmail() : existingData.getEmail());
+            existingData.setFirstName(userPayload.getFirstName() !=null ? userPayload.getFirstName() : existingData.getFirstName());
+            existingData.setLastName(userPayload.getLastName() !=null ? userPayload.getLastName() : existingData.getLastName());
+            existingData.setUsername(userPayload.getUsername() !=null ? userPayload.getUsername() : existingData.getUsername());
+            existingData.setPhone(userPayload.getPhone() !=null ? userPayload.getPhone() : existingData.getPhone());
+            User userResponse = userRepo.save(existingData);
+
+            /**
+             * getting the role name from the role setup db
+             */
+           RoleSetup role =  new RoleSetup();
+            if (userPayload.getRole() != null){
+                RoleSetup roleData  = roleSetupRepo.findById(userPayload.getRole())
+                        .orElseThrow(()-> new NotFoundException("role record not found"));
+                role.setName(roleData.getName());
+                role.setId(roleData.getId());
+            }
+
+            /**
+             * update user role. we first remove the existing role and save the new one
+             */
+            removeUser(userResponse.getId());
+            saveUserRole(userResponse.getId(), role.getId());
+
+            log.info("user records updated successfully:->>>>>>");
+            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse, role.getName());
+            ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @description This method is used to remove user records from the db.
+     * @param userId the id of the user to be removed
+     * @return ResponseEntity containing the id of the user to be removed and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    @Transactional
+    @Override
+    public ResponseEntity<ResponseDTO> removeUser(UUID userId) {
+        try {
+            log.info("In remove user method:->>>{}", userId);
+            Optional<User> userOptional = userRepo.findById(userId);
+            if (userOptional.isEmpty()){
+                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            userRepo.deleteById(userId);
+
+            /**
+             * removing user role after deleting the user
+             */
+            removeUserRole(userId);
+
+            log.info("user records removed successfully:->>>{}", userId);
+
+            ResponseDTO  response = AppUtils.getResponseDto("user record removed successfully", HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * @description A helper method used to save user role
+     * @param userId the id of the user
+     * @param roleId the id of the role to be assigned
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    public void saveUserRole(UUID userId, UUID roleId){
+        try {
+            log.info("About to save user role->>>{}", userId);
+
+            Optional<User> userOptional = userRepo.findById(userId);
+            Optional<RoleSetup> roleSetupOptional = roleSetupRepo.findById(roleId);
+
+            if (userOptional.isEmpty() || roleSetupOptional.isEmpty()){
+                throw new NotFoundException("user or role record not found");
+            }
+
+            UserRole userRole = new UserRole();
+            userRole.setRoleId(roleId);
+            userRole.setUserId(userId);
+
+            userRoleRepo.save(userRole);
+            log.info("user role saved successfully->>>{}", userId);
+
+        }catch (Exception e) {
+            throw new ServerException("Internal server error");
+        }
+    }
+
+    /**
+     * @description A helper method used to remove user role
+     * @param userId the id of the user
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
+    public void removeUserRole(UUID userId){
+        try {
+            log.info("About to remove user role->>>{}", userId);
+
+            UserRole userRole = userRoleRepo.findByUserId(userId);
+            if (userRole == null){
+                log.info("no role is associated with the given user id->>>{}", userId);
+                throw new NotFoundException("no role is associated with the given user id");
+            }
+
+            userRoleRepo.deleteById(userRole.getId());
+            log.info("user role removed successfully->>>{}", userRole.getId());
+
+        }catch (Exception e) {
+            throw new ServerException("Internal server error");
+        }
+    }
+
+    /**
+     * @description A helper method used to save user location
+     * @param userLocation the payload data of the user location to be added
+     * @auther Emmanuel Yidana
+     * @createdAt 21st july 2025
+     */
+    private void saveUserLocation(UserLocation userLocation){
+        try {
+            log.info("About to save user location->>>{}", userLocation.getUserId());
+
+            if (userLocation == null){
+                log.info("user location payload cannot be null->>>");
+                throw new BadRequestException("user location payload cannot be null");
+            }
+
+            UserLocation location = userLocationRepo.save(userLocation);
+            log.info("user location saved successfully->>>{}", location);
+
+        }catch (Exception e) {
+            log.info("Message->>>{}", e.getMessage());
+            throw new ServerException("Internal server error");
+        }
+    }
+}
