@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -340,4 +341,14 @@ public class UserServiceImpl implements UserService {
             throw new ServerException("Internal server error");
         }
     }
+
+    /**
+     *  A chron method that will run every minute
+     *  in order to keep the server alive when deployed to render
+     */
+    @Scheduled(fixedRate = 30000)
+    public void fixedRateTask() {
+        log.info("Hello server!");
+    }
+
 }
