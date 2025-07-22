@@ -1,8 +1,10 @@
 package com.community_service_hub.user_service.authentication;
 
+import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
 import com.community_service_hub.user_service.dto.Credentials;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserDTOProjection;
+import com.community_service_hub.user_service.exception.UnAuthorizeException;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +30,14 @@ public class AuthenticationRest {
     private final JWTAccess jwtAccess;
     private final AuthenticationManager authenticationManager;
     private final UserRepo userRepo;
+    private final OTPServiceImpl otpService;
 
     @Autowired
-    public AuthenticationRest(JWTAccess jwtAccess, AuthenticationManager authenticationManager, UserRepo userRepo) {
+    public AuthenticationRest(JWTAccess jwtAccess, AuthenticationManager authenticationManager, UserRepo userRepo, OTPServiceImpl otpService) {
         this.jwtAccess = jwtAccess;
         this.authenticationManager = authenticationManager;
         this.userRepo = userRepo;
+        this.otpService = otpService;
     }
 
     /**
@@ -47,6 +51,15 @@ public class AuthenticationRest {
     public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody Credentials credentials){
         try {
             log.info("In authentication method->>>");
+
+            /**
+             * checking if user verified before attempting to log in
+             */
+            Boolean isUserVerified = otpService.checkOTPStatusDuringLogin(credentials.getEmail());
+            if (Boolean.FALSE.equals(isUserVerified)){
+                log.info("user not verified->>>{}", credentials.getEmail());
+                throw new UnAuthorizeException("user not verified");
+            }
 
             /**
              * building authentication object

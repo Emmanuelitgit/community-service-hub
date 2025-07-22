@@ -23,6 +23,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.Random;
 import java.util.random.RandomGenerator;
 
@@ -181,12 +182,60 @@ public class OTPServiceImpl implements OTPService {
      * @return true if user is verified otherwise return false
      * @auther Emmanuel Yidana
      */
-    public boolean checkOTPStatusDuringLogin(String email){
+    public Boolean checkOTPStatusDuringLogin(String email){
         User user = userRepo.findUserByEmail(email)
                 .orElseThrow(()->new NotFoundException("User record not found"));
 
         OTP otpExist = otpRepo.findByUserId(user.getId());
 
         return otpExist == null;
+    }
+
+
+    /**
+     * @description This method is used to send a password reset link to a user given the required payload.
+     * @param email the email of the user
+     * @auther Emmanuel Yidana
+     * @createdAt 22nd July 2025
+     */
+    public void sendResetPasswordLink(String email){
+        try {
+
+            /**
+             * loading the user data from the db by the user email
+             */
+            Optional<User> user = userRepo.findUserByEmail(email);
+
+            if (user.isEmpty()){
+                log.info("no user email provide with the email provided->>>{}", email);
+                throw new NotFoundException("no user record found with the email provide");
+            }
+
+            /**
+             * setting email items
+             */
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setSubject("Password Reset");
+            helper.setFrom("eyidana001@gmail.com");
+            helper.setTo(email);
+
+            /**
+             * setting variables values to passed to the template
+             */
+            Context context = new Context();
+            context.setVariable("resetLink", "http://localhost:3000");
+            context.setVariable("fullName", user.get().getName());
+
+            String htmlContent = templateEngine.process("OTPTemplate", context);
+            helper.setText(htmlContent, true);
+
+            log.info("Otp sent to:->>>{}", email);
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            log.info("Message->>>{}", e.getMessage());
+            throw new ServerException("error occurred while trying to send password reset link");
+        }
     }
 }

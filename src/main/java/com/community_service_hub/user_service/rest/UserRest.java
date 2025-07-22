@@ -1,5 +1,6 @@
 package com.community_service_hub.user_service.rest;
 
+import com.community_service_hub.user_service.dto.Credentials;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserPayloadDTO;
 import com.community_service_hub.user_service.dto.UserRole;
@@ -66,5 +67,11 @@ public class UserRest {
     @DeleteMapping("/{userId}")
     public ResponseEntity<ResponseDTO> removeUser(@PathVariable UUID userId){
         return userService.removeUser(userId);
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<ResponseDTO> resetPassword(@RequestBody @Valid Credentials credentials){
+        log.info("In reset password controller->>>{}", credentials.getEmail());
+        return userService.resetPassword(credentials);
     }
 }

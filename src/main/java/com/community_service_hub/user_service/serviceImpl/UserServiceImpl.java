@@ -342,6 +342,41 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
+    /**
+     * @description This method is used to reset user password.
+     * @param credentials the payload data containing email and password
+     * @return ResponseEntity
+     * @auther Emmanuel Yidana
+     * @createdAt 22nd July 2025
+     */
+    public ResponseEntity<ResponseDTO> resetPassword(Credentials credentials){
+        try {
+
+            /**
+             * loading user data from the db
+             */
+            Optional<User> user = userRepo.findUserByEmail(credentials.getEmail());
+            if (user.isEmpty()){
+                log.info("no user record found with the email provided->>>{}", credentials.getEmail());
+                throw new NotFoundException("no user record found with the email provided");
+            }
+
+            /**
+             * updating and hashing the password
+             */
+            User existingData = user.get();
+            existingData.setPassword(passwordEncoder.encode(credentials.getPassword()));
+
+            ResponseDTO responseDTO = AppUtils.getResponseDto("link sent", HttpStatus.OK);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.info("Message->>>{}", e.getMessage());
+            throw new ServerException("Internal server error");
+        }
+    }
+
     /**
      *  A chron method that will run every minute
      *  in order to keep the server alive when deployed to render
