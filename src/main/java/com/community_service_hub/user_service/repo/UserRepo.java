@@ -25,10 +25,8 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "WHERE u.id = ?1", nativeQuery = true)
     UserDTOProjection getUsersDetailsByUserId(UUID userId);
 
-    @Query(value = "SELECT u.id AS id, u.first_name, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
+    @Query(value = "SELECT u.id AS id, u.name, u.phone, u.user_role " +
             "FROM user_tb u " +
-            "JOIN user_role_tb ur ON u.id = ur.user_id " +
-            "JOIN role_setup_tb rs ON ur.role_id = rs.id " +
             "WHERE u.email = ?1", nativeQuery = true)
     UserDTOProjection getUsersDetailsByUserEmail(String email);
 
