@@ -17,6 +17,7 @@ public class UserPayloadDTO {
     private String name;
     @NotNull(message = "email cannot be null")
     @Email(message = "invalid email")
+    @NotNull(message = "email cannot be null")
     private String email;
     @NotNull(message = "phone number cannot be null")
     @Size(max = 10, min = 10)

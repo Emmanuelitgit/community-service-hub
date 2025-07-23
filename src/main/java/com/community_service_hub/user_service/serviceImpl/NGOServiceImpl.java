@@ -3,6 +3,7 @@ package com.community_service_hub.user_service.serviceImpl;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.exception.AlreadyExistException;
 import com.community_service_hub.user_service.exception.BadRequestException;
+import com.community_service_hub.user_service.exception.ServerException;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.NGORepo;
@@ -61,7 +62,8 @@ public class NGOServiceImpl implements NGOService {
             Optional<User> user = userRepo.findUserByEmail(ngo.getEmail());
             if (ngoEmailAlreadyExist != null || user.isPresent()){
                 log.info("email already exist->>>{}", ngo.getEmail());
-                throw new AlreadyExistException("email already exist");
+                ResponseDTO  response = AppUtils.getResponseDto("email already exist", HttpStatus.ALREADY_REPORTED);
+                return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
             }
 
             /**
@@ -78,8 +80,7 @@ public class NGOServiceImpl implements NGOService {
 
         }catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
-            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException(e.getMessage());
         }
     }
 

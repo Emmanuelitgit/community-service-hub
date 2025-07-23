@@ -132,8 +132,7 @@ public class UserServiceImpl implements UserService {
 
        } catch (Exception e) {
            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
-           ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-           return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+           throw new ServerException(e.getMessage());
        }
     }
 
@@ -147,13 +146,20 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseDTO> getUsers() {
        try{
            log.info("In get all users method:->>>>>>");
+           /**
+            * loading user details from the db
+            */
            List<UserDTOProjection> users = userRepo.getUsersDetails();
            if (users.isEmpty()){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }
+           /**
+            * returning response if successfully
+            */
            ResponseDTO  response = AppUtils.getResponseDto("users records fetched successfully", HttpStatus.OK, users);
            return new ResponseEntity<>(response, HttpStatus.OK);
+
        } catch (Exception e) {
            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -172,16 +178,23 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseDTO> getUserById(UUID userId) {
        try{
            log.info("In get user by id method:->>>>>>");
+           /**
+            * loading user details from db
+            */
            UserDTOProjection user = userRepo.getUsersDetailsByUserId(userId);
            if (user == null){
                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }
+           /**
+            * returning response if successfully
+            */
            ResponseDTO  response = AppUtils.getResponseDto("user records fetched successfully", HttpStatus.OK, user);
            return new ResponseEntity<>(response, HttpStatus.OK);
+
        } catch (Exception e) {
            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
-           ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+           ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
@@ -223,7 +236,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
-            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -240,6 +253,9 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseDTO> removeUser(UUID userId) {
         try {
             log.info("In remove user method:->>>{}", userId);
+            /**
+             * loading user details from db
+             */
             Optional<User> userOptional = userRepo.findById(userId);
             if (userOptional.isEmpty()){
                 ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
@@ -247,22 +263,67 @@ public class UserServiceImpl implements UserService {
             }
             userRepo.deleteById(userId);
 
-            /**
-             * removing user role after deleting the user
-             */
-            removeUserRole(userId);
-
             log.info("user records removed successfully:->>>{}", userId);
 
+            /**
+             * returning response if successfully
+             */
             ResponseDTO  response = AppUtils.getResponseDto("user record removed successfully", HttpStatus.OK);
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
-            ResponseDTO  response = AppUtils.getResponseDto("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * @description This method is used to reset user password.
+     * @param credentials the payload data containing email and password
+     * @return ResponseEntity
+     * @auther Emmanuel Yidana
+     * @createdAt 22nd July 2025
+     */
+    public ResponseEntity<ResponseDTO> resetPassword(Credentials credentials){
+        try {
+
+            /**
+             * loading user data from the db
+             */
+            Optional<User> user = userRepo.findUserByEmail(credentials.getEmail());
+            NGO ngo = ngoRepo.findByEmail(credentials.getEmail());
+            if (user.isEmpty() && ngo == null){
+                log.info("no user record found with the email provided->>>{}", credentials.getEmail());
+                ResponseDTO response = AppUtils.getResponseDto("no user record found with the email provided", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * updating and hashing the password if it is user
+             */
+            if (user.isPresent()){
+                User existingUser = user.get();
+                existingUser.setPassword(passwordEncoder.encode(credentials.getPassword()));
+                userRepo.save(existingUser);
+            }
+
+            /**
+             * updating and hashing the password if it is NGO
+             */
+            if (ngo != null){
+                ngo.setPassword(passwordEncoder.encode(credentials.getPassword()));
+                ngoRepo.save(ngo);
+            }
+
+            ResponseDTO responseDTO = AppUtils.getResponseDto("password reset was successfully", HttpStatus.OK);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.info("Message->>>{}", e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
+    }
 
     /**
      * @description A helper method used to save user role
@@ -338,44 +399,10 @@ public class UserServiceImpl implements UserService {
 
         }catch (Exception e) {
             log.info("Message->>>{}", e.getMessage());
-            throw new ServerException("Internal server error");
+            throw new ServerException(e.getMessage());
         }
     }
 
-
-    /**
-     * @description This method is used to reset user password.
-     * @param credentials the payload data containing email and password
-     * @return ResponseEntity
-     * @auther Emmanuel Yidana
-     * @createdAt 22nd July 2025
-     */
-    public ResponseEntity<ResponseDTO> resetPassword(Credentials credentials){
-        try {
-
-            /**
-             * loading user data from the db
-             */
-            Optional<User> user = userRepo.findUserByEmail(credentials.getEmail());
-            if (user.isEmpty()){
-                log.info("no user record found with the email provided->>>{}", credentials.getEmail());
-                throw new NotFoundException("no user record found with the email provided");
-            }
-
-            /**
-             * updating and hashing the password
-             */
-            User existingData = user.get();
-            existingData.setPassword(passwordEncoder.encode(credentials.getPassword()));
-
-            ResponseDTO responseDTO = AppUtils.getResponseDto("link sent", HttpStatus.OK);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-        }catch (Exception e) {
-            log.info("Message->>>{}", e.getMessage());
-            throw new ServerException("Internal server error");
-        }
-    }
 
     /**
      *  A chron method that will run every minute

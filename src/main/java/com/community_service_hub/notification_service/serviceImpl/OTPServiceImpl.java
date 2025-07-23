@@ -125,45 +125,49 @@ public class OTPServiceImpl implements OTPService {
      */
     @Override
     public ResponseEntity<ResponseDTO> verifyOtp(OTPPayload otpPayload) {
-        /**
-         * checking if user exist
-         */
-        User user = userRepo.findUserByEmail(otpPayload.getEmail())
-                .orElseThrow(()-> new NotFoundException("user record not found!"));
+       try {
+           /**
+            * checking if user exist
+            */
+           User user = userRepo.findUserByEmail(otpPayload.getEmail())
+                   .orElseThrow(()-> new NotFoundException("user record not found!"));
 
-        /**
-         * check if otp exist
-         */
-        OTP otpExist = otpRepo.findByUserId(user.getId());
-        if (otpExist == null){
-            ResponseDTO response = AppUtils.getResponseDto("OTP record not found", HttpStatus.NOT_FOUND);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+           /**
+            * check if otp exist
+            */
+           OTP otpExist = otpRepo.findByUserId(user.getId());
+           if (otpExist == null){
+               ResponseDTO response = AppUtils.getResponseDto("OTP record not found", HttpStatus.NOT_FOUND);
+               return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
 
-        /**
-         * check if the otp does not expire
-         */
-        if (!ZonedDateTime.now().isBefore(otpExist.getExpireAt())){
-            ResponseDTO response = AppUtils.getResponseDto("OTP has expired", HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+           /**
+            * check if the otp does not expire
+            */
+           if (!ZonedDateTime.now().isBefore(otpExist.getExpireAt())){
+               ResponseDTO response = AppUtils.getResponseDto("OTP has expired", HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
 
-        /**
-         * check if otp entered by user match the one in the db
-         */
-        if (otpPayload.getOtpCode() != otpExist.getOtpCode()){
-            ResponseDTO response = AppUtils.getResponseDto("OTP do not match", HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+           /**
+            * check if otp entered by user match the one in the db
+            */
+           if (otpPayload.getOtpCode() != otpExist.getOtpCode()){
+               ResponseDTO response = AppUtils.getResponseDto("OTP do not match", HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           }
 
-        /**
-         * remove otp after verification
-         */
-        otpExist.setStatus(true);
-        otpRepo.deleteById(otpExist.getId());
+           /**
+            * remove otp after verification
+            */
+           otpExist.setStatus(true);
+           otpRepo.deleteById(otpExist.getId());
 
-        ResponseDTO response = AppUtils.getResponseDto("OTP verified", HttpStatus.OK);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+           ResponseDTO response = AppUtils.getResponseDto("OTP verified", HttpStatus.OK);
+           return new ResponseEntity<>(response, HttpStatus.OK);
+       } catch (Exception e) {
+           throw new ServerException(e.getMessage());
+       }
     }
 
     /**
@@ -224,10 +228,10 @@ public class OTPServiceImpl implements OTPService {
              * setting variables values to passed to the template
              */
             Context context = new Context();
-            context.setVariable("resetLink", "http://localhost:3000");
+            context.setVariable("resetLink", "http://localhost:3000/reset-password");
             context.setVariable("fullName", user.get().getName());
 
-            String htmlContent = templateEngine.process("OTPTemplate", context);
+            String htmlContent = templateEngine.process("PasswordResetTemplate", context);
             helper.setText(htmlContent, true);
 
             log.info("Otp sent to:->>>{}", email);
