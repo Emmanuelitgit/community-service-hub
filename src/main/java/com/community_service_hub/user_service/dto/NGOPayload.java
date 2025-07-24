@@ -27,4 +27,5 @@ public class NGOPayload {
     private Double latitude;
     private Double longitude;
     private String description;
+    private String role;
 }

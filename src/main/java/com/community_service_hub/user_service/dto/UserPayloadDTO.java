@@ -27,7 +27,7 @@ public class UserPayloadDTO {
 //    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).*$",
 //            message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character")
     private String password;
-    @NotNull(message = "username cannot be null")
+    @NotNull(message = "role cannot be null")
     private String role;
     @NotNull(message = "latitude cannot be null")
     private Double latitude;

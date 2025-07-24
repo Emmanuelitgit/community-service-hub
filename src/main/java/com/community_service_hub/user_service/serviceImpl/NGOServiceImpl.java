@@ -4,6 +4,7 @@ import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
 import com.community_service_hub.user_service.dto.NGODTO;
 import com.community_service_hub.user_service.dto.ResponseDTO;
+import com.community_service_hub.user_service.dto.UserRole;
 import com.community_service_hub.user_service.exception.AlreadyExistException;
 import com.community_service_hub.user_service.exception.BadRequestException;
 import com.community_service_hub.user_service.exception.NotFoundException;
@@ -17,6 +18,7 @@ import com.community_service_hub.user_service.util.AppUtils;
 import com.community_service_hub.user_service.util.ImageUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.usertype.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,6 +83,7 @@ public class NGOServiceImpl implements NGOService {
              * saving record
              */
             ngo.setPassword(passwordEncoder.encode(ngo.getPassword()));
+            ngo.setRole(UserRole.NGO.toString());
             NGO ngoResponse = ngoRepo.save(ngo);
 
             /**
@@ -105,9 +108,60 @@ public class NGOServiceImpl implements NGOService {
         }
     }
 
+
+    /**
+     * @description This method is used to update an existing NGO records
+     * @param ngo the payload data of the NGO to be updated
+     * @param ngoId the id of the NGO to be updated
+     * @return ResponseEntity containing the updated NGO record and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 21st july 2025
+     */
     @Override
     public ResponseEntity<ResponseDTO> updateNGO(NGO ngo, UUID ngoId) {
-        return null;
+        try{
+            Optional<NGO> ngoOptional = ngoRepo.findById(ngoId);
+            if (ngoOptional.isEmpty()){
+                log.info("NGO record not found->>>{}", ngo.getId());
+                ResponseDTO  response = AppUtils.getResponseDto("NGO record not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * building the updated data to be saved
+             */
+            NGO existingData = ngoOptional.get();
+            existingData.setRole(ngo.getRole()!=null?ngo.getRole(): existingData.getRole());
+            existingData.setOrganizationName(ngo.getOrganizationName() != null ? ngo.getOrganizationName() : existingData.getOrganizationName());
+            existingData.setLogo(ngo.getLogo() != null ? ngo.getLogo() : existingData.getLogo());
+            existingData.setState(ngo.getState() != null ? ngo.getState() : existingData.getState());
+            existingData.setCity(ngo.getCity() != null ? ngo.getCity() : existingData.getCity());
+            existingData.setWebsite(ngo.getWebsite() != null ? ngo.getWebsite() : existingData.getWebsite());
+            existingData.setSocialLinks(ngo.getSocialLinks() != null ? ngo.getSocialLinks() : existingData.getSocialLinks());
+            existingData.setCertificate(ngo.getCertificate() != null ? ngo.getCertificate() : existingData.getCertificate());
+            existingData.setEmail(ngo.getEmail() != null ? ngo.getEmail() : existingData.getEmail());
+            existingData.setPassword(ngo.getPassword() != null ? ngo.getPassword() : existingData.getPassword());
+            existingData.setAddress(ngo.getAddress() != null ? ngo.getAddress() : existingData.getAddress());
+            existingData.setLatitude(ngo.getLatitude() != null ? ngo.getLatitude() : existingData.getLatitude());
+            existingData.setLongitude(ngo.getLongitude() != null ? ngo.getLongitude() : existingData.getLongitude());
+            existingData.setDescription(ngo.getDescription() != null ? ngo.getDescription() : existingData.getDescription());
+            existingData.setRole(ngo.getRole() != null ? ngo.getRole() : existingData.getRole());
+
+            /**
+             * saving updated records
+             */
+            NGO ngoResponse = ngoRepo.save(existingData);
+            /**
+             * returning response if everything is success
+             */
+            NGODTO data = NGODTO.toNGODTO(ngoResponse);
+            ResponseDTO responseDTO = AppUtils.getResponseDto("NGO added successfully", HttpStatus.CREATED, data);
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
     }
 
 
