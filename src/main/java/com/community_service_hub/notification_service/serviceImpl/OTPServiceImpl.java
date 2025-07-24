@@ -8,7 +8,9 @@ import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.exception.BadRequestException;
 import com.community_service_hub.user_service.exception.NotFoundException;
 import com.community_service_hub.user_service.exception.ServerException;
+import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.util.AppUtils;
 import jakarta.mail.internet.MimeMessage;
@@ -35,13 +37,15 @@ public class OTPServiceImpl implements OTPService {
     private final TemplateEngine templateEngine;
     private final UserRepo userRepo;
     private final OTPRepo otpRepo;
+    private final NGORepo ngoRepo;
 
     @Autowired
-    public OTPServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepo userRepo, OTPRepo otpRepo) {
+    public OTPServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepo userRepo, OTPRepo otpRepo, NGORepo ngoRepo) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
         this.userRepo = userRepo;
         this.otpRepo = otpRepo;
+        this.ngoRepo = ngoRepo;
     }
 
     /**
@@ -55,13 +59,17 @@ public class OTPServiceImpl implements OTPService {
     public void sendOtp(OTPPayload otpPayload) {
         try {
             log.info("In send otp method:->>>>>>");
-            User user = userRepo.findUserByEmail(otpPayload.getEmail())
-                    .orElseThrow(()-> new NotFoundException("user record not found to send email"));
+            Optional<User> user = userRepo.findUserByEmail(otpPayload.getEmail());
+            NGO ngo = ngoRepo.findByEmail(otpPayload.getEmail());
+
+            if (user.isEmpty() && ngo==null){
+                throw new NotFoundException("user record not found to send email");
+            }
 
             /**
              * check if user have a existing otp. delete it if exist before sending a new one.
              */
-            OTP otpExist = otpRepo.findByUserId(user.getId());
+            OTP otpExist = otpRepo.findByUserId(user.isPresent()?user.get().getId():ngo.getId());
             if (otpExist != null){
                otpRepo.deleteById(otpExist.getId());
             }
@@ -81,7 +89,7 @@ public class OTPServiceImpl implements OTPService {
             Context context = new Context();
             otpPayload.setOtpCode(generateOTP());
             context.setVariable("otp", otpPayload.getOtpCode());
-            context.setVariable("fullName", user.getName());
+            context.setVariable("fullName", user.isPresent()?user.get().getName():ngo.getOrganizationName());
 
             String htmlContent = templateEngine.process("OTPTemplate", context);
             helper.setText(htmlContent, true);
@@ -106,13 +114,18 @@ public class OTPServiceImpl implements OTPService {
      * @return
      */
     public OTP saveOTP(OTPPayload otpPayload){
-        User user = userRepo.findUserByEmail(otpPayload.getEmail())
-                .orElseThrow(()-> new NotFoundException("user record not found to send email"));
+        Optional<User> user = userRepo.findUserByEmail(otpPayload.getEmail());
+        NGO ngo = ngoRepo.findByEmail(otpPayload.getEmail());
+
+        if (user.isEmpty() && ngo==null){
+            throw new NotFoundException("user record not found to send email");
+        }
+
         OTP otp = new OTP();
         otp.setOtpCode(otpPayload.getOtpCode());
         otp.setStatus(false);
         otp.setExpireAt(ZonedDateTime.now().plusMinutes(2));
-        otp.setUserId(user.getId());
+        otp.setUserId(user.isPresent()?user.get().getId():ngo.getId());
         return otpRepo.save(otp);
     }
 
@@ -129,13 +142,17 @@ public class OTPServiceImpl implements OTPService {
            /**
             * checking if user exist
             */
-           User user = userRepo.findUserByEmail(otpPayload.getEmail())
-                   .orElseThrow(()-> new NotFoundException("user record not found!"));
+           Optional<User> user = userRepo.findUserByEmail(otpPayload.getEmail());
+           NGO ngo = ngoRepo.findByEmail(otpPayload.getEmail());
+
+           if (user.isEmpty() && ngo==null){
+               throw new NotFoundException("user record not found to send email");
+           }
 
            /**
             * check if otp exist
             */
-           OTP otpExist = otpRepo.findByUserId(user.getId());
+           OTP otpExist = otpRepo.findByUserId(user.isPresent()?user.get().getId():ngo.getId());
            if (otpExist == null){
                ResponseDTO response = AppUtils.getResponseDto("OTP record not found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -177,7 +194,7 @@ public class OTPServiceImpl implements OTPService {
      */
     public Integer generateOTP(){
         RandomGenerator generator = new Random();
-        return generator.nextInt(2001, 9000);
+        return generator.nextInt(200001, 900000);
     }
 
     /**

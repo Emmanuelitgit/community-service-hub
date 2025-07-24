@@ -22,7 +22,6 @@ public class DTOMapper {
                 .build();
     }
 
-
     /**
      * @description his method takes userDTO object and transform it to user entity
      * @param user

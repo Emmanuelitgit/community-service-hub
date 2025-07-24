@@ -35,5 +35,4 @@ public class UserPayloadDTO {
     private Double longitude;
     @NotNull(message = "address cannot be null")
     private String address;
-    private String description;
 }

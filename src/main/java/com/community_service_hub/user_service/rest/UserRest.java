@@ -30,22 +30,8 @@ public class UserRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> createUser(@RequestBody @Valid UserPayloadDTO user){
-        if (user.getRole().equalsIgnoreCase(UserRole.VOLUNTEER.toString())){
-            return userService.createUser(user);
-        }
-
-        NGO ngo = NGO
-                .builder()
-                .name(user.getName())
-                .address(user.getAddress())
-                .password(user.getPassword())
-                .email(user.getEmail())
-                .latitude(user.getLatitude())
-                .longitude(user.getLongitude())
-                .description(user.getDescription())
-                .build();
-        return ngoService.saveNGO(ngo);
+    public ResponseEntity<ResponseDTO> createUser(@ModelAttribute @Valid UserPayloadDTO user){
+        return userService.createUser(user);
     }
 
     @GetMapping
