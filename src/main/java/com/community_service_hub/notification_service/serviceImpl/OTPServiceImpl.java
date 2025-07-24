@@ -228,7 +228,7 @@ public class OTPServiceImpl implements OTPService {
              * setting variables values to passed to the template
              */
             Context context = new Context();
-            context.setVariable("resetLink", "http://localhost:3000/reset-password");
+            context.setVariable("resetLink", "http://localhost:3000/reset-password?email="+email);
             context.setVariable("fullName", user.get().getName());
 
             String htmlContent = templateEngine.process("PasswordResetTemplate", context);
