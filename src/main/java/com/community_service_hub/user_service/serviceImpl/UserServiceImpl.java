@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> createUser(UserPayloadDTO userPayloadDTO) {
        try {
-           log.info("In create user method:->>>>>>");
+           log.info("In create user method:->>>>>>{}", userPayloadDTO);
 
            /**
             * check if payload is null
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
            /**
             * hashing user password
             */
-           userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
+//           userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
            User user = dtoMapper.toUserEntity(userPayloadDTO);
 
            /**
