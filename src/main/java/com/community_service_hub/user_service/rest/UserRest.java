@@ -30,7 +30,7 @@ public class UserRest {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> createUser(@ModelAttribute @Valid UserPayloadDTO user){
+    public ResponseEntity<ResponseDTO> createUser(@Valid UserPayloadDTO user){
         return userService.createUser(user);
     }
 

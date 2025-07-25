@@ -35,14 +35,13 @@ public class UserServiceImpl implements UserService {
     private final RoleSetupRepo roleSetupRepo;
     private final RoleSetupServiceImpl roleSetupServiceImpl;
     private final UserRoleRepo userRoleRepo;
-    private final UserLocationRepo userLocationRepo;
     private final RestTemplate restTemplate;
     private final AppProperties appProperties;
     private final OTPServiceImpl otpService;
     private final NGORepo ngoRepo;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, UserLocationRepo userLocationRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
@@ -50,7 +49,6 @@ public class UserServiceImpl implements UserService {
         this.roleSetupRepo = roleSetupRepo;
         this.roleSetupServiceImpl = roleSetupServiceImpl;
         this.userRoleRepo = userRoleRepo;
-        this.userLocationRepo = userLocationRepo;
         this.restTemplate = restTemplate;
         this.appProperties = appProperties;
         this.otpService = otpService;
@@ -91,26 +89,14 @@ public class UserServiceImpl implements UserService {
            /**
             * hashing user password
             */
-//           userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
+           userPayloadDTO.setPassword(passwordEncoder.encode(userPayloadDTO.getPassword()));
            User user = dtoMapper.toUserEntity(userPayloadDTO);
 
            /**
             * saving user record
             */
-//           userPayloadDTO.setRole(userPayloadDTO.getRole().toUpperCase());
+           userPayloadDTO.setRole(userPayloadDTO.getRole().toUpperCase());
            User userResponse = userRepo.save(user);
-
-           /**
-            * saving user location
-            */
-           UserLocation location = UserLocation
-                   .builder()
-                   .userId(userResponse.getId())
-                   .latitude(userPayloadDTO.getLatitude())
-                   .longitude(userPayloadDTO.getLongitude())
-                   .address(userPayloadDTO.getAddress())
-                   .build();
-           saveUserLocation(location);
 
            /**
             * sending an otp email notification to user
@@ -376,30 +362,6 @@ public class UserServiceImpl implements UserService {
 
         }catch (Exception e) {
             throw new ServerException("Internal server error");
-        }
-    }
-
-    /**
-     * @description A helper method used to save user location
-     * @param userLocation the payload data of the user location to be added
-     * @auther Emmanuel Yidana
-     * @createdAt 21st july 2025
-     */
-    private void saveUserLocation(UserLocation userLocation){
-        try {
-            log.info("About to save user location->>>{}", userLocation.getUserId());
-
-            if (userLocation == null){
-                log.info("user location payload cannot be null->>>");
-                throw new BadRequestException("user location payload cannot be null");
-            }
-
-            UserLocation location = userLocationRepo.save(userLocation);
-            log.info("user location saved successfully->>>{}", location);
-
-        }catch (Exception e) {
-            log.info("Message->>>{}", e.getMessage());
-            throw new ServerException(e.getMessage());
         }
     }
 

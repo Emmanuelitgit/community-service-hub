@@ -22,4 +22,7 @@ public class User extends AuditorData {
     private String phone;
     private String password;
     private String userRole;
+    private String address;
+    private Double latitude;
+    private Double longitude;
 }

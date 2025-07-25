@@ -120,6 +120,11 @@ public class NGOServiceImpl implements NGOService {
     @Override
     public ResponseEntity<ResponseDTO> updateNGO(NGO ngo, UUID ngoId) {
         try{
+            log.info("In update NGO records by id method->>>{}->>>ID({})", ngo, ngoId);
+
+            /**
+             * loading NGO record from db by id
+             */
             Optional<NGO> ngoOptional = ngoRepo.findById(ngoId);
             if (ngoOptional.isEmpty()){
                 log.info("NGO record not found->>>{}", ngo.getId());
@@ -180,7 +185,7 @@ public class NGOServiceImpl implements NGOService {
          */
         Optional<NGO> ngo = ngoRepo.findById(ngoId);
         if (ngo.isEmpty()){
-            log.info("ngo record cannot be found with the id->>>{}", ngoId);
+            log.info("NGO record cannot be found with the id->>>{}", ngoId);
             ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
@@ -210,7 +215,7 @@ public class NGOServiceImpl implements NGOService {
             */
            Optional<NGO> ngo = ngoRepo.findById(ngoId);
            if (ngo.isEmpty()){
-               log.info("ngo record cannot be found with the id->>>{}", ngoId);
+               log.info("NGO record cannot be found with the id->>>{}", ngoId);
                ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }
@@ -249,7 +254,7 @@ public class NGOServiceImpl implements NGOService {
             */
            List<NGO> ngos = ngoRepo.findAll();
            if (ngos.isEmpty()){
-               log.info("no ngo record found");
+               log.info("no NGO record found");
                ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
            }

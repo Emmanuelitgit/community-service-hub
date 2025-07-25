@@ -13,26 +13,26 @@ import java.util.UUID;
 @Data
 public class UserPayloadDTO {
     private UUID id;
-//    @NotNull(message = "name cannot be null")
+    @NotNull(message = "name cannot be null")
     private String name;
-//    @NotNull(message = "email cannot be null")
-//    @Email(message = "invalid email")
-//    @NotNull(message = "email cannot be null")
+    @NotNull(message = "email cannot be null")
+    @Email(message = "invalid email")
+    @NotNull(message = "email cannot be null")
     private String email;
-//    @NotNull(message = "phone number cannot be null")
+    @NotNull(message = "phone number cannot be null")
     @Size(max = 10, min = 10)
     private String phone;
-//    @NotNull(message = "password cannot be null")
-//    @Size(min = 4, max = 20, message = "Password must be between 8 and 20 characters")
+    @NotNull(message = "password cannot be null")
+    @Size(min = 4, max = 20, message = "Password must be between 8 and 20 characters")
 //    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).*$",
 //            message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character")
     private String password;
-//    @NotNull(message = "role cannot be null")
+    @NotNull(message = "role cannot be null")
     private String role;
-//    @NotNull(message = "latitude cannot be null")
+    @NotNull(message = "latitude cannot be null")
     private Double latitude;
-//    @NotNull(message = "longitude cannot be null")
+    @NotNull(message = "longitude cannot be null")
     private Double longitude;
-//    @NotNull(message = "address cannot be null")
+    @NotNull(message = "address cannot be null")
     private String address;
 }
