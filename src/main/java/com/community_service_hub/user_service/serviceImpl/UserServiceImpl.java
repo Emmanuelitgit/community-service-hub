@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
            /**
             * saving user record
             */
-           userPayloadDTO.setRole(userPayloadDTO.getRole().toUpperCase());
+//           userPayloadDTO.setRole(userPayloadDTO.getRole().toUpperCase());
            User userResponse = userRepo.save(user);
 
            /**
