@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 public class NGOPayload {
-    @NotNull(message = "organization name cannot be null")
+//    @NotNull(message = "organization name cannot be null")
     private String organizationName;
     private MultipartFile logo;
     private String state;
@@ -17,11 +17,11 @@ public class NGOPayload {
     private String website;
     private String socialLinks;
     private MultipartFile certificate;
-    @NotNull(message = "email cannot be null")
-    @Email(message = "invalid email")
-    @NotNull(message = "email cannot be null")
+//    @NotNull(message = "email cannot be null")
+//    @Email(message = "invalid email")
+//    @NotNull(message = "email cannot be null")
     private String email;
-    @NotNull(message = "password cannot be null")
+//    @NotNull(message = "password cannot be null")
     private String password;
     private String address;
     private Double latitude;

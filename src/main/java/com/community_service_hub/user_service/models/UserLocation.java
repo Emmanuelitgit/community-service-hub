@@ -19,10 +19,7 @@ public class UserLocation extends AuditorData {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID ID;
     private UUID userId;
-    @NotNull(message = "user address cannot be null")
     private String address;
-    @NotNull(message = "latitude cannot be null")
     private Double latitude;
-    @NotNull(message = "longitude cannot be null")
     private Double longitude;
 }
