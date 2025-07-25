@@ -27,6 +27,14 @@ public class TaskServiceImpl implements TaskService {
         this.taskRepo = taskRepo;
     }
 
+
+    /**
+     * @description This method is used to save a new task to the db
+     * @param task the payload data of the task to be created
+     * @return ResponseEntity containing the saved task record and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27h April 2025
+     */
     @Override
     public ResponseEntity<ResponseDTO> createTask(Task task) {
         try{
