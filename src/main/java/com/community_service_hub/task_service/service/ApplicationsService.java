@@ -13,4 +13,6 @@ public interface ApplicationsService {
     ResponseEntity<ResponseDTO> getApplicationById(UUID applicationId);
     ResponseEntity<ResponseDTO> updateApplication(Applications applications);
     ResponseEntity<ResponseDTO> removeApplication(UUID applicationId);
+    ResponseEntity<ResponseDTO> updateApplicationStatus(String status, UUID applicationId);
+    ResponseEntity<ResponseDTO> fetchUserApplications();
 }

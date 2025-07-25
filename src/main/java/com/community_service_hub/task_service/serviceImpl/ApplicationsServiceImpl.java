@@ -1,7 +1,11 @@
 package com.community_service_hub.task_service.serviceImpl;
 
+import com.community_service_hub.task_service.dto.ApplicationStatus;
+import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.Applications;
+import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.ApplicationsRepo;
+import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.task_service.service.ApplicationsService;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.models.NGO;
@@ -26,12 +30,14 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     private final ApplicationsRepo applicationsRepo;
     private final NGORepo ngoRepo;
     private final UserRepo userRepo;
+    private final TaskRepo taskRepo;
 
     @Autowired
-    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo) {
+    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo) {
         this.applicationsRepo = applicationsRepo;
         this.ngoRepo = ngoRepo;
         this.userRepo = userRepo;
+        this.taskRepo = taskRepo;
     }
 
 
@@ -94,8 +100,31 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             /**
+             * checking if task exist by id
+             */
+            Optional<Task> taskOptional = taskRepo.findById(applications.getTaskId());
+            if (taskOptional.isEmpty()){
+                log.info("task record cannot be found->>>{}", applications.getTaskId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * updating task records
+             */
+            Task task = taskOptional.get();
+            if (task.getNumberOfPeopleNeeded()==1){
+                task.setNumberOfPeopleNeeded(0);
+                task.setStatus(TaskStatus.CLOSED.toString());
+            }else {
+                task.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded()-1);
+            }
+            taskRepo.save(task);
+
+            /**
              * saving application record
              */
+            applications.setStatus(ApplicationStatus.PENDING.toString());
             Applications applicationsResponse  = applicationsRepo.save(applications);
 
             /**
@@ -232,6 +261,87 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * returning response if success
              */
             ResponseDTO responseDTO = AppUtils.getResponseDto("application record deleted", HttpStatus.OK);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * @description This method is used to update application status to either(APPROVED or REJECTED).
+     * @param applicationId the id of the application to be updated
+     * @return ResponseEntity containing the updated application record and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 25th July 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> updateApplicationStatus(String status, UUID applicationId){
+        try{
+            log.info("In update application status method->>>{}", applicationId);
+
+            /**
+             * checking if application exist by id
+             */
+            Optional<Applications> applicationsOptional = applicationsRepo.findById(applicationId);
+            if (applicationsOptional.isEmpty()){
+                log.info("application record cannot be found->>>{}", applicationId);
+                ResponseDTO responseDTO = AppUtils.getResponseDto("application record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * updating status
+             */
+            Applications existingData = applicationsOptional.get();
+            existingData.setStatus(status);
+            Applications applicationResponse = applicationsRepo.save(existingData);
+
+
+            /**
+             * returning response if success
+             */
+            log.info("Application status updated to->>>{}", status);
+            ResponseDTO responseDTO = AppUtils.getResponseDto("application status updated", HttpStatus.OK, applicationResponse);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * @description This method is used to fetch applications for current logged in user
+     * @return ResponseEntity containing list of applications and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 25th July 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> fetchUserApplications() {
+        try {
+            log.info("In fetch user applications status method->>>{}", AppUtils.getAuthenticatedUserId());
+
+            /**
+             * checking if application exist by id
+             */
+            List<Applications> applicationsForUser = applicationsRepo.fetchUserApplications(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            List<Applications> applicationsForNGO = applicationsRepo.fetchNGOApplications(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            if (applicationsForUser.isEmpty() && applicationsForNGO.isEmpty()){
+                log.info("application record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                ResponseDTO responseDTO = AppUtils.getResponseDto("application record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * returning response if success
+             */
+            ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, !applicationsForUser.isEmpty()?applicationsForUser:applicationsForNGO);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }catch (Exception e) {

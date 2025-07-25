@@ -28,4 +28,7 @@ public class Applications extends AuditorData {
     private String phone;
     @NotNull(message = "email cannot be null")
     private String email;
+    private String status;
+    @NotNull(message = "task id cannot be null")
+    private UUID taskId;
 }

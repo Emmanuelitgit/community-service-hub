@@ -1,5 +1,6 @@
 package com.community_service_hub.task_service.serviceImpl;
 
+import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.task_service.service.TaskService;
@@ -57,6 +58,7 @@ public class TaskServiceImpl implements TaskService {
             /**
              * saving task record
              */
+            task.setStatus(TaskStatus.OPEN.toString());
             Task taskResponse = taskRepo.save(task);
 
             /**

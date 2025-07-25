@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/applications")
+@RequestMapping("/api/v1")
 public class ApplicationsRest {
 
     private final ApplicationsServiceImpl applicationsService;
@@ -21,23 +21,34 @@ public class ApplicationsRest {
         this.applicationsService = applicationsService;
     }
 
-    @GetMapping
+    @GetMapping("/applications")
     public ResponseEntity<ResponseDTO> getApplications(){
         return applicationsService.getApplications();
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/applications",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> createApplication(Applications applications){
         return applicationsService.createApplication(applications);
     }
 
-    @GetMapping("/{applicationId}")
+    @GetMapping("/applications/{applicationId}")
     public ResponseEntity<ResponseDTO> getApplicationById(@PathVariable UUID applicationId){
         return applicationsService.getApplicationById(applicationId);
     }
 
-    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/applications",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> updateApplication(Applications applications){
         return applicationsService.updateApplication(applications);
+    }
+
+    @PutMapping("/applications/status")
+    public ResponseEntity<ResponseDTO> updateStatus(@RequestParam(name = "status") String status,
+                                                    @RequestParam(name = "applicationId") UUID applicationId){
+        return applicationsService.updateApplicationStatus(status, applicationId);
+    }
+
+    @GetMapping("/user/applications")
+    public ResponseEntity<ResponseDTO> fetchUserApplications(){
+        return applicationsService.fetchUserApplications();
     }
 }

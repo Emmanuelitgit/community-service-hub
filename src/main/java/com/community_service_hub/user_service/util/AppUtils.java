@@ -23,10 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
@@ -101,14 +98,14 @@ public class AppUtils {
 
     /**
      * This method is used to set authenticated user authorities.
-     * @param username
+     * @param userId
      * @return
      * @auther Emmanuel Yidana
      * @createdAt 16h April 2025
      */
-    public void setAuthorities(String username, Object userId) {
-        String role = getUserRole(username);
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
+    public void setAuthorities(Object userId) {
+        Optional<User> user = userRepo.findById(UUID.fromString(userId.toString()));
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.isPresent()?user.get().getUserRole():"");
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(authority);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
