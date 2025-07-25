@@ -188,21 +188,20 @@ public class UserServiceImpl implements UserService {
     /**
      * @description This method is used to update user records.
      * @param userPayload the payload data of the user to be updated
-     * @param userId the id of the user to be updated
-     * @return ResponseEntity containing the saved user role and status information
+     * @return ResponseEntity containing the saved user and status information
      * @auther Emmanuel Yidana
      * @createdAt 27h April 2025
      */
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload, UUID userId) {
+    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload) {
         try{
             log.info("In update user method:->>>>>>{}", userPayload);
 
             /**
              * checking if user record exist by id
              */
-            User existingData = userRepo.findById(userId)
+            User existingData = userRepo.findById(userPayload.getId())
                     .orElseThrow(()-> new NotFoundException("user record not found"));
 
             /**

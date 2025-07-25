@@ -50,10 +50,10 @@ public class AuthenticationRest {
     @PostMapping
     public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody Credentials credentials){
         try {
-            log.info("In authentication method->>>");
+            log.info("In authentication method->>>{}", credentials.getEmail());
 
             /**
-             * checking if user verified before attempting to log in
+             * checking if user is verified before attempting to log in
              */
             Boolean isUserVerified = otpService.checkOTPStatusDuringLogin(credentials.getEmail());
             if (Boolean.FALSE.equals(isUserVerified)){
@@ -75,7 +75,7 @@ public class AuthenticationRest {
              * authenticating user credentials against the database records
              */
             if (!authentication.isAuthenticated()){
-                log.info("Authentication failed->>>");
+                log.info("Authentication failed->>>{}", credentials.getEmail());
                 ResponseDTO  response = AppUtils.getResponseDto("invalid credentials", HttpStatus.UNAUTHORIZED);
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
@@ -94,6 +94,7 @@ public class AuthenticationRest {
             tokenData.put("role", user.getUserRole());
             tokenData.put("full name", user.getName());
             tokenData.put("token", token);
+            tokenData.put("userId", user.getId().toString());
 
             /**
              * returning response after successfully authenticating

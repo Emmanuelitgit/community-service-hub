@@ -15,7 +15,6 @@ public class UserPayloadDTO {
     private UUID id;
     @NotNull(message = "name cannot be null")
     private String name;
-    @NotNull(message = "email cannot be null")
     @Email(message = "invalid email")
     @NotNull(message = "email cannot be null")
     private String email;

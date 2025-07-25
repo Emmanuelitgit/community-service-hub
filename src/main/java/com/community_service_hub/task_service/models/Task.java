@@ -1,9 +1,7 @@
 package com.community_service_hub.task_service.models;
 
 import com.community_service_hub.config.AuditorData;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -18,6 +16,7 @@ import java.util.UUID;
 @Table(name = "task_tb")
 public class Task extends AuditorData {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @NotNull(message = "posted by cannot be null")
     private UUID postedBy;

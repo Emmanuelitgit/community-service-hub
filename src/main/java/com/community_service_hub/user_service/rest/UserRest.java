@@ -46,9 +46,9 @@ public class UserRest {
         return userService.getUserById(userId);
     }
 
-    @PutMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDTO> updateUser(@RequestBody @Valid UserPayloadDTO user, @PathVariable UUID userId){
-        return userService.updateUser(user, userId);
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDTO> updateUser(@RequestBody @Valid UserPayloadDTO user){
+        return userService.updateUser(user);
     }
 
     @DeleteMapping("/{userId}")
