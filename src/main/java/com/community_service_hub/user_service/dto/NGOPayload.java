@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -16,7 +17,7 @@ public class NGOPayload {
     private String country;
     private String city;
     private String website;
-    private String socialLinks;
+    private List<String> socialLinks;
     private MultipartFile certificate;
     @Email(message = "invalid email")
     @NotNull(message = "email cannot be null")

@@ -38,6 +38,8 @@ public class NGORest {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> saveNGO(@Valid NGOPayload payload) throws IOException {
 
+        String socialLinks = payload.getSocialLinks()!=null?String.join(",", payload.getSocialLinks()):"";
+
         NGO ngo = NGO
                 .builder()
                 .organizationName(payload.getOrganizationName())
@@ -53,6 +55,7 @@ public class NGORest {
                 .longitude(payload.getLongitude()!=null? payload.getLongitude() : null)
                 .website(payload.getWebsite()!=null? payload.getWebsite() : null)
                 .country(payload.getCountry()!=null? payload.getCountry() : null)
+                .socialLinks(socialLinks)
                 .build();
 
         return ngoService.saveNGO(ngo);
