@@ -37,7 +37,7 @@ public class NGODTO {
                 .builder()
                 .organizationName(ngo.getOrganizationName())
                 .address(ngo.getAddress())
-                .logo("http://localhost:8080/api/vi/ngo/logo/"+ngo.getId())
+                .logo("http://localhost:8080/api/v1/ngo/logo/"+ngo.getId())
                 .certificate("http://localhost:8080/api/v1/ngo/certificate/"+ngo.getId())
                 .city(ngo.getCity())
                 .build();
