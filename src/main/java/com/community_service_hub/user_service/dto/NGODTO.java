@@ -35,11 +35,19 @@ public class NGODTO {
     public static NGODTO toNGODTO(NGO ngo){
         return NGODTO
                 .builder()
+                .id(ngo.getId())
                 .organizationName(ngo.getOrganizationName())
                 .address(ngo.getAddress())
                 .logo("http://localhost:8080/api/v1/ngo/logo/"+ngo.getId())
                 .certificate("http://localhost:8080/api/v1/ngo/certificate/"+ngo.getId())
                 .city(ngo.getCity())
+                .state(ngo.getState())
+                .website(ngo.getWebsite())
+                .socialLinks(ngo.getSocialLinks())
+                .latitude(ngo.getLatitude())
+                .longitude(ngo.getLongitude())
+                .description(ngo.getDescription())
+                .email(ngo.getEmail())
                 .build();
     }
 
