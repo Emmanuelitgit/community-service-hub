@@ -96,7 +96,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     /**
      * @description This method is used to get all subtasks from the db
-     * @return ResponseEntity containing a list of subtasks nd status information
+     * @return ResponseEntity containing a list of subtasks and status information
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
@@ -303,7 +303,42 @@ public class SubTaskServiceImpl implements SubTaskService {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             throw new ServerException(e.getMessage());
         }
+
     }
 
+
+    /**
+     * @description This method is used to get all subtasks for assignee
+     * @return ResponseEntity containing a list of subtasks and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 26th July 2025
+     */
+    public ResponseEntity<ResponseDTO> fetchSubTasksForAssignee(){
+        try{
+
+            UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+
+            log.info("In fetch subtasks for assignee method->>>{}", userId);
+            /**
+             * loading subtasks from db
+             */
+            List<SubTask> subTasks = subTaskRepo.fetchSubTasksForAssignee(userId);
+            if (subTasks.isEmpty()){
+                log.info("no subtask record found for user->>>{}", userId);
+                ResponseDTO  response = AppUtils.getResponseDto("no subtask record found-", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * returning response if successfully
+             */
+            ResponseDTO  response = AppUtils.getResponseDto("subtasks list", HttpStatus.OK, subTasks);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
+    }
 
 }

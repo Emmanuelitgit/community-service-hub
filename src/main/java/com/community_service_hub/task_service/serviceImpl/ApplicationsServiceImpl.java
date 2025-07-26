@@ -326,7 +326,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
 
 
     /**
-     * @description This method is used to fetch applications for current logged in user
+     * @description This method is used to fetch applications for current logged in (NGO or USER)
      * @return ResponseEntity containing list of applications and status information
      * @auther Emmanuel Yidana
      * @createdAt 25th July 2025

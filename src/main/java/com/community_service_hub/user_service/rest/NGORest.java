@@ -5,6 +5,7 @@ import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
 import com.community_service_hub.user_service.util.ImageUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,13 @@ public class NGORest {
     }
 
 
+    @Operation(summary = "This endpoint is used to fetch all NGOs")
     @GetMapping
     public ResponseEntity<ResponseDTO> findAll(){
         return ngoService.getNGOs();
     }
 
+    @Operation(summary = "This endpoint is used to create new NGO")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDTO> saveNGO(@Valid NGOPayload payload) throws IOException {
 
@@ -54,6 +57,7 @@ public class NGORest {
         return ngoService.saveNGO(ngo);
     }
 
+    @Operation(summary = "This endpoint is used to to get NGO certificate in image form")
     @GetMapping("/certificate/{id}")
     public ResponseEntity<?>  getCertificate(@PathVariable UUID id){
         byte[] image = ngoService.getCertificate(id);
@@ -62,6 +66,7 @@ public class NGORest {
                 .body(image);
     }
 
+    @Operation(summary = "This endpoint is used to get NGO LOGO in image form")
     @GetMapping("/logo/{id}")
     public ResponseEntity<?>  getLogo(@PathVariable UUID id){
         byte[] image = ngoService.getLogo(id);

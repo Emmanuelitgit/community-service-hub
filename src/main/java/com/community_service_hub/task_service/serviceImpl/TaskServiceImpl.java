@@ -231,4 +231,39 @@ public class TaskServiceImpl implements TaskService {
             throw new ServerException(e.getMessage());
         }
     }
+
+
+    /**
+     * @description This method is used to get all tasks for current logged in NGO
+     * @return ResponseEntity containing a list of tasks and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 26th July 2025
+     */
+    public ResponseEntity<ResponseDTO> fetchTasksForNGO(){
+        try {
+            log.info("In fetch tasks for NGO method->>>");
+
+            UUID NGOId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+
+            /**
+             * loading tasks from db
+             */
+            List<Task> tasks = taskRepo.fetchTasksForNGO(NGOId);
+            if (tasks.isEmpty()){
+                log.info("no task record found for NGO->>>{}", NGOId);
+                ResponseDTO  response = AppUtils.getResponseDto("no task record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * returning response if successfully
+             */
+            ResponseDTO  response = AppUtils.getResponseDto("tasks list", HttpStatus.OK, tasks);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
+    }
 }

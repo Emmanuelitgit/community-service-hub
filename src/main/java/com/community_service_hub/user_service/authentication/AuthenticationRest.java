@@ -7,6 +7,7 @@ import com.community_service_hub.user_service.dto.UserDTOProjection;
 import com.community_service_hub.user_service.exception.UnAuthorizeException;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.util.AppUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,7 @@ public class AuthenticationRest {
      * @auther Emmanuel Yidana
      * @createdAt 30th April 2025
      */
+    @Operation(summary = "This endpoint is used to authenticate user credentials or identity")
     @PostMapping
     public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody Credentials credentials){
         try {
