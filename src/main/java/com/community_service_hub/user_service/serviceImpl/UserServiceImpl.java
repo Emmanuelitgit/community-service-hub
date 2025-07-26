@@ -340,7 +340,7 @@ public class UserServiceImpl implements UserService {
             /**
              * loading applicants list from db
              */
-            List<User> users = userRepo.fetchListOfApprovedApplicantsForTask(taskId);
+            List<UserDTO> users = userRepo.fetchListOfApprovedApplicantsForTask(taskId);
             if (users.isEmpty()){
                 log.info("no user record found->>>{}", taskId);
                 ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
