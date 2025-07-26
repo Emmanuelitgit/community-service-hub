@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/vi/ngo")
+@RequestMapping("/api/v1/ngo")
 public class NGORest {
 
     private final NGOServiceImpl ngoService;
