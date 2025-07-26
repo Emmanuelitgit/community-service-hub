@@ -297,7 +297,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * updating status
              */
             Applications existingData = applicationsOptional.get();
-            existingData.setStatus(status);
+            if (status.equalsIgnoreCase(ApplicationStatus.APPROVED.toString())){
+                existingData.setStatus(ApplicationStatus.APPROVED.toString());
+            } else if (status.equalsIgnoreCase(ApplicationStatus.REJECTED.toString())) {
+                existingData.setStatus(ApplicationStatus.REJECTED.toString());
+            }else {
+                log.info("application status provided cannot be found->>>{}", applicationId);
+                ResponseDTO responseDTO = AppUtils.getResponseDto("application status provided cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
             Applications applicationResponse = applicationsRepo.save(existingData);
 
 
@@ -330,8 +339,8 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * checking if application exist by id
              */
-            List<Applications> applicationsForUser = applicationsRepo.fetchUserApplications(UUID.fromString(AppUtils.getAuthenticatedUserId()));
-            List<Applications> applicationsForNGO = applicationsRepo.fetchNGOApplications(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            List<Applications> applicationsForUser = applicationsRepo.fetchApplicationsForUser(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            List<Applications> applicationsForNGO = applicationsRepo.fetchApplicationsForNGO(UUID.fromString(AppUtils.getAuthenticatedUserId()));
             if (applicationsForUser.isEmpty() && applicationsForNGO.isEmpty()){
                 log.info("application record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
                 ResponseDTO responseDTO = AppUtils.getResponseDto("application record cannot be found", HttpStatus.NOT_FOUND);

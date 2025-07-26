@@ -13,11 +13,11 @@ import java.util.UUID;
 public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
 
     @Query(value = "SELECT * FROM applications_tb WHERE applicant_id=:userId", nativeQuery = true)
-    List<Applications> fetchUserApplications(@Param("userId") UUID userId);
+    List<Applications> fetchApplicationsForUser(@Param("userId") UUID userId);
 
     @Query(value = "SELECT ap.* FROM task_tb tk " +
             "JOIN applications_tb ap ON tk.id = ap.task_id " +
             "WHERE tk.posted_by = :NGOId", nativeQuery = true)
-    List<Applications> fetchNGOApplications(@Param("NGOId") UUID NGOId);
+    List<Applications> fetchApplicationsForNGO(@Param("NGOId") UUID NGOId);
 
 }
