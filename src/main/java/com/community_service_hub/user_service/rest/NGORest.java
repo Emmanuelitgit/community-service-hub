@@ -52,7 +52,7 @@ public class NGORest {
                 .latitude(payload.getLatitude()!=null? payload.getLatitude() : null)
                 .longitude(payload.getLongitude()!=null? payload.getLongitude() : null)
                 .website(payload.getWebsite()!=null? payload.getWebsite() : null)
-                .country()
+                .country(payload.getCountry()!=null? payload.getCountry() : null)
                 .build();
 
         return ngoService.saveNGO(ngo);
