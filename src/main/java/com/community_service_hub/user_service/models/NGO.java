@@ -22,6 +22,7 @@ public class NGO extends AuditorData {
     private String organizationName;
     private byte[] logo;
     private String state;
+    private String country;
     private String city;
     private String website;
     private String socialLinks;

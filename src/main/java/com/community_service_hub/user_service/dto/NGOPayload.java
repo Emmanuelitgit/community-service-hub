@@ -13,11 +13,11 @@ public class NGOPayload {
     private String organizationName;
     private MultipartFile logo;
     private String state;
+    private String country;
     private String city;
     private String website;
     private String socialLinks;
     private MultipartFile certificate;
-    @NotNull(message = "email cannot be null")
     @Email(message = "invalid email")
     @NotNull(message = "email cannot be null")
     private String email;

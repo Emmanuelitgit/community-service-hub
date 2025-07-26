@@ -21,6 +21,7 @@ public class NGODTO {
     private String organizationName;
     private String logo;
     private String state;
+    private String country;
     private String city;
     private String website;
     private String socialLinks;
@@ -42,6 +43,7 @@ public class NGODTO {
                 .certificate("http://localhost:8080/api/v1/ngo/certificate/"+ngo.getId())
                 .city(ngo.getCity())
                 .state(ngo.getState())
+                .country(ngo.getCountry())
                 .website(ngo.getWebsite())
                 .socialLinks(ngo.getSocialLinks())
                 .latitude(ngo.getLatitude())

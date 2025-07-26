@@ -151,6 +151,7 @@ public class NGOServiceImpl implements NGOService {
             existingData.setLongitude(ngo.getLongitude() != null ? ngo.getLongitude() : existingData.getLongitude());
             existingData.setDescription(ngo.getDescription() != null ? ngo.getDescription() : existingData.getDescription());
             existingData.setRole(ngo.getRole() != null ? ngo.getRole() : existingData.getRole());
+            existingData.setCountry(ngo.getCountry()!=null?ngo.getCountry(): existingData.getCountry());
 
             /**
              * saving updated records
