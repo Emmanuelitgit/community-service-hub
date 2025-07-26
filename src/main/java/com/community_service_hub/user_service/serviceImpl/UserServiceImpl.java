@@ -4,6 +4,8 @@ package com.community_service_hub.user_service.serviceImpl;
 import com.community_service_hub.config.AppProperties;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
+import com.community_service_hub.task_service.models.Task;
+import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.user_service.dto.*;
 import com.community_service_hub.user_service.exception.BadRequestException;
 import com.community_service_hub.user_service.exception.NotFoundException;
@@ -39,9 +41,10 @@ public class UserServiceImpl implements UserService {
     private final AppProperties appProperties;
     private final OTPServiceImpl otpService;
     private final NGORepo ngoRepo;
+    private final TaskRepo taskRepo;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
@@ -53,6 +56,7 @@ public class UserServiceImpl implements UserService {
         this.appProperties = appProperties;
         this.otpService = otpService;
         this.ngoRepo = ngoRepo;
+        this.taskRepo = taskRepo;
     }
 
     /**
@@ -243,6 +247,7 @@ public class UserServiceImpl implements UserService {
              */
             Optional<User> userOptional = userRepo.findById(userId);
             if (userOptional.isEmpty()){
+                log.info("user record cannot be found->>>{}", userId);
                 ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
@@ -307,6 +312,48 @@ public class UserServiceImpl implements UserService {
         }catch (Exception e) {
             log.info("Message->>>{}", e.getMessage());
             throw new ServerException(e.getMessage());
+        }
+    }
+
+
+    /**
+     * @description This method is used to get a list of approved applicants for a given task.
+     * @param taskId the id of the task
+     * @return ResponseEntity containing a list of approved applicants and status info.
+     * @auther Emmanuel Yidana
+     * @createdAt 26th July 2025
+     */
+    public ResponseEntity<ResponseDTO> fetchListOfApprovedApplicantsForTask(UUID taskId){
+        try {
+            log.info("In fetch approved applicants for task->>>{}", taskId);
+
+            /**
+             * checking if task exist
+             */
+            Optional<Task> task = taskRepo.findById(taskId);
+            if (task.isEmpty()){
+                log.info("task record cannot be found->>>{}", taskId);
+                ResponseDTO  response = AppUtils.getResponseDto("no task record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * loading applicants list from db
+             */
+            List<User> users = userRepo.fetchListOfApprovedApplicantsForTask(taskId);
+            if (users.isEmpty()){
+                log.info("no user record found->>>{}", taskId);
+                ResponseDTO  response = AppUtils.getResponseDto("no user record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            ResponseDTO responseDTO = AppUtils.getResponseDto("applicants list", HttpStatus.OK, users);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

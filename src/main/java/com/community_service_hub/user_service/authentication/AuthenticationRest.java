@@ -5,6 +5,9 @@ import com.community_service_hub.user_service.dto.Credentials;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserDTOProjection;
 import com.community_service_hub.user_service.exception.UnAuthorizeException;
+import com.community_service_hub.user_service.models.NGO;
+import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.util.AppUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -32,13 +37,15 @@ public class AuthenticationRest {
     private final AuthenticationManager authenticationManager;
     private final UserRepo userRepo;
     private final OTPServiceImpl otpService;
+    private final NGORepo ngoRepo;
 
     @Autowired
-    public AuthenticationRest(JWTAccess jwtAccess, AuthenticationManager authenticationManager, UserRepo userRepo, OTPServiceImpl otpService) {
+    public AuthenticationRest(JWTAccess jwtAccess, AuthenticationManager authenticationManager, UserRepo userRepo, OTPServiceImpl otpService, NGORepo ngoRepo) {
         this.jwtAccess = jwtAccess;
         this.authenticationManager = authenticationManager;
         this.userRepo = userRepo;
         this.otpService = otpService;
+        this.ngoRepo = ngoRepo;
     }
 
     /**
@@ -81,22 +88,33 @@ public class AuthenticationRest {
                 ResponseDTO  response = AppUtils.getResponseDto("invalid credentials", HttpStatus.UNAUTHORIZED);
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
-            UserDTOProjection user = userRepo.getUsersDetailsByUserEmail(credentials.getEmail());
+
+            /**
+             * loading user details to build response data
+             */
+            Optional<NGO> ngoOptional = ngoRepo.findNGOByEmail(credentials.getEmail());
+            Optional<User> userOptional = userRepo.findUserByEmail(credentials.getEmail());
+            if (userOptional.isEmpty()&&ngoOptional.isEmpty()){
+                log.info("User record not found->>>{}", credentials.getEmail());
+                ResponseDTO  response = AppUtils.getResponseDto("User record not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
 
             /**
              * generating token
              */
-            String token = jwtAccess.generateToken(credentials.getEmail(), user.getId());
+            UUID userId = userOptional.isPresent()?userOptional.get().getId():ngoOptional.get().getId();
+            String token = jwtAccess.generateToken(credentials.getEmail(), userId);
 
             /**
              * building response details
              */
             Map<String, String> tokenData = new HashMap<>();
-            tokenData.put("email", credentials.getEmail());
-            tokenData.put("role", user.getUserRole());
-            tokenData.put("full name", user.getName());
+            tokenData.put("email", userOptional.isPresent()?userOptional.get().getEmail():ngoOptional.get().getEmail());
+            tokenData.put("role", userOptional.isPresent()?userOptional.get().getUserRole():ngoOptional.get().getRole());
+            tokenData.put("full name", userOptional.isPresent()?userOptional.get().getName():ngoOptional.get().getOrganizationName());
             tokenData.put("token", token);
-            tokenData.put("userId", user.getId().toString());
+            tokenData.put("userId", userId.toString());
 
             /**
              * returning response after successfully authenticating

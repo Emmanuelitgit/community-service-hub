@@ -19,5 +19,4 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
             "JOIN applications_tb ap ON tk.id = ap.task_id " +
             "WHERE tk.posted_by = :NGOId", nativeQuery = true)
     List<Applications> fetchApplicationsForNGO(@Param("NGOId") UUID NGOId);
-
 }

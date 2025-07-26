@@ -25,16 +25,16 @@ public class UserDetailsService implements org.springframework.security.core.use
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<NGO> ngo = ngoRepo.findNGOByEmail(username);
         Optional<User> userOptional = userRepo.findUserByEmail(username);
-        NGO ngo = ngoRepo.findByEmail(username);
 
-        if (userOptional.isEmpty() && ngo==null){
+        if (userOptional.isEmpty() && ngo.isEmpty()){
            throw new UsernameNotFoundException("Invalid credentials");
         }
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(userOptional.isPresent()?userOptional.get().getEmail():ngo.getEmail())
-                .password(userOptional.isPresent()?userOptional.get().getPassword():ngo.getPassword())
+                .username(userOptional.isPresent()?userOptional.get().getEmail():ngo.get().getEmail())
+                .password(userOptional.isPresent()?userOptional.get().getPassword():ngo.get().getPassword())
                 .build();
     }
 }

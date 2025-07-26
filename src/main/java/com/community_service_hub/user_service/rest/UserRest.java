@@ -3,8 +3,6 @@ package com.community_service_hub.user_service.rest;
 import com.community_service_hub.user_service.dto.Credentials;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserPayloadDTO;
-import com.community_service_hub.user_service.dto.UserRole;
-import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
 import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,5 +65,11 @@ public class UserRest {
     public ResponseEntity<ResponseDTO> resetPassword(@RequestBody @Valid Credentials credentials){
         log.info("In reset password controller->>>{}", credentials.getEmail());
         return userService.resetPassword(credentials);
+    }
+
+    @Operation(summary = "This endpoint is used to fetch a list approved applicants for a task given the task id")
+    @GetMapping("/tasks/{taskId}")
+    public ResponseEntity<ResponseDTO> fetchListOfApprovedApplicantsForTask(@PathVariable UUID taskId){
+        return userService.fetchListOfApprovedApplicantsForTask(taskId);
     }
 }

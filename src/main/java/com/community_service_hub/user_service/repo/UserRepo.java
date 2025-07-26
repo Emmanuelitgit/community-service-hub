@@ -4,6 +4,7 @@ import com.community_service_hub.user_service.dto.UserDTOProjection;
 import com.community_service_hub.user_service.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -38,4 +39,10 @@ public interface UserRepo extends JpaRepository<User, UUID> {
     UserDTOProjection getUserRole(String email);
 
     Optional<User> findUserByEmail(String email);
+
+
+    @Query(value = "SELECT u.name, u.id, u.email, u.phone FROM user_tb u " +
+            "JOIN applications_tb ap ON u.id=ap.applicant_id " +
+            "WHERE ap.task_id=:taskId AND ap.status='APPROVED' ", nativeQuery = true)
+    List<User> fetchListOfApprovedApplicantsForTask(@Param("taskId") UUID taskId);
 }

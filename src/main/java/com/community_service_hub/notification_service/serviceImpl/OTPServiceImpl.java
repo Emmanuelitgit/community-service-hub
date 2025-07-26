@@ -204,10 +204,15 @@ public class OTPServiceImpl implements OTPService {
      * @auther Emmanuel Yidana
      */
     public Boolean checkOTPStatusDuringLogin(String email){
-        User user = userRepo.findUserByEmail(email)
-                .orElseThrow(()->new NotFoundException("User record not found"));
 
-        OTP otpExist = otpRepo.findByUserId(user.getId());
+        Optional<User> userOptional = userRepo.findUserByEmail(email);
+        Optional<NGO> ngoOptional = ngoRepo.findNGOByEmail(email);
+
+        if (ngoOptional.isEmpty()&&userOptional.isEmpty()){
+            throw new NotFoundException("User record not found");
+        }
+
+        OTP otpExist = otpRepo.findByUserId(userOptional.isPresent()?userOptional.get().getId():ngoOptional.get().getId());
 
         return otpExist == null;
     }
