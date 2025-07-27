@@ -61,6 +61,51 @@ public class NGORest {
         return ngoService.saveNGO(ngo);
     }
 
+    @Operation(summary = "This endpoint is used to update NGO record by id")
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDTO> updateNGO(NGOPayload payload) throws IOException {
+
+        String socialLinks = payload.getSocialLinks()!=null?String.join(",", payload.getSocialLinks()):"";
+
+        NGO ngo = NGO
+                .builder()
+                .organizationName(payload.getOrganizationName())
+                .city(payload.getCity())
+                .logo(payload.getLogo() !=null? ImageUtil.compressImage(payload.getLogo().getBytes()):null)
+                .email(payload.getEmail())
+                .certificate(payload.getCertificate() !=null? ImageUtil.compressImage(payload.getCertificate().getBytes()) :null)
+                .state(payload.getState()!=null? payload.getState() : null)
+                .password(payload.getPassword())
+                .address(payload.getAddress()!=null? payload.getAddress() : null)
+                .description(payload.getDescription()!=null? payload.getDescription() : null)
+                .latitude(payload.getLatitude()!=null? payload.getLatitude() : null)
+                .longitude(payload.getLongitude()!=null? payload.getLongitude() : null)
+                .website(payload.getWebsite()!=null? payload.getWebsite() : null)
+                .country(payload.getCountry()!=null? payload.getCountry() : null)
+                .socialLinks(socialLinks)
+                .build();
+
+        return ngoService.updateNGO(ngo, payload.getId());
+    }
+
+    @Operation(summary = "This endpoint is used to get NGO record by id")
+    @GetMapping("/{ngoId}")
+    public ResponseEntity<ResponseDTO> findNGOById(@PathVariable UUID ngoId){
+        return ngoService.findNGOById(ngoId);
+    }
+
+    @Operation(summary = "This endpoint is used to delete NGO record by id")
+    @DeleteMapping("/{ngoId}")
+    public ResponseEntity<ResponseDTO> deleteNGO(@PathVariable UUID ngoId){
+        return ngoService.deleteNGO(ngoId);
+    }
+
+    @Operation(summary = "This endpoint is used to approve or reject NGO request.it takes[TRUE(APPROVED) OR FALSE(REJECTED)]")
+    @PutMapping("/status")
+    public ResponseEntity<ResponseDTO> approveOrRejectNGO(UUID NGOId, Boolean status){
+        return ngoService.approveOrRejectNGO(NGOId, status);
+    }
+
     @Operation(summary = "This endpoint is used to to get NGO certificate in image form")
     @GetMapping("/certificate/{id}")
     public ResponseEntity<?>  getCertificate(@PathVariable UUID id){

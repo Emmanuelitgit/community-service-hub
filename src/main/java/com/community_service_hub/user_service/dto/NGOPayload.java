@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Data
 public class NGOPayload {
+    private UUID id;
     @NotNull(message = "organization name cannot be null")
     private String organizationName;
     private MultipartFile logo;

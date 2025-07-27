@@ -67,7 +67,7 @@ public class UserRest {
         return userService.resetPassword(credentials);
     }
 
-    @Operation(summary = "This endpoint is used to fetch a list approved applicants for a task given the task id")
+    @Operation(summary = "This endpoint is used to fetch a list of approved applicants for a task given the task id")
     @GetMapping("/tasks/{taskId}")
     public ResponseEntity<ResponseDTO> fetchListOfApprovedApplicantsForTask(@PathVariable UUID taskId){
         return userService.fetchListOfApprovedApplicantsForTask(taskId);

@@ -71,4 +71,10 @@ public class SubTaskRest {
     public ResponseEntity<ResponseDTO> fetchSubTasksForAssignee(){
         return subTaskService.fetchSubTasksForAssignee();
     }
+
+    @Operation(summary = "This endpoint is used to fetch subtasks by parent task id")
+    @GetMapping("/tasks/{parentTaskId}")
+    public ResponseEntity<ResponseDTO> fetchSubTasksByParentTaskId(@PathVariable UUID parentTaskId){
+        return subTaskService.fetchSubTasksByParentTaskId(parentTaskId);
+    }
 }

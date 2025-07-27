@@ -13,4 +13,5 @@ public interface NGOService {
     ResponseEntity<ResponseDTO> findNGOById(UUID ngoId);
     ResponseEntity<ResponseDTO> deleteNGO(UUID ngoId);
     ResponseEntity<ResponseDTO> getNGOs();
+    ResponseEntity<ResponseDTO> approveOrRejectNGO(UUID NGOId, Boolean status);
 }

@@ -18,7 +18,6 @@ import com.community_service_hub.user_service.util.AppUtils;
 import com.community_service_hub.user_service.util.ImageUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.usertype.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -180,23 +179,29 @@ public class NGOServiceImpl implements NGOService {
      */
     @Override
     public ResponseEntity<ResponseDTO> findNGOById(UUID ngoId) {
-        log.info("In get NGO record by id method->>>{}", ngoId);
-        /**
-         * loading ngo record from db by id
-         */
-        Optional<NGO> ngo = ngoRepo.findById(ngoId);
-        if (ngo.isEmpty()){
-            log.info("NGO record cannot be found with the id->>>{}", ngoId);
-            ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+        try {
+            log.info("In get NGO record by id method->>>{}", ngoId);
+            /**
+             * loading ngo record from db by id
+             */
+            Optional<NGO> ngo = ngoRepo.findById(ngoId);
+            if (ngo.isEmpty()){
+                log.info("NGO record cannot be found with the id->>>{}", ngoId);
+                ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
 
-        /**
-         * returning response if successfully
-         */
-        NGODTO data = NGODTO.toNGODTO(ngo.get());
-        ResponseDTO  response = AppUtils.getResponseDto("ngos list", HttpStatus.OK, data);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            /**
+             * returning response if successfully
+             */
+            NGODTO data = NGODTO.toNGODTO(ngo.get());
+            ResponseDTO  response = AppUtils.getResponseDto("ngos list", HttpStatus.OK, data);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
     }
 
 
@@ -272,6 +277,57 @@ public class NGOServiceImpl implements NGOService {
            throw new ServerException(e.getMessage());
        }
 
+    }
+
+
+    /**
+     * @description This method is used to update NGO status to either[APPROVED(TRUE) OR REJECTED(FALSE)]
+     * @return ResponseEntity containing the updated NGO record and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27th july 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> approveOrRejectNGO(UUID NGOId, Boolean status) {
+        try{
+            log.info("In update NGO status by id method->>>{}", NGOId);
+
+            /**
+             * checking if NGO record exist by id
+             */
+            Optional<NGO> ngoOptional = ngoRepo.findById(NGOId);
+            if (ngoOptional.isEmpty()){
+                log.info("NGO record cannot be found with the id->>>{}", NGOId);
+                ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * validating and setting updated status
+             */
+            NGO existingData = ngoOptional.get();
+            if (Boolean.TRUE.equals(status)){
+                log.info("NGO approval status->>>{}", "APPROVED");
+                existingData.setIsApproved(Boolean.TRUE);
+            } else if (Boolean.FALSE.equals(status)) {
+                log.info("NGO approval status->>>{}", "REJECTED");
+                existingData.setIsApproved(Boolean.FALSE);
+            }else {
+                log.info("Status provided cannot be found->>>{}", status);
+                ResponseDTO  response = AppUtils.getResponseDto("Status provided cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * returning response if success
+             */
+            NGO ngoResponse = ngoRepo.save(existingData);
+            ResponseDTO  response = AppUtils.getResponseDto("NGO status updated", HttpStatus.OK, ngoResponse);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
     }
 
 

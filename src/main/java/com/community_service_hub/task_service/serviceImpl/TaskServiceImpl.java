@@ -56,6 +56,15 @@ public class TaskServiceImpl implements TaskService {
             }
 
             /**
+             * checking if NGO has been approved or not
+             */
+            if (Boolean.FALSE.equals(ngo.get().getIsApproved())){
+                log.info("NGO not approved");
+                ResponseDTO responseDTO = AppUtils.getResponseDto("NGO not approved yet and cannot create task at the moment", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+
+            /**
              * saving task record
              */
             task.setStatus(TaskStatus.OPEN.toString());

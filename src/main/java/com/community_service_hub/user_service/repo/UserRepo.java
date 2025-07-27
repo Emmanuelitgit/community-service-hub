@@ -42,8 +42,8 @@ public interface UserRepo extends JpaRepository<User, UUID> {
     Optional<User> findUserByEmail(String email);
 
 
-    @Query(value = "SELECT u.name, u.id, u.email, u.phone, u.user_role FROM user_tb u " +
+    @Query(value = "SELECT u.name, u.id, u.email, u.phone, u.user_role, u.address FROM user_tb u " +
             "JOIN applications_tb ap ON u.id=ap.applicant_id " +
             "WHERE ap.task_id=:taskId AND ap.status='APPROVED' ", nativeQuery = true)
-    List<UserDTO> fetchListOfApprovedApplicantsForTask(@Param("taskId") UUID taskId);
+    List<UserDTOProjection> fetchListOfApprovedApplicantsForTask(@Param("taskId") UUID taskId);
 }

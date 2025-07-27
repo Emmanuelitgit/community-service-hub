@@ -86,7 +86,6 @@ public class SubTaskServiceImpl implements SubTaskService {
             ResponseDTO responseDTO = AppUtils.getResponseDto("subtask created", HttpStatus.CREATED, subTaskResponse);
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
-
         }catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
             throw new ServerException(e.getMessage());
@@ -187,6 +186,18 @@ public class SubTaskServiceImpl implements SubTaskService {
             }
 
             /**
+             * checking if assignee exist
+             */
+            if (subTask.getAssigneeId()!=null){
+                Optional<User> userOptional = userRepo.findById(subTask.getAssigneeId());
+                if (userOptional.isEmpty()){
+                    log.info("assignee record cannot be found->>>{}", subTask.getAssigneeId());
+                    ResponseDTO  response = AppUtils.getResponseDto("assignee record cannot be found", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                }
+            }
+
+            /**
              * building updated data payload
              */
             SubTask existingData = subTaskOptional.get();
@@ -194,6 +205,7 @@ public class SubTaskServiceImpl implements SubTaskService {
             existingData.setStatus(subTask.getStatus()!=null? subTask.getStatus() : existingData.getStatus());
             existingData.setParentTaskId(subTask.getParentTaskId()!=null?subTask.getParentTaskId():existingData.getParentTaskId());
             existingData.setName(subTask.getName()!=null?subTask.getName(): existingData.getName());
+            existingData.setAssigneeId(subTask.getAssigneeId()!=null?subTask.getAssigneeId():existingData.getAssigneeId());
 
             /**
              * saving updated record
@@ -328,6 +340,44 @@ public class SubTaskServiceImpl implements SubTaskService {
                 ResponseDTO  response = AppUtils.getResponseDto("no subtask record found-", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
+
+            /**
+             * returning response if successfully
+             */
+            ResponseDTO  response = AppUtils.getResponseDto("subtasks list", HttpStatus.OK, subTasks);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
+    }
+
+
+    /**
+     * @description This method is used to get all subtasks by a parent task id
+     * @return ResponseEntity containing a list of subtasks and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 27th July 2025
+     */
+    public ResponseEntity<ResponseDTO> fetchSubTasksByParentTaskId(UUID parentTaskId){
+        try {
+            log.info("In fetch subtasks by parent task id->>>{}", parentTaskId);
+
+            /**
+             * checking if parent task exist
+             */
+            Optional<Task> taskOptional = taskRepo.findById(parentTaskId);
+            if (taskOptional.isEmpty()){
+                log.info("Parent task cannot be found with the given id->>>{}", parentTaskId);
+                ResponseDTO  response = AppUtils.getResponseDto("Parent task cannot be found with the given id", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * loading subtasks list from db
+             */
+            List<SubTask> subTasks = subTaskRepo.fetchSubTasksByParentTaskId(parentTaskId);
 
             /**
              * returning response if successfully
