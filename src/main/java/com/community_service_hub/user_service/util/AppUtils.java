@@ -3,7 +3,9 @@ import com.community_service_hub.user_service.dto.PaginationPayload;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserDTOProjection;
 import com.community_service_hub.user_service.exception.NotFoundException;
+import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.RoleSetupRepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.repo.UserRoleRepo;
@@ -35,12 +37,14 @@ public class AppUtils {
     private final RoleSetupRepo roleSetupRepo;
     private final UserRoleRepo userRoleRepo;
     private final UserRepo userRepo;
+    private final NGORepo ngoRepo;
 
     @Autowired
-    public AppUtils(RoleSetupRepo roleSetupRepo, UserRoleRepo userRoleRepo, UserRepo userRepo) {
+    public AppUtils(RoleSetupRepo roleSetupRepo, UserRoleRepo userRoleRepo, UserRepo userRepo, NGORepo ngoRepo) {
         this.roleSetupRepo = roleSetupRepo;
         this.userRoleRepo = userRoleRepo;
         this.userRepo = userRepo;
+        this.ngoRepo = ngoRepo;
     }
 
 
@@ -105,7 +109,13 @@ public class AppUtils {
      */
     public void setAuthorities(Object userId) {
         Optional<User> user = userRepo.findById(UUID.fromString(userId.toString()));
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.isPresent()?user.get().getUserRole():"");
+        Optional<NGO> ngo = ngoRepo.findById(UUID.fromString(userId.toString()));
+        if (user.isEmpty()&&ngo.isEmpty()){
+            log.info("User record not found with the provided id->>>{}", userId.toString());
+            throw new NotFoundException("User record not found");
+        }
+
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.isPresent()?user.get().getUserRole():ngo.get().getRole());
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(authority);
         Authentication authentication = new UsernamePasswordAuthenticationToken(

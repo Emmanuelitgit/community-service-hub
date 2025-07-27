@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface SubTaskRepo extends JpaRepository<SubTask, UUID> {
 
-    @Query(value = "SELECT * FROM sub_task_tb WHERE assignee=:userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM sub_task_tb WHERE assignee_id=:userId", nativeQuery = true)
     List<SubTask> fetchSubTasksForAssignee(@Param("userId") UUID userId);
 
     @Query(value = "SELECT * FROM sub_task_tb WHERE parent_task_id=:parentTaskId", nativeQuery = true)
