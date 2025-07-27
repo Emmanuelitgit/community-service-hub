@@ -4,6 +4,7 @@ import com.community_service_hub.task_service.models.SubTask;
 import com.community_service_hub.task_service.serviceImpl.SubTaskServiceImpl;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,12 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/sub-tasks")
+@Tag(
+        name = "SubTask Management",
+        description = "Subtasks represent smaller, specific tasks that fall under a main task (parent task) created by NGOs. " +
+                "A subtask can only be created after a main task has been posted. " +
+                "Users first apply for these main tasks. Once approved by the NGO, subtasks can then be created and assigned to the approved users."
+)
 public class SubTaskRest {
 
     private final SubTaskServiceImpl subTaskService;

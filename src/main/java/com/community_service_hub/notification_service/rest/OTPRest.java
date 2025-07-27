@@ -5,6 +5,7 @@ import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.util.AppUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/otp")
+@Tag(name = "Notification Management", description = "This controller is responsible for handling all kinds of notification")
 public class OTPRest {
 
     private final OTPServiceImpl otpService;

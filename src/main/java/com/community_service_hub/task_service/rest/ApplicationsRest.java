@@ -4,6 +4,7 @@ import com.community_service_hub.task_service.models.Applications;
 import com.community_service_hub.task_service.serviceImpl.ApplicationsServiceImpl;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Applications Management", description = "This controller is responsible for performing all the applications crud. " +
+        "It provides implementations where users can apply for tasks posted by NGOs and wait for approval." +
+        "When applications are approved by NGOs, they will then assign specific tasks to these users.")
 public class ApplicationsRest {
 
     private final ApplicationsServiceImpl applicationsService;

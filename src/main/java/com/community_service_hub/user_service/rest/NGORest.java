@@ -6,6 +6,7 @@ import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
 import com.community_service_hub.user_service.util.ImageUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/ngo")
+@Tag(name = "NGO Management", description = "This controller is responsible for performing all the NGO CRUD")
 public class NGORest {
 
     private final NGOServiceImpl ngoService;

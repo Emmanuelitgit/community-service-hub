@@ -32,7 +32,7 @@ public class SwaggerConfig {
                         addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes
                         ("Bearer Authentication", createAPIKeyScheme()))
-                .info(new Info().title("Community-service-hub Application Endpoints")
+                .info(new Info().title("Community-service-hub Endpoints")
 //                        .description("Spring Integration API.")
                         .version("1.0").contact(new Contact().name("Code With Manuel Dev")
                                 .email( "www.manueldev.com").url("eyidana001@gmail.com"))

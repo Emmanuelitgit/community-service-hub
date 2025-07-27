@@ -6,6 +6,7 @@ import com.community_service_hub.user_service.dto.UserPayloadDTO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
 import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
+@Tag(name = "User Management", description = "This controller is responsible for performing all the user CRUD")
 public class UserRest {
 
     private final UserServiceImpl userService;

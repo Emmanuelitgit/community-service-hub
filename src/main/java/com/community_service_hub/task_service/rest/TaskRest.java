@@ -4,6 +4,7 @@ import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.serviceImpl.TaskServiceImpl;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,6 +15,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
+@Tag(
+        name = "Task Management",
+        description = "Main tasks are created by NGOs to request help from users. " +
+                "These tasks serve as the foundation for assigning work to users. " +
+                "Interested users can apply for main tasks, and upon approval, the NGO may create subtasks and assign them to those users."
+)
 public class TaskRest {
 
     private final TaskServiceImpl taskService;
