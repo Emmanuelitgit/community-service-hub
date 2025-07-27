@@ -15,15 +15,12 @@ import java.util.UUID;
 @Repository
 public interface UserRepo extends JpaRepository<User, UUID> {
 
-    @Query(value = "SELECT u.id AS id, u.name, u.user_role, ul.address, u.email, u.phone " +
-            "FROM user_tb u " +
-            "JOIN user_location_tb ul ON u.id = ul.user_id ", nativeQuery = true)
+    @Query(value = "SELECT u.id, u.name, u.user_role, u.address, u.email, u.phone " +
+            "FROM user_tb u ", nativeQuery = true)
     List<UserDTOProjection> getUsersDetails();
 
-    @Query(value = "SELECT u.id AS id, u.first_name, u.last_name, u.email, u.phone, u.username, rs.name AS role " +
+    @Query(value = "SELECT u.id, u.name, u.address, u.email, u.phone, u.user_role " +
             "FROM user_tb u " +
-            "JOIN user_role_tb ur ON u.id = ur.user_id " +
-            "JOIN role_setup_tb rs ON ur.role_id = rs.id " +
             "WHERE u.id = ?1", nativeQuery = true)
     UserDTOProjection getUsersDetailsByUserId(UUID userId);
 
