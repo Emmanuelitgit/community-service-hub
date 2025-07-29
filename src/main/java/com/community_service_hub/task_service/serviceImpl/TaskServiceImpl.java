@@ -184,7 +184,7 @@ public class TaskServiceImpl implements TaskService {
             existingData.setAddress(task.getAddress() != null ? task.getAddress() : existingData.getAddress());
             existingData.setLatitude(task.getLatitude() != null ? task.getLatitude() : existingData.getLatitude());
             existingData.setLongitude(task.getLongitude() != null ? task.getLongitude() : existingData.getLongitude());
-            existingData.setDuration(task.getDuration() != null ? task.getDuration() : existingData.getDuration());
+            existingData.setStartDate(task.getStartDate() != null ? task.getStartDate() : existingData.getStartDate());
             existingData.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded() != null ? task.getNumberOfPeopleNeeded() : existingData.getNumberOfPeopleNeeded());
             existingData.setStatus(task.getStatus() != null ? task.getStatus() : existingData.getStatus());
 

@@ -107,7 +107,7 @@ public class AppUtils {
      * @auther Emmanuel Yidana
      * @createdAt 16h April 2025
      */
-    public void setAuthorities(Object userId) {
+    public void setAuthorities(Object userId, String username) {
         Optional<User> user = userRepo.findById(UUID.fromString(userId.toString()));
         Optional<NGO> ngo = ngoRepo.findById(UUID.fromString(userId.toString()));
         if (user.isEmpty()&&ngo.isEmpty()){

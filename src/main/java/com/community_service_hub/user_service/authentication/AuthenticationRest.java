@@ -12,6 +12,7 @@ import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.util.AppUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class AuthenticationRest {
      */
     @Operation(summary = "This endpoint is used to authenticate user credentials or identity")
     @PostMapping
-    public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody Credentials credentials){
+    public ResponseEntity<ResponseDTO> authenticateUser(@RequestBody Credentials credentials, HttpSession httpSession){
         try {
             log.info("In authentication method->>>{}", credentials.getEmail());
 
@@ -117,6 +118,11 @@ public class AuthenticationRest {
             tokenData.put("full name", userOptional.isPresent()?userOptional.get().getName():ngoOptional.get().getOrganizationName());
             tokenData.put("token", token);
             tokenData.put("userId", userId.toString());
+
+            /**
+             * store userId in session
+             */
+            httpSession.setAttribute("userId", userOptional.isPresent()?userOptional.get().getId():ngoOptional.get().getId());
 
             /**
              * returning response after successfully authenticating

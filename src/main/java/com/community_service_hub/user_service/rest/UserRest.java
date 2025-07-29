@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.UUID;
 
 @Slf4j
@@ -39,7 +40,8 @@ public class UserRest {
 
     @Operation(summary = "This endpoint is used to fetch all users")
     @GetMapping
-    public ResponseEntity<ResponseDTO> getUsers(){
+    public ResponseEntity<ResponseDTO> getUsers(Principal principal){
+        log.info("Principal->>>{}", principal.getName());
         return userService.getUsers();
     }
 

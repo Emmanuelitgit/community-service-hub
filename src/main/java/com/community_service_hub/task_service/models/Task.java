@@ -27,7 +27,7 @@ public class Task extends AuditorData {
     private String address;
     private Double latitude;
     private Double longitude;
-    private String duration;
+    private String startDate;
     @NotNull(message = "number of people needed cannot be null")
     private Integer numberOfPeopleNeeded;
     private String status;
