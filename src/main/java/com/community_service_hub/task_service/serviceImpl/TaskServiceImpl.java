@@ -273,6 +273,11 @@ public class TaskServiceImpl implements TaskService {
             }
 
             /**
+             * removing record
+             */
+            taskRepo.deleteById(task.get().getId());
+
+            /**
              * returning response if successfully
              */
             ResponseDTO  response = AppUtils.getResponseDto("task record retrieved", HttpStatus.OK, task.get());
