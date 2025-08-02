@@ -24,7 +24,8 @@ public class SubTask extends AuditorData {
     @NotNull(message = "name cannot be null")
     private String name;
     @NotNull(message = "description cannot be null")
-    @Size(max = 255, message = "Description must be at most 255 characters long")
+    @Size(max = 1000, message = "Description must be at most 1000 characters long")
+    @Column(length = 1000)
     private String description;
 //    @NotNull(message = "assignee id cannot be null")
     private UUID assigneeId;

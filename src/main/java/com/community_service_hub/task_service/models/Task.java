@@ -25,7 +25,8 @@ public class Task extends AuditorData {
     private String name;
     private String category;
     @NotNull(message = "description cannot be null")
-    @Size(max = 255, message = "Description must be at most 255 characters long")
+    @Size(max = 1000, message = "Description must be at most 1000 characters long")
+    @Column(length = 1000)
     private String description;
     private String address;
     private Double latitude;

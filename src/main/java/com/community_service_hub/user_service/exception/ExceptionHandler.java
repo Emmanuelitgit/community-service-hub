@@ -59,7 +59,7 @@ public class ExceptionHandler {
 
         res.put("message", errors);
         res.put("status", HttpStatusCode.valueOf(400));
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(400));
+        return new ResponseEntity<>(String.join("\n", errors), HttpStatusCode.valueOf(400));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(AlreadyExistException.class)

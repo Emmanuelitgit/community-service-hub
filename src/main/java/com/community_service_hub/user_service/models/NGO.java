@@ -32,6 +32,7 @@ public class NGO extends AuditorData {
     private String address;
     private Double latitude;
     private Double longitude;
+    @Column(length = 1000)
     private String description;
     private String role;
     private Boolean isApproved;
