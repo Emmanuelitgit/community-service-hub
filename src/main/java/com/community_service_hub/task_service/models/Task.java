@@ -22,6 +22,7 @@ public class Task extends AuditorData {
     private UUID postedBy;
     @NotNull(message = "name cannot be null")
     private String name;
+    private String category;
     @NotNull(message = "description cannot be null")
     private String description;
     private String address;

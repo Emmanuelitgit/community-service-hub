@@ -187,6 +187,7 @@ public class TaskServiceImpl implements TaskService {
             existingData.setStartDate(task.getStartDate() != null ? task.getStartDate() : existingData.getStartDate());
             existingData.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded() != null ? task.getNumberOfPeopleNeeded() : existingData.getNumberOfPeopleNeeded());
             existingData.setStatus(task.getStatus() != null ? task.getStatus() : existingData.getStatus());
+            existingData.setCategory(task.getCategory()!=null? task.getCategory() : existingData.getCategory());
 
             /**
              * saving updated record
