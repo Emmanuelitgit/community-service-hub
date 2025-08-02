@@ -1,5 +1,6 @@
 package com.community_service_hub.task_service.serviceImpl;
 
+import com.community_service_hub.task_service.dto.TaskProjection;
 import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.TaskRepo;
@@ -15,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -97,17 +96,55 @@ public class TaskServiceImpl implements TaskService {
             /**
              * loading tasks from db
              */
-            List<Task> tasks = taskRepo.findAll();
+            List<TaskProjection> tasks = taskRepo.fetchTasksWithNGOs();
             if (tasks.isEmpty()){
                 log.info("no task record found->>>");
                 ResponseDTO  response = AppUtils.getResponseDto("no task record found-", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
+            List<Object> list = new ArrayList<>();
+
+            tasks.forEach((task)->{
+                Map<String, String> NGO = new HashMap<>();
+                Map<String, Object> objectMap = new HashMap<>();
+
+                /**
+                 * building NGO object response
+                 */
+                NGO.put("organizationName", task.getOrganizationName());
+                NGO.put("city", task.getCity());
+                NGO.put("email", task.getEmail());
+                NGO.put("address", task.getOrganizationAddress());
+                NGO.put("state", task.getState());
+                NGO.put("country", task.getCountry());
+                NGO.put("website", task.getWebsite());
+                NGO.put("logo", "https://community-service-hub-eif3.onrender.com/api/v1/ngo/logo/"+task.getNgoId());
+
+                /**
+                 * building the general object response(Task and NGO)
+                 */
+                objectMap.put("NGO", NGO);
+                objectMap.put("name", task.getName());
+                objectMap.put("description", task.getDescription());
+                objectMap.put("address", task.getAddress());
+                objectMap.put("longitude", task.getLongitude());
+                objectMap.put("latitude", task.getLatitude());
+                objectMap.put("numberOfPeopleNeeded", task.getNumberOfPeopleNeeded());
+                objectMap.put("startDate", task.getStartDate());
+                objectMap.put("category", task.getCategory());
+                objectMap.put("id", task.getId());
+
+                /**
+                 * adding to list
+                 */
+                list.add(objectMap);
+            });
+
             /**
              * returning response if successfully
              */
-            ResponseDTO  response = AppUtils.getResponseDto("tasks list", HttpStatus.OK, tasks);
+            ResponseDTO  response = AppUtils.getResponseDto("tasks list", HttpStatus.OK, list);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         }catch (Exception e) {

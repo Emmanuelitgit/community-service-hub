@@ -2,6 +2,7 @@ package com.community_service_hub.user_service.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,7 @@ public class NGOPayload {
     private String address;
     private Double latitude;
     private Double longitude;
+    @Size(max = 255, message = "Description must be at most 255 characters long")
     private String description;
     private String role;
 }
