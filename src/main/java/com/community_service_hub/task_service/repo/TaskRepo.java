@@ -33,7 +33,11 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "        ng.id AS ngoId," +
             "        ng.state," +
             "        ng.country," +
-            "        ng.website" +
+            "        ng.website," +
+            "        ng.latitude AS ngoLatitude," +
+            "        ng.longitude AS ngoLongitude," +
+            "        ng.description AS ngoDescription," +
+            "        ng.social_links" +
             "    FROM task_tb t" +
             "    JOIN ngo_tb ng ON ng.id=t.posted_by", nativeQuery = true)
     List<TaskProjection> fetchTasksWithNGOs();

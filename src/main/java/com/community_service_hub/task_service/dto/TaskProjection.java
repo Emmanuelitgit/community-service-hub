@@ -23,4 +23,8 @@ public interface TaskProjection {
     String getState();
     String getCountry();
     String getWebsite();
+    String getNgoDescription();
+    Double getNgoLatitude();
+    Double getNgoLongitude();
+    String getSocialLinks();
 }

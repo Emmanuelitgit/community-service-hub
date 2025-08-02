@@ -119,7 +119,12 @@ public class TaskServiceImpl implements TaskService {
                 NGO.put("state", task.getState());
                 NGO.put("country", task.getCountry());
                 NGO.put("website", task.getWebsite());
+                NGO.put("latitude", task.getNgoLatitude()!=null?task.getNgoLatitude().toString():null);
+                NGO.put("longitude", task.getNgoLatitude()!=null?task.getNgoLatitude().toString():null);
+                NGO.put("socialLinks", task.getSocialLinks());
+                NGO.put("description", task.getDescription());
                 NGO.put("logo", "https://community-service-hub-eif3.onrender.com/api/v1/ngo/logo/"+task.getNgoId());
+                NGO.put("certificate", "https://community-service-hub-eif3.onrender.com/api/v1/ngo/certificate/"+task.getNgoId());
 
                 /**
                  * building the general object response(Task and NGO)
