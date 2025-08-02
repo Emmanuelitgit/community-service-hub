@@ -280,7 +280,7 @@ public class TaskServiceImpl implements TaskService {
             /**
              * returning response if successfully
              */
-            ResponseDTO  response = AppUtils.getResponseDto("task record retrieved", HttpStatus.OK, task.get());
+            ResponseDTO  response = AppUtils.getResponseDto("task record deleted", HttpStatus.OK);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         }catch (Exception e) {
