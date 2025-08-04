@@ -170,7 +170,7 @@ public class AppUtils {
             return authenticatedUserRole.equalsIgnoreCase("ADMIN") || authenticatedUserId.equals(userId);
         }
 
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
 
