@@ -34,5 +34,6 @@ public class Task extends AuditorData {
     private String startDate;
     @NotNull(message = "number of people needed cannot be null")
     private Integer numberOfPeopleNeeded;
+    private Integer remainingPeopleNeeded;
     private String status;
 }

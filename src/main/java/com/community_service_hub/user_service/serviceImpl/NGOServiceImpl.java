@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,14 +38,16 @@ public class NGOServiceImpl implements NGOService {
     private final UserRepo userRepo;
     private final NGODTO ngodto;
     private final OTPServiceImpl otpService;
+    private final AppUtils appUtils;
 
     @Autowired
-    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, OTPServiceImpl otpService) {
+    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, OTPServiceImpl otpService, AppUtils appUtils) {
         this.ngoRepo = ngoRepo;
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
         this.ngodto = ngodto;
         this.otpService = otpService;
+        this.appUtils = appUtils;
     }
 
 
@@ -116,6 +119,7 @@ public class NGOServiceImpl implements NGOService {
      * @auther Emmanuel Yidana
      * @createdAt 21st july 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN','NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateNGO(NGO ngo, UUID ngoId) {
         try{
@@ -129,6 +133,16 @@ public class NGOServiceImpl implements NGOService {
                 log.info("NGO record not found->>>{}", ngo.getId());
                 ResponseDTO  response = AppUtils.getResponseDto("NGO record not found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(ngoOptional.get().getId(), null);
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to NGO records->>>{}", ngoOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to NGO records", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -177,6 +191,7 @@ public class NGOServiceImpl implements NGOService {
      * @auther Emmanuel Yidana
      * @createdAt 24th july 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> findNGOById(UUID ngoId) {
         try {
@@ -189,6 +204,17 @@ public class NGOServiceImpl implements NGOService {
                 log.info("NGO record cannot be found with the id->>>{}", ngoId);
                 ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            log.info("NGO ID->>{}", ngo.get().getId());
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(ngo.get().getId(), null);
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to NGO records->>>{}", ngo.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to NGO records", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -212,6 +238,7 @@ public class NGOServiceImpl implements NGOService {
      * @auther Emmanuel Yidana
      * @createdAt 24th july 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> deleteNGO(UUID ngoId) {
        try{
@@ -224,6 +251,16 @@ public class NGOServiceImpl implements NGOService {
                log.info("NGO record cannot be found with the id->>>{}", ngoId);
                ResponseDTO  response = AppUtils.getResponseDto("no ngo record found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+           }
+
+           /**
+            * checking user authorization levels
+            */
+           Boolean isUserAuthorized = appUtils.isUserAuthorized(ngo.get().getId(), null);
+           if (Boolean.FALSE.equals(isUserAuthorized)){
+               log.info("User not authorized to NGO records->>>{}", ngo.get().getId());
+               ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to NGO records", HttpStatus.UNAUTHORIZED);
+               return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
            }
 
            /**
@@ -251,6 +288,7 @@ public class NGOServiceImpl implements NGOService {
      * @auther Emmanuel Yidana
      * @createdAt 24th july 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @Override
     public ResponseEntity<ResponseDTO> getNGOs() {
        try{
@@ -286,6 +324,7 @@ public class NGOServiceImpl implements NGOService {
      * @auther Emmanuel Yidana
      * @createdAt 27th july 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @Override
     public ResponseEntity<ResponseDTO> approveOrRejectNGO(UUID NGOId, Boolean status) {
         try{

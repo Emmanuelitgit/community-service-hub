@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,13 +32,15 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     private final NGORepo ngoRepo;
     private final UserRepo userRepo;
     private final TaskRepo taskRepo;
+    private final AppUtils appUtils;
 
     @Autowired
-    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo) {
+    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo, AppUtils appUtils) {
         this.applicationsRepo = applicationsRepo;
         this.ngoRepo = ngoRepo;
         this.userRepo = userRepo;
         this.taskRepo = taskRepo;
+        this.appUtils = appUtils;
     }
 
 
@@ -47,6 +50,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
      * @auther Emmanuel Yidana
      * @createdAt 25th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @Override
     public ResponseEntity<ResponseDTO> getApplications(){
         try {
@@ -113,11 +117,11 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * updating task records
              */
             Task task = taskOptional.get();
-            if (task.getNumberOfPeopleNeeded()==1){
-                task.setNumberOfPeopleNeeded(0);
+            if (task.getRemainingPeopleNeeded()==1){
+                task.setRemainingPeopleNeeded(0);
                 task.setStatus(TaskStatus.CLOSED.toString());
             }else {
-                task.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded()-1);
+                task.setRemainingPeopleNeeded(task.getRemainingPeopleNeeded()-1);
             }
             taskRepo.save(task);
 
@@ -158,6 +162,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                 log.info("application record cannot be found->>>{}", applicationId);
                 ResponseDTO responseDTO = AppUtils.getResponseDto("application record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(applicationsOptional.get().getApplicantId(), applicationsOptional.get().getTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**

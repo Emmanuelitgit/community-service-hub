@@ -6,6 +6,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
@@ -19,6 +20,12 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(UnAuthorizeException.class)
     ResponseEntity<ResponseDTO> handleUnAuthorizeException(UnAuthorizeException exception){
+        ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.valueOf(401));
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(401));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(AuthorizationDeniedException.class)
+    ResponseEntity<ResponseDTO> handleUnAuthorizeException(AuthorizationDeniedException exception){
         ResponseDTO response = AppUtils.getResponseDto(exception.getMessage(), HttpStatus.valueOf(401));
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(401));
     }

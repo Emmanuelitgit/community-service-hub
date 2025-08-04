@@ -1,4 +1,6 @@
 package com.community_service_hub.user_service.util;
+import com.community_service_hub.task_service.models.Task;
+import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.user_service.dto.PaginationPayload;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserDTOProjection;
@@ -38,13 +40,15 @@ public class AppUtils {
     private final UserRoleRepo userRoleRepo;
     private final UserRepo userRepo;
     private final NGORepo ngoRepo;
+    private final TaskRepo taskRepo;
 
     @Autowired
-    public AppUtils(RoleSetupRepo roleSetupRepo, UserRoleRepo userRoleRepo, UserRepo userRepo, NGORepo ngoRepo) {
+    public AppUtils(RoleSetupRepo roleSetupRepo, UserRoleRepo userRoleRepo, UserRepo userRepo, NGORepo ngoRepo, TaskRepo taskRepo) {
         this.roleSetupRepo = roleSetupRepo;
         this.userRoleRepo = userRoleRepo;
         this.userRepo = userRepo;
         this.ngoRepo = ngoRepo;
+        this.taskRepo = taskRepo;
     }
 
 
@@ -122,6 +126,51 @@ public class AppUtils {
                 userId, null, grantedAuthorities
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+
+    /**
+     * This method is used to check user authority levels to a resource.
+     * @param userId this is used when the requester is just a normal user like VOLUNTEER
+     * @param taskId this is used when the requester is NGO. it used to load the NGO details
+     * @return
+     * @auther Emmanuel Yidana
+     * @createdAt 4TH July 2025
+     */
+    public Boolean isUserAuthorized(UUID userId, UUID taskId){
+        /**
+         * loading authenticated user authority
+         */
+        log.info("Authenticated user id->>>{}", getAuthenticatedUserId());
+        UUID authenticatedUserId = UUID.fromString(getAuthenticatedUserId());
+        String authenticatedUserRole = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .findFirst()
+                .toString();
+
+        if (userId!=null&&taskId!=null) {
+            Optional<Task> taskOptional = taskRepo.findById(taskId);
+            if (
+                    (authenticatedUserRole.equalsIgnoreCase("ADMIN") || authenticatedUserId.equals(userId))||
+                            (authenticatedUserRole.equalsIgnoreCase("ADMIN") || authenticatedUserId.equals(taskOptional.get().getPostedBy()))
+            ){
+                return Boolean.TRUE;
+            }else {
+                return Boolean.FALSE;
+            }
+
+        } else if (taskId != null){
+            Optional<Task> taskOptional = taskRepo.findById(taskId);
+            return authenticatedUserRole.equalsIgnoreCase("ADMIN") || authenticatedUserId.equals(taskOptional.get().getPostedBy());
+
+        }else if (userId != null){
+            return authenticatedUserRole.equalsIgnoreCase("ADMIN") || authenticatedUserId.equals(userId);
+        }
+
+        return Boolean.TRUE;
     }
 
 

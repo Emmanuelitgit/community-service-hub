@@ -66,6 +66,7 @@ public class TaskServiceImpl implements TaskService {
             /**
              * saving task record
              */
+            task.setRemainingPeopleNeeded(task.getNumberOfPeopleNeeded());
             task.setStatus(TaskStatus.OPEN.toString());
             Task taskResponse = taskRepo.save(task);
 
@@ -230,6 +231,7 @@ public class TaskServiceImpl implements TaskService {
             existingData.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded() != null ? task.getNumberOfPeopleNeeded() : existingData.getNumberOfPeopleNeeded());
             existingData.setStatus(task.getStatus() != null ? task.getStatus() : existingData.getStatus());
             existingData.setCategory(task.getCategory()!=null? task.getCategory() : existingData.getCategory());
+            existingData.setRemainingPeopleNeeded(task.getNumberOfPeopleNeeded()!=null? task.getNumberOfPeopleNeeded() : existingData.getNumberOfPeopleNeeded());
 
             /**
              * saving updated record
