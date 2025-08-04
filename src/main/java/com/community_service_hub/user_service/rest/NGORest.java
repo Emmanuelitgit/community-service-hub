@@ -4,7 +4,7 @@ import com.community_service_hub.user_service.dto.NGOPayload;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
-import com.community_service_hub.user_service.util.ImageUtil;
+import com.community_service_hub.util.ImageUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

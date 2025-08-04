@@ -12,7 +12,7 @@ import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -3,7 +3,7 @@ package com.community_service_hub.notification_service.rest;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
 import com.community_service_hub.user_service.dto.ResponseDTO;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.util.AppUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

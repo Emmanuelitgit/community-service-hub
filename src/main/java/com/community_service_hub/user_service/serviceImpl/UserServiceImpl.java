@@ -7,14 +7,13 @@ import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.user_service.dto.*;
-import com.community_service_hub.user_service.exception.BadRequestException;
-import com.community_service_hub.user_service.exception.NotFoundException;
-import com.community_service_hub.user_service.exception.ServerException;
+import com.community_service_hub.exception.NotFoundException;
+import com.community_service_hub.exception.ServerException;
 import com.community_service_hub.user_service.models.*;
 import com.community_service_hub.user_service.models.UserRole;
 import com.community_service_hub.user_service.repo.*;
 import com.community_service_hub.user_service.service.UserService;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.util.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

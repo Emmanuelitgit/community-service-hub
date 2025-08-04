@@ -1,7 +1,7 @@
 package com.community_service_hub.user_service.authentication;
 
-import com.community_service_hub.user_service.exception.UnAuthorizeException;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.exception.UnAuthorizeException;
+import com.community_service_hub.util.AppUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

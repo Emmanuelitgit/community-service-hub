@@ -1,4 +1,4 @@
-package com.community_service_hub.user_service.util;
+package com.community_service_hub.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

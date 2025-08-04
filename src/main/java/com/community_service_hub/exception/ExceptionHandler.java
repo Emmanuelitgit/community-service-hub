@@ -1,7 +1,7 @@
-package com.community_service_hub.user_service.exception;
+package com.community_service_hub.exception;
 
 import com.community_service_hub.user_service.dto.ResponseDTO;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.util.AppUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

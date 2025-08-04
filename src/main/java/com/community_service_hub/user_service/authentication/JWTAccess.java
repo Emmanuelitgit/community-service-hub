@@ -1,6 +1,6 @@
 package com.community_service_hub.user_service.authentication;
 
-import com.community_service_hub.user_service.exception.UnAuthorizeException;
+import com.community_service_hub.exception.UnAuthorizeException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

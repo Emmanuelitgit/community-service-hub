@@ -8,13 +8,12 @@ import com.community_service_hub.user_service.repo.RoleSetupRepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.repo.UserRoleRepo;
 import com.community_service_hub.user_service.service.UserRoleService;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.util.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 

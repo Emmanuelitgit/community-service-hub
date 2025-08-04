@@ -1,4 +1,4 @@
-package com.community_service_hub.user_service.exception;
+package com.community_service_hub.exception;
 
 public class ServerException extends RuntimeException{
 

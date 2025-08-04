@@ -1,18 +1,17 @@
 package com.community_service_hub.user_service.serviceImpl;
 
 import com.community_service_hub.user_service.dto.ResponseDTO;
-import com.community_service_hub.user_service.exception.NotFoundException;
+import com.community_service_hub.exception.NotFoundException;
 import com.community_service_hub.user_service.models.RoleSetup;
 import com.community_service_hub.user_service.repo.RoleSetupRepo;
 import com.community_service_hub.user_service.service.RoleSetupService;
-import com.community_service_hub.user_service.util.AppUtils;
+import com.community_service_hub.util.AppUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
