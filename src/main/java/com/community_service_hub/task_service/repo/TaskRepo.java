@@ -26,6 +26,7 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "        t.start_date AS startDate," +
             "        t.number_of_people_needed AS numberOfPeopleNeeded," +
             "        t.status AS status," +
+            "        t.remaining_people_needed," +
             "        ng.organization_name," +
             "        ng.email," +
             "        ng.address AS organizationAddress," +

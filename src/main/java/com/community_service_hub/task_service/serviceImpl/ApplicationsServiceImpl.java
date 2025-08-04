@@ -114,6 +114,15 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             /**
+             * checking if task is closed for application
+             */
+            if (taskOptional.get().getStatus().equalsIgnoreCase(TaskStatus.CLOSED.toString())){
+                log.info("Task record is closed for application->>>{}", taskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Task record is closed for application", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            /**
              * updating task records
              */
             Task task = taskOptional.get();
@@ -221,6 +230,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
 
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(applicationsOptional.get().getApplicantId(), applicationsOptional.get().getTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+
             Applications existingData = applicationsOptional.get();
             existingData.setApplicantId(applications.getApplicantId() != null ? applications.getApplicantId() : existingData.getApplicantId());
             existingData.setApplicantName(applications.getApplicantName() != null ? applications.getApplicantName() : existingData.getApplicantName());
@@ -267,6 +286,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(applicationsOptional.get().getApplicantId(), applicationsOptional.get().getTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+
+            /**
              * deleting record
              */
             applicationsRepo.deleteById(applicationsOptional.get().getId());
@@ -292,6 +321,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
      * @auther Emmanuel Yidana
      * @createdAt 25th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateApplicationStatus(String status, UUID applicationId){
         try{
@@ -308,6 +338,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, applicationsOptional.get().getTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+
+            /**
              * updating status
              */
             Applications existingData = applicationsOptional.get();
@@ -316,7 +356,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             } else if (status.equalsIgnoreCase(ApplicationStatus.REJECTED.toString())) {
                 existingData.setStatus(ApplicationStatus.REJECTED.toString());
             }else {
-                log.info("application status provided cannot be found->>>{}", applicationId);
+                log.info("application status provided cannot be found->>>{}", status);
                 ResponseDTO responseDTO = AppUtils.getResponseDto("application status provided cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }

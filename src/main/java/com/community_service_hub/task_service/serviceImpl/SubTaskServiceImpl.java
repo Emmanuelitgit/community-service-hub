@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,12 +29,14 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final SubTaskRepo subTaskRepo;
     private final TaskRepo taskRepo;
     private final UserRepo userRepo;
+    private final AppUtils appUtils;
 
     @Autowired
-    public SubTaskServiceImpl(SubTaskRepo subTaskRepo, TaskRepo taskRepo, UserRepo userRepo) {
+    public SubTaskServiceImpl(SubTaskRepo subTaskRepo, TaskRepo taskRepo, UserRepo userRepo, AppUtils appUtils) {
         this.subTaskRepo = subTaskRepo;
         this.taskRepo = taskRepo;
         this.userRepo = userRepo;
+        this.appUtils = appUtils;
     }
 
 
@@ -44,6 +47,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> createSubTask(SubTask subTask) {
         try{
@@ -57,6 +61,16 @@ public class SubTaskServiceImpl implements SubTaskService {
                 log.info("parent task record cannot be found->>>{}", subTask.getParentTaskId());
                 ResponseDTO  response = AppUtils.getResponseDto("parent task record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(taskOptional.get().getPostedBy(), null);
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", taskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -99,6 +113,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @Override
     public ResponseEntity<ResponseDTO> getSubTasks() {
         try{
@@ -169,6 +184,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateSubTask(SubTask subTask) {
         try {
@@ -183,6 +199,16 @@ public class SubTaskServiceImpl implements SubTaskService {
                 log.info("subtask record cannot be found->>>{}", subTask.getId());
                 ResponseDTO  response = AppUtils.getResponseDto("subtask record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, subTaskOptional.get().getParentTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", subTaskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -232,6 +258,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN','NGO')")
     @Override
     public ResponseEntity<ResponseDTO> removeSubTask(UUID subTaskId) {
         try{
@@ -245,6 +272,16 @@ public class SubTaskServiceImpl implements SubTaskService {
                 log.info("subtask record cannot be found->>>{}", subTaskId);
                 ResponseDTO  response = AppUtils.getResponseDto("subtask record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, subTaskOptional.get().getParentTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", subTaskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -272,6 +309,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> assignTask(UUID subTaskId, UUID assigneeId) {
         try{
@@ -285,6 +323,16 @@ public class SubTaskServiceImpl implements SubTaskService {
                 log.info("subtask record cannot be found->>>{}", subTaskId);
                 ResponseDTO  response = AppUtils.getResponseDto("subtask record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, subTaskOptional.get().getParentTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", subTaskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -360,6 +408,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 27th July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     public ResponseEntity<ResponseDTO> fetchSubTasksByParentTaskId(UUID parentTaskId){
         try {
             log.info("In fetch subtasks by parent task id->>>{}", parentTaskId);
@@ -375,6 +424,16 @@ public class SubTaskServiceImpl implements SubTaskService {
             }
 
             /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(taskOptional.get().getPostedBy(), null);
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", taskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+
+            /**
              * loading subtasks list from db
              */
             List<SubTask> subTasks = subTaskRepo.fetchSubTasksByParentTaskId(parentTaskId);
@@ -383,6 +442,53 @@ public class SubTaskServiceImpl implements SubTaskService {
              * returning response if successfully
              */
             ResponseDTO  response = AppUtils.getResponseDto("subtasks list", HttpStatus.OK, subTasks);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            throw new ServerException(e.getMessage());
+        }
+    }
+
+
+    /**
+     * @description This method is used to update a status of a subtask to either(COMPLETED or ONGOING)
+     * @return ResponseEntity containing a list of subtasks and status information
+     * @auther Emmanuel Yidana
+     * @createdAt 4TH August 2025
+     */
+    public ResponseEntity<ResponseDTO> updateSubTaskStatus(UUID subTaskId, String status){
+        try {
+            log.info("In update subtask status method->>>{}", subTaskId);
+            /**
+             * checking if subtask record exist by id
+             */
+            Optional<SubTask> subTaskOptional = subTaskRepo.findById(subTaskId);
+            if (subTaskOptional.isEmpty()){
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Subtask record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            SubTask subTask = subTaskOptional.get();
+            if (status.equalsIgnoreCase(TaskStatus.ONGOING.toString())){
+                subTask.setStatus(TaskStatus.ONGOING.toString());
+            } else if (status.equalsIgnoreCase(TaskStatus.COMPLETED.toString())) {
+                subTask.setStatus(TaskStatus.COMPLETED.toString());
+            }else {
+                log.info("Status provided does not exist->>>{}", status);
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Status provided does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * saving updated record
+             */
+            SubTask subTaskResponse = subTaskRepo.save(subTask);
+
+            /**
+             * returning response if successfully
+             */
+            ResponseDTO  response = AppUtils.getResponseDto("Subtask status updated", HttpStatus.OK, subTaskResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         }catch (Exception e) {

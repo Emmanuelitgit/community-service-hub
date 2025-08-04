@@ -27,4 +27,5 @@ public interface TaskProjection {
     Double getNgoLatitude();
     Double getNgoLongitude();
     String getSocialLinks();
+    String getRemainingPeopleNeeded();
 }

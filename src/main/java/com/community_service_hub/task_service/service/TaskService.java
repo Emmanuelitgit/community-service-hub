@@ -13,4 +13,5 @@ public interface TaskService {
     ResponseEntity<ResponseDTO> getTaskById(UUID taskId);
     ResponseEntity<ResponseDTO> updateTask(Task task);
     ResponseEntity<ResponseDTO> removeTask(UUID taskId);
+    public ResponseEntity<ResponseDTO> fetchTasksForNGO();
 }

@@ -84,4 +84,12 @@ public class SubTaskRest {
     public ResponseEntity<ResponseDTO> fetchSubTasksByParentTaskId(@PathVariable UUID parentTaskId){
         return subTaskService.fetchSubTasksByParentTaskId(parentTaskId);
     }
+
+    @Operation(summary = "This endpoint is used to to update status of a subtask to either(COMPLETED or ONGOING)")
+    @PutMapping("/tasks/status")
+    public ResponseEntity<ResponseDTO> updateSubTaskStatus(
+            @RequestParam("subTaskId") UUID subTaskId,
+            @RequestParam("status") String status){
+        return subTaskService.updateSubTaskStatus(subTaskId, status);
+    }
 }

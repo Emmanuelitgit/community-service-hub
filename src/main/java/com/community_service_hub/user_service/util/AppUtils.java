@@ -135,7 +135,7 @@ public class AppUtils {
      * @param taskId this is used when the requester is NGO. it used to load the NGO details
      * @return
      * @auther Emmanuel Yidana
-     * @createdAt 4TH July 2025
+     * @createdAt 4TH August 2025
      */
     public Boolean isUserAuthorized(UUID userId, UUID taskId){
         /**
@@ -170,7 +170,7 @@ public class AppUtils {
             return authenticatedUserRole.equalsIgnoreCase("ADMIN") || authenticatedUserId.equals(userId);
         }
 
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
 

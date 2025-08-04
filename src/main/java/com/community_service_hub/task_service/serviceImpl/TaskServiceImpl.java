@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,11 +25,13 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepo taskRepo;
     private final NGORepo ngoRepo;
+    private final AppUtils appUtils;
 
     @Autowired
-    public TaskServiceImpl(TaskRepo taskRepo, NGORepo ngoRepo) {
+    public TaskServiceImpl(TaskRepo taskRepo, NGORepo ngoRepo, AppUtils appUtils) {
         this.taskRepo = taskRepo;
         this.ngoRepo = ngoRepo;
+        this.appUtils = appUtils;
     }
 
 
@@ -39,6 +42,7 @@ public class TaskServiceImpl implements TaskService {
      * @auther Emmanuel Yidana
      * @createdAt 24h July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> createTask(Task task) {
         try{
@@ -140,6 +144,7 @@ public class TaskServiceImpl implements TaskService {
                 objectMap.put("startDate", task.getStartDate());
                 objectMap.put("category", task.getCategory());
                 objectMap.put("id", task.getId());
+                objectMap.put("remainingPeopleNeeded", task.getRemainingPeopleNeeded());
 
                 /**
                  * adding to list
@@ -202,6 +207,7 @@ public class TaskServiceImpl implements TaskService {
      * @auther Emmanuel Yidana
      * @createdAt 24h July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateTask(Task task) {
         try {
@@ -218,6 +224,16 @@ public class TaskServiceImpl implements TaskService {
             }
 
             /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(taskOptional.get().getPostedBy(), null);
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", taskOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+
+            /**
              * building update payload
              */
             Task existingData = taskOptional.get();
@@ -228,10 +244,13 @@ public class TaskServiceImpl implements TaskService {
             existingData.setLatitude(task.getLatitude() != null ? task.getLatitude() : existingData.getLatitude());
             existingData.setLongitude(task.getLongitude() != null ? task.getLongitude() : existingData.getLongitude());
             existingData.setStartDate(task.getStartDate() != null ? task.getStartDate() : existingData.getStartDate());
-            existingData.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded() != null ? task.getNumberOfPeopleNeeded() : existingData.getNumberOfPeopleNeeded());
             existingData.setStatus(task.getStatus() != null ? task.getStatus() : existingData.getStatus());
             existingData.setCategory(task.getCategory()!=null? task.getCategory() : existingData.getCategory());
-            existingData.setRemainingPeopleNeeded(task.getNumberOfPeopleNeeded()!=null? task.getNumberOfPeopleNeeded() : existingData.getNumberOfPeopleNeeded());
+            if (task.getNumberOfPeopleNeeded()!=null){
+                existingData.setNumberOfPeopleNeeded(task.getNumberOfPeopleNeeded());
+                Integer remaining = task.getNumberOfPeopleNeeded()-existingData.getNumberOfPeopleNeeded();
+                existingData.setRemainingPeopleNeeded(remaining+ existingData.getRemainingPeopleNeeded());
+            }
 
             /**
              * saving updated record
@@ -259,6 +278,7 @@ public class TaskServiceImpl implements TaskService {
      * @auther Emmanuel Yidana
      * @createdAt 24h July 2025
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> removeTask(UUID taskId) {
         try {
@@ -272,6 +292,16 @@ public class TaskServiceImpl implements TaskService {
                 log.info("no task record found->>>{}", taskId);
                 ResponseDTO  response = AppUtils.getResponseDto("no task record found-", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * checking user authorization levels
+             */
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(task.get().getPostedBy(), null);
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to task->>>{}", task.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to task", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
             }
 
             /**
@@ -298,6 +328,8 @@ public class TaskServiceImpl implements TaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
+    @Override
+    @PreAuthorize("hasAnyAuthority('NGO')")
     public ResponseEntity<ResponseDTO> fetchTasksForNGO(){
         try {
             log.info("In fetch tasks for NGO method->>>");
