@@ -416,10 +416,10 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * this what is returned to the UI when the logged-in user is applicant
              */
             List<Object> response = new ArrayList<>();
-            Map<String, Object> application = new HashMap<>();
 
             if (!applicationsForUser.isEmpty()){
                 applicationsForUser.forEach((app)->{
+                    Map<String, Object> application = new HashMap<>();
                     application.put("applicantName", app.getApplicantName());
                     application.put("applicantId", app.getApplicantId());
                     application.put("email", app.getEmail());
