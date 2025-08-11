@@ -20,9 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -397,15 +395,37 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             List<Applications> applicationsForNGO = applicationsRepo.fetchApplicationsForNGO(UUID.fromString(AppUtils.getAuthenticatedUserId()));
             if (applicationsForUser.isEmpty() && applicationsForNGO.isEmpty()){
                 log.info("application record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
-                ResponseDTO responseDTO = AppUtils.getResponseDto("application record cannot be found", HttpStatus.NOT_FOUND);
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Application record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
 
             /**
+             * fetching task details
+             */
+            Optional<Task> taskOptional = taskRepo.findById(
+                    !applicationsForUser.isEmpty()?applicationsForUser.get(0).getTaskId() :
+                            applicationsForNGO.get(0).getTaskId()
+            );
+            if (taskOptional.isEmpty()){
+                log.info("Task record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Task record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("Task", taskOptional.get());
+            response.put("Application", taskOptional.get());
+
+            /**
              * returning response if success
              */
-            ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, !applicationsForUser.isEmpty()?applicationsForUser:applicationsForNGO);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            if (!applicationsForUser.isEmpty()){
+                ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, response);
+                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            }else {
+                ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, !applicationsForUser.isEmpty()?applicationsForUser:applicationsForNGO);
+                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            }
 
         }catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
