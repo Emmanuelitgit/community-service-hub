@@ -412,9 +412,26 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("Task", taskOptional.get());
-            response.put("Application", taskOptional.get());
+            /**
+             * this what is returned to the UI when the logged-in user is applicant
+             */
+            List<Object> response = new ArrayList<>();
+            Map<String, Object> application = new HashMap<>();
+
+            if (!applicationsForUser.isEmpty()){
+                applicationsForUser.forEach((app)->{
+                    application.put("applicantName", app.getApplicantName());
+                    application.put("applicantId", app.getApplicantId());
+                    application.put("email", app.getEmail());
+                    application.put("reasonForApplication", app.getReasonForApplication());
+                    application.put("status", app.getStatus());
+                    application.put("phone", app.getPhone());
+                    application.put("id", app.getId());
+                    application.put("task", taskOptional.get());
+
+                    response.add(application);
+                });
+            }
 
             /**
              * returning response if success
@@ -423,7 +440,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                 ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, response);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
             }else {
-                ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, !applicationsForUser.isEmpty()?applicationsForUser:applicationsForNGO);
+                ResponseDTO responseDTO = AppUtils.getResponseDto("application list retrieved", HttpStatus.OK, applicationsForNGO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
             }
 
