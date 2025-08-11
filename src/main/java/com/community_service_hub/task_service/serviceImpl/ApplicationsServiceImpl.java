@@ -1,5 +1,6 @@
 package com.community_service_hub.task_service.serviceImpl;
 
+import com.community_service_hub.exception.NotFoundException;
 import com.community_service_hub.task_service.dto.ApplicationStatus;
 import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.Applications;
@@ -399,18 +400,6 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
 
-            /**
-             * fetching task details
-             */
-            Optional<Task> taskOptional = taskRepo.findById(
-                    !applicationsForUser.isEmpty()?applicationsForUser.get(0).getTaskId() :
-                            applicationsForNGO.get(0).getTaskId()
-            );
-            if (taskOptional.isEmpty()){
-                log.info("Task record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
-                ResponseDTO responseDTO = AppUtils.getResponseDto("Task record cannot be found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
 
             /**
              * this what is returned to the UI when the logged-in user is applicant
@@ -427,6 +416,15 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                     application.put("status", app.getStatus());
                     application.put("phone", app.getPhone());
                     application.put("id", app.getId());
+
+                    /**
+                     * fetching task details
+                     */
+                    Optional<Task> taskOptional = taskRepo.findById(app.getTaskId());
+                    if (taskOptional.isEmpty()){
+                        log.info("Task record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                        throw new NotFoundException("Task record cannot be found");
+                    }
                     application.put("task", taskOptional.get());
 
                     response.add(application);
