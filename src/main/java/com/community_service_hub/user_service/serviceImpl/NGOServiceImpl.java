@@ -85,6 +85,7 @@ public class NGOServiceImpl implements NGOService {
              */
             ngo.setPassword(passwordEncoder.encode(ngo.getPassword()));
             ngo.setRole(UserRole.NGO.toString());
+            ngo.setIsApproved(Boolean.FALSE);
             NGO ngoResponse = ngoRepo.save(ngo);
 
             /**
