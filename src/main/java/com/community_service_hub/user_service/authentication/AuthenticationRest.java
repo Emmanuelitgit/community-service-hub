@@ -111,12 +111,13 @@ public class AuthenticationRest {
             /**
              * building response details
              */
-            Map<String, String> tokenData = new HashMap<>();
+            Map<String, Object> tokenData = new HashMap<>();
             tokenData.put("email", userOptional.isPresent()?userOptional.get().getEmail():ngoOptional.get().getEmail());
             tokenData.put("role", userOptional.isPresent()?userOptional.get().getUserRole():ngoOptional.get().getRole());
             tokenData.put("full name", userOptional.isPresent()?userOptional.get().getName():ngoOptional.get().getOrganizationName());
             tokenData.put("token", token);
             tokenData.put("userId", userId.toString());
+            ngoOptional.ifPresent(ngo -> tokenData.put("isApproved", ngo.getIsApproved()));
 
             /**
              * store userId in session
