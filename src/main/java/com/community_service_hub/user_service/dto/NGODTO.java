@@ -31,6 +31,7 @@ public class NGODTO {
     private Double latitude;
     private Double longitude;
     private String description;
+    private Boolean isApproved;
 
 
     public static NGODTO toNGODTO(NGO ngo){
@@ -50,6 +51,7 @@ public class NGODTO {
                 .longitude(ngo.getLongitude())
                 .description(ngo.getDescription())
                 .email(ngo.getEmail())
+                .isApproved(ngo.getIsApproved())
                 .build();
     }
 
