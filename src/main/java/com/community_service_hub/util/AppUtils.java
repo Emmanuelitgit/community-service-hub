@@ -118,7 +118,8 @@ public class AppUtils {
             throw new NotFoundException("User record not found");
         }
 
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.isPresent()?user.get().getUserRole():ngo.get().getRole());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(
+                user.map(value -> value.getUserRole().toUpperCase()).orElseGet(() -> ngo.get().getRole().toUpperCase()));
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(authority);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
