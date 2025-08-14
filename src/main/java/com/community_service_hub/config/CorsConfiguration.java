@@ -17,7 +17,7 @@ public class CorsConfiguration implements CorsConfigurationSource {
     @Override
     public org.springframework.web.cors.CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
         org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://rent-new.vercel.app/", "http://localhost:5216"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "https://rent-new.vercel.app/", "http://localhost:5216", "https://helpbridgeapp.vercel.app/"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
