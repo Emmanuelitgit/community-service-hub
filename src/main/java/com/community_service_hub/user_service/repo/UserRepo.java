@@ -43,4 +43,7 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "JOIN applications_tb ap ON u.id=ap.applicant_id " +
             "WHERE ap.task_id=:taskId AND ap.status='APPROVED' ", nativeQuery = true)
     List<UserDTOProjection> fetchListOfApprovedApplicantsForTask(@Param("taskId") UUID taskId);
+
+    @Query(value = "SELECT COUNT(*) FROM user_tbl", nativeQuery = true)
+    Integer totalUsers();
 }

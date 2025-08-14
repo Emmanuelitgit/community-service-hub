@@ -411,6 +411,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(){
+        return null;
+    }
+
+
     /**
      *  A chron method that will run every minute
      *  in order to keep the server alive when deployed to render

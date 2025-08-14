@@ -42,4 +42,10 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "    FROM task_tb t" +
             "    JOIN ngo_tb ng ON ng.id=t.posted_by", nativeQuery = true)
     List<TaskProjection> fetchTasksWithNGOs();
+
+    @Query(value = "SELECT COUNT(*) FROM task_tbl", nativeQuery = true)
+    Integer totalTasks();
+
+    @Query(value = "SELECT COUNT(*) FROM tasks_tbl WHERE posted_by=:userId", nativeQuery = true)
+    Integer totalTasksForLoggedInUser(@Param("userId") UUID userId);
 }
