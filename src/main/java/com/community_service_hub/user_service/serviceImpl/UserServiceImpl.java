@@ -480,11 +480,13 @@ public class UserServiceImpl implements UserService {
             Integer totalUsers = userRepo.totalUsers();
             Integer totalUsersCreatedForTheMonth = userRepo.totalCreatedUsersForTheMonth();
             Integer totalApplications = applicationsRepo.totalApplications();
+            Integer totalApprovedNGOS = ngoRepo.totalApprovedNGOS();
 
             stats.put("totalTasks", totalTasks);
             stats.put("totalActiveTasks", totalActiveTasks);
             stats.put("totalCompletedTasks", totalCompletedTasks);
             stats.put("totalNGOSPendingApproval", totalNGOSPendingApproval);
+            stats.put("totalApprovedNGOS", totalApprovedNGOS);
             stats.put("totalNGOs", totalNGOs);
             stats.put("totalCreatedTasksForTheMonth", totalCreatedTasksForTheMonth);
             stats.put("totalCreatedNGOSForTheMonth", totalCreatedNGOSForTheMonth);

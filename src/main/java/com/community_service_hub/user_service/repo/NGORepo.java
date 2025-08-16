@@ -20,6 +20,9 @@ public interface NGORepo extends JpaRepository<NGO, UUID> {
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS FALSE", nativeQuery = true)
     Integer totalNGOSPendingApproval();
 
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS TRUE", nativeQuery = true)
+    Integer totalApprovedNGOS();
+
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
     Integer totalCreatedNGOSForTheMonth();
 }
