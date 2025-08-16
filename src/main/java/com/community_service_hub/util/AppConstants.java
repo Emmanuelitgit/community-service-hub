@@ -22,4 +22,7 @@ public interface AppConstants {
 
     public final String ONGOING = "ONGOING";
 
+    public final String NOT_ASSIGNED = "NOT_ASSIGNED";
+
+    public final String ASSIGNED = "ASSIGNED";
 }

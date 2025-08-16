@@ -1,8 +1,6 @@
 package com.community_service_hub.task_service.serviceImpl;
 
 import com.community_service_hub.exception.NotFoundException;
-import com.community_service_hub.task_service.dto.ApplicationStatus;
-import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.Applications;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.ApplicationsRepo;
@@ -13,15 +11,14 @@ import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
+import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -117,7 +114,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * checking if task is closed for application
              */
-            if (taskOptional.get().getStatus().equalsIgnoreCase(TaskStatus.CLOSED.toString())){
+            if (taskOptional.get().getStatus().equalsIgnoreCase(AppConstants.CLOSED)){
                 log.info("Task record is closed for application->>>{}", taskOptional.get().getId());
                 ResponseDTO responseDTO = AppUtils.getResponseDto("Task record is closed for application", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
@@ -129,7 +126,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Task task = taskOptional.get();
             if (task.getRemainingPeopleNeeded()==1){
                 task.setRemainingPeopleNeeded(0);
-                task.setStatus(TaskStatus.CLOSED.toString());
+                task.setStatus(AppConstants.CLOSED);
             }else {
                 task.setRemainingPeopleNeeded(task.getRemainingPeopleNeeded()-1);
             }
@@ -138,7 +135,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * saving application record
              */
-            applications.setStatus(ApplicationStatus.PENDING.toString());
+            applications.setStatus(AppConstants.PENDING);
             Applications applicationsResponse  = applicationsRepo.save(applications);
 
             /**
@@ -352,10 +349,10 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * updating status
              */
             Applications existingData = applicationsOptional.get();
-            if (status.equalsIgnoreCase(ApplicationStatus.APPROVED.toString())){
-                existingData.setStatus(ApplicationStatus.APPROVED.toString());
-            } else if (status.equalsIgnoreCase(ApplicationStatus.REJECTED.toString())) {
-                existingData.setStatus(ApplicationStatus.REJECTED.toString());
+            if (status.equalsIgnoreCase(AppConstants.APPROVED)){
+                existingData.setStatus(AppConstants.APPROVED);
+            } else if (status.equalsIgnoreCase(AppConstants.REJECTED)) {
+                existingData.setStatus(AppConstants.REJECTED);
             }else {
                 log.info("application status provided cannot be found->>>{}", status);
                 ResponseDTO responseDTO = AppUtils.getResponseDto("application status provided cannot be found", HttpStatus.NOT_FOUND);

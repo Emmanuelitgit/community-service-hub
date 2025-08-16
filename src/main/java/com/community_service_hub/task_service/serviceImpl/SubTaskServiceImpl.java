@@ -1,6 +1,5 @@
 package com.community_service_hub.task_service.serviceImpl;
 
-import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.SubTask;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.SubTaskRepo;
@@ -10,6 +9,7 @@ import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.exception.ServerException;
 import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.UserRepo;
+import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,9 +83,9 @@ public class SubTaskServiceImpl implements SubTaskService {
                    ResponseDTO  response = AppUtils.getResponseDto("assignee record cannot be found", HttpStatus.NOT_FOUND);
                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
                }
-               subTask.setStatus(TaskStatus.ASSIGNED.toString());
+               subTask.setStatus(AppConstants.ASSIGNED);
            }else {
-               subTask.setStatus(TaskStatus.NOT_ASSIGNED.toString());
+               subTask.setStatus(AppConstants.NOT_ASSIGNED);
            }
 
             /**
@@ -350,7 +350,7 @@ public class SubTaskServiceImpl implements SubTaskService {
              */
             SubTask subTask = subTaskOptional.get();
             subTask.setAssigneeId(assigneeId);
-            subTask.setStatus(TaskStatus.ASSIGNED.toString());
+            subTask.setStatus(AppConstants.ASSIGNED);
             SubTask subTaskResponse = subTaskRepo.save(subTask);
 
             /**
@@ -470,10 +470,10 @@ public class SubTaskServiceImpl implements SubTaskService {
             }
 
             SubTask subTask = subTaskOptional.get();
-            if (status.equalsIgnoreCase(TaskStatus.ONGOING.toString())){
-                subTask.setStatus(TaskStatus.ONGOING.toString());
-            } else if (status.equalsIgnoreCase(TaskStatus.COMPLETED.toString())) {
-                subTask.setStatus(TaskStatus.COMPLETED.toString());
+            if (status.equalsIgnoreCase(AppConstants.ONGOING)){
+                subTask.setStatus(AppConstants.ONGOING);
+            } else if (status.equalsIgnoreCase(AppConstants.COMPLETED)) {
+                subTask.setStatus(AppConstants.COMPLETED);
             }else {
                 log.info("Status provided does not exist->>>{}", status);
                 ResponseDTO responseDTO = AppUtils.getResponseDto("Status provided does not exist", HttpStatus.NOT_FOUND);

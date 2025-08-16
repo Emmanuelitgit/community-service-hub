@@ -38,4 +38,8 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
     @Query(value = "SELECT COUNT(*) FROM applications_tb " +
             "WHERE status='REJECTED' AND applicant_id=:applicantId", nativeQuery = true)
     Integer totalRejectedApplicationsForApplicant(@Param("applicantId") UUID applicantId);
+
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+            "WHERE status='PENDING' AND applicant_id=:applicantId", nativeQuery = true)
+    Integer totalPendingApplicationsForApplicant(@Param("applicantId") UUID applicantId);
 }

@@ -458,10 +458,12 @@ public class UserServiceImpl implements UserService {
             Integer totalApplicationsForApplicant = applicationsRepo.totalApplicationsForApplicant(userId);
             Integer totalApprovedApplicationsForApplicant = applicationsRepo.totalApprovedApplicationsForApplicant(userId);
             Integer totalRejectedApplicationsForApplicant = applicationsRepo.totalRejectedApplicationsForApplicant(userId);
+            Integer totalPendingApplicationsForApplicant = applicationsRepo.totalPendingApplicationsForApplicant(userId);
 
             stats.put("totalApplicationsForApplicant", totalApplicationsForApplicant);
             stats.put("totalApprovedApplicationsForApplicant", totalApprovedApplicationsForApplicant);
             stats.put("totalRejectedApplicationsForApplicant", totalRejectedApplicationsForApplicant);
+            stats.put("totalPendingApplicationsForApplicant", totalPendingApplicationsForApplicant);
         }
 
         /**

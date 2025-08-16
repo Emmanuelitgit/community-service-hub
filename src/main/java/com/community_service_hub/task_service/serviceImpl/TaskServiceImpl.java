@@ -1,7 +1,6 @@
 package com.community_service_hub.task_service.serviceImpl;
 
 import com.community_service_hub.task_service.dto.TaskProjection;
-import com.community_service_hub.task_service.dto.TaskStatus;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.task_service.service.TaskService;
@@ -9,6 +8,7 @@ import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.exception.ServerException;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.repo.NGORepo;
+import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
              * saving task record
              */
             task.setRemainingPeopleNeeded(task.getNumberOfPeopleNeeded());
-            task.setStatus(TaskStatus.OPEN.toString());
+            task.setStatus(AppConstants.OPEN);
             Task taskResponse = taskRepo.save(task);
 
             /**
