@@ -14,6 +14,12 @@ public interface NGORepo extends JpaRepository<NGO, UUID> {
 
     Optional<NGO> findNGOByEmail(String email);
 
-    @Query(value = "SELECT COUNT(*) FROM ngo_tbl", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb", nativeQuery = true)
     Integer totalNGOs();
+
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS FALSE", nativeQuery = true)
+    Integer totalNGOSPendingApproval();
+
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
+    Integer totalCreatedNGOSForTheMonth();
 }

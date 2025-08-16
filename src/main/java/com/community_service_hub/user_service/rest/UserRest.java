@@ -76,4 +76,10 @@ public class UserRest {
     public ResponseEntity<ResponseDTO> fetchListOfApprovedApplicantsForTask(@PathVariable UUID taskId){
         return userService.fetchListOfApprovedApplicantsForTask(taskId);
     }
+
+    @Operation(summary = "This endpoint is used to fetch stats for logged-in user")
+    @GetMapping("/stats")
+    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(){
+        return userService.fetchStatsForLoggedInUser();
+    }
 }

@@ -5,6 +5,7 @@ import com.community_service_hub.config.AppProperties;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
 import com.community_service_hub.task_service.models.Task;
+import com.community_service_hub.task_service.repo.ApplicationsRepo;
 import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.user_service.dto.*;
 import com.community_service_hub.exception.NotFoundException;
@@ -13,6 +14,7 @@ import com.community_service_hub.user_service.models.*;
 import com.community_service_hub.user_service.models.UserRole;
 import com.community_service_hub.user_service.repo.*;
 import com.community_service_hub.user_service.service.UserService;
+import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +43,10 @@ public class UserServiceImpl implements UserService {
     private final OTPServiceImpl otpService;
     private final NGORepo ngoRepo;
     private final TaskRepo taskRepo;
+    private final ApplicationsRepo applicationsRepo;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
@@ -56,6 +59,7 @@ public class UserServiceImpl implements UserService {
         this.otpService = otpService;
         this.ngoRepo = ngoRepo;
         this.taskRepo = taskRepo;
+        this.applicationsRepo = applicationsRepo;
     }
 
     /**
@@ -410,9 +414,85 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
+    /**
+     * @description this method is used to fetch stats for both VOLUNTEERS, NGOs, and ADMIN
+     * @return map of stats
+     * @atuher Emmanuel Yidana
+     * @createdAt 16th August 2025
+     */
     public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(){
-        return null;
+
+        /**
+         * an object to map the response to UI
+         */
+        Map<String, Integer> stats = new HashMap<>();
+
+        /**
+         * getting details of logged-in user
+         */
+        UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+        String authenticatedUserRole = AppUtils.getAuthenticatedUserRole();
+        log.info("user role->>>{}", authenticatedUserRole);
+
+        /**
+         * stats for NGO user
+         */
+        if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
+            Integer totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
+            Integer totalTasksForNGO = taskRepo.totalTasksForNGO(userId);
+            Integer totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGO(userId);
+            Integer totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGO(userId);
+            Integer totalApplicationsForNGO = applicationsRepo.totalApplicationsForNGO(userId);
+
+            stats.put("totalCreatedTasksForTheMonthForNGO", totalCreatedTasksForTheMonthForNGO);
+            stats.put("totalTasksForNGO", totalTasksForNGO);
+            stats.put("totalCompletedTasksForNGO", totalCompletedTasksForNGO);
+            stats.put("totalActiveTasksForNGO", totalActiveTasksForNGO);
+            stats.put("totalApplicationsForNGO", totalApplicationsForNGO);
+        }
+
+        /**
+         * stats for VOLUNTEER user type
+         */
+        if (authenticatedUserRole.equalsIgnoreCase(AppConstants.VOLUNTEER)){
+            Integer totalApplicationsForApplicant = applicationsRepo.totalApplicationsForApplicant(userId);
+            Integer totalApprovedApplicationsForApplicant = applicationsRepo.totalApprovedApplicationsForApplicant(userId);
+            Integer totalRejectedApplicationsForApplicant = applicationsRepo.totalRejectedApplicationsForApplicant(userId);
+
+            stats.put("totalApplicationsForApplicant", totalApplicationsForApplicant);
+            stats.put("totalApprovedApplicationsForApplicant", totalApprovedApplicationsForApplicant);
+            stats.put("totalRejectedApplicationsForApplicant", totalRejectedApplicationsForApplicant);
+        }
+
+        /**
+         * stats for ADMIN user
+         */
+        if (authenticatedUserRole.equalsIgnoreCase(AppConstants.ADMIN)){
+            Integer totalTasks = taskRepo.totalTasks();
+            Integer totalActiveTasks = taskRepo.totalActiveTasks();
+            Integer totalCompletedTasks = taskRepo.totalCompletedTasks();
+            Integer totalNGOSPendingApproval = ngoRepo.totalNGOSPendingApproval();
+            Integer totalNGOs = ngoRepo.totalNGOs();
+            Integer totalCreatedTasksForTheMonth = taskRepo.totalCreatedTasksForTheMonth();
+            Integer totalCreatedNGOSForTheMonth = ngoRepo.totalCreatedNGOSForTheMonth();
+            Integer totalUsers = userRepo.totalUsers();
+            Integer totalUsersCreatedForTheMonth = userRepo.totalCreatedUsersForTheMonth();
+            Integer totalApplications = applicationsRepo.totalApplications();
+
+            stats.put("totalTasks", totalTasks);
+            stats.put("totalActiveTasks", totalActiveTasks);
+            stats.put("totalCompletedTasks", totalCompletedTasks);
+            stats.put("totalNGOSPendingApproval", totalNGOSPendingApproval);
+            stats.put("totalNGOs", totalNGOs);
+            stats.put("totalCreatedTasksForTheMonth", totalCreatedTasksForTheMonth);
+            stats.put("totalCreatedNGOSForTheMonth", totalCreatedNGOSForTheMonth);
+            stats.put("totalUsers", totalUsers);
+            stats.put("totalUsersCreatedForTheMonth", totalUsersCreatedForTheMonth);
+            stats.put("totalApplications", totalApplications);
+        }
+
+        ResponseDTO responseDTO = AppUtils.getResponseDto("stats", HttpStatus.OK, stats);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
 

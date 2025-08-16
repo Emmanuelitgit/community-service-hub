@@ -173,6 +173,22 @@ public class AppUtils {
         return Boolean.TRUE;
     }
 
+    /**
+     * @description this method is used to get the authenticated user role
+     * @return role of the user
+     * @auther Emmanuel Yidana
+     * @createdAt 16th August 2025
+     */
+    public static String getAuthenticatedUserRole(){
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .findFirst().get()
+                .toString()
+                .toUpperCase();
+    }
 
     /**
      * This method is used to get user full name.

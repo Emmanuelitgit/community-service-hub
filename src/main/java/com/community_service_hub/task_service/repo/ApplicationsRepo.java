@@ -20,9 +20,22 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
             "WHERE tk.posted_by = :NGOId", nativeQuery = true)
     List<Applications> fetchApplicationsForNGO(@Param("NGOId") UUID NGOId);
 
-    @Query(value = "SELECT COUNT(*) FROM application_tbl", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM applications_tb", nativeQuery = true)
     Integer totalApplications();
 
-    @Query(value = "SELECT COUNT(*) FROM application_tbl WHERE applicant_id=:userId", nativeQuery = true)
-    Integer totalApplicationsForLoggedInUser(@Param("userId") UUID userId);
+    @Query(value = "SELECT COUNT(*) FROM applications_tb WHERE applicant_id=:userId", nativeQuery = true)
+    Integer totalApplicationsForApplicant(@Param("userId") UUID userId);
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb tk " +
+            "JOIN applications_tb ap ON tk.id = ap.task_id " +
+            "WHERE tk.posted_by = :NGOId", nativeQuery = true)
+    Integer totalApplicationsForNGO(@Param("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+                   "WHERE status='APPROVED' AND applicant_id=:applicantId", nativeQuery = true)
+    Integer totalApprovedApplicationsForApplicant(@Param("applicantId") UUID applicantId);
+
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+            "WHERE status='REJECTED' AND applicant_id=:applicantId", nativeQuery = true)
+    Integer totalRejectedApplicationsForApplicant(@Param("applicantId") UUID applicantId);
 }

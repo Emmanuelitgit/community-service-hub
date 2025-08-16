@@ -40,10 +40,13 @@ public interface UserRepo extends JpaRepository<User, UUID> {
 
 
     @Query(value = "SELECT u.name, u.id, u.email, u.phone, u.user_role, u.address FROM user_tb u " +
-            "JOIN applications_tb ap ON u.id=ap.applicant_id " +
-            "WHERE ap.task_id=:taskId AND ap.status='APPROVED' ", nativeQuery = true)
+                    "JOIN applications_tb ap ON u.id=ap.applicant_id " +
+                    "WHERE ap.task_id=:taskId AND ap.status='APPROVED' ", nativeQuery = true)
     List<UserDTOProjection> fetchListOfApprovedApplicantsForTask(@Param("taskId") UUID taskId);
 
-    @Query(value = "SELECT COUNT(*) FROM user_tbl", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM user_tb", nativeQuery = true)
     Integer totalUsers();
+
+    @Query(value = "SELECT COUNT(*) FROM user_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
+    Integer totalCreatedUsersForTheMonth();
 }

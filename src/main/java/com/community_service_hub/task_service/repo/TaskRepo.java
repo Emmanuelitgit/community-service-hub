@@ -43,9 +43,29 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "    JOIN ngo_tb ng ON ng.id=t.posted_by", nativeQuery = true)
     List<TaskProjection> fetchTasksWithNGOs();
 
-    @Query(value = "SELECT COUNT(*) FROM task_tbl", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM task_tb", nativeQuery = true)
     Integer totalTasks();
 
-    @Query(value = "SELECT COUNT(*) FROM tasks_tbl WHERE posted_by=:userId", nativeQuery = true)
-    Integer totalTasksForLoggedInUser(@Param("userId") UUID userId);
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE posted_by=:NGOId", nativeQuery = true)
+    Integer totalTasksForNGO(@Param("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
+    Integer totalCreatedTasksForTheMonth();
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb " +
+                   "WHERE created_at >= date_trunc('month', CURRENT_DATE)" +
+                   "AND posted_by=:NGOId", nativeQuery = true)
+    Integer totalCreatedTasksForTheMonthForNGO(@Param("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE status='OPEN'", nativeQuery = true)
+    Integer totalActiveTasks();
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE status='CLOSED'", nativeQuery = true)
+    Integer totalCompletedTasks();
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE status='OPEN' AND posted_by=:NGOId", nativeQuery = true)
+    Integer totalActiveTasksForNGO(@Param("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE status='CLOSED' AND posted_by=:NGOId", nativeQuery = true)
+    Integer totalCompletedTasksForNGO(@Param("NGOId") UUID NGOId);
 }
