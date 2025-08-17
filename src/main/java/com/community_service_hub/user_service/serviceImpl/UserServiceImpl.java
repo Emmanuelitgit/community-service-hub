@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
                    .email(userResponse.getEmail())
                    .build();
 
-//           otpService.sendOtp(otpPayload);
+           otpService.sendOtp(otpPayload);
 
            /**
             * returning response if everything is successfully
