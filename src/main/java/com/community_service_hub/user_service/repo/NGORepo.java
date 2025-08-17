@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,4 +26,7 @@ public interface NGORepo extends JpaRepository<NGO, UUID> {
 
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
     Integer totalCreatedNGOSForTheMonth();
+
+    @Query(value = "SELECT * FROM ngo_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
+    List<NGO> getRecentActivities();
 }

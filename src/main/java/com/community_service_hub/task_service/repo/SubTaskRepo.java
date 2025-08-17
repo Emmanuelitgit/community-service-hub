@@ -18,4 +18,7 @@ public interface SubTaskRepo extends JpaRepository<SubTask, UUID> {
 
     @Query(value = "SELECT * FROM sub_task_tb WHERE parent_task_id=:parentTaskId", nativeQuery = true)
     List<SubTask> fetchSubTasksByParentTaskId(@Param("parentTaskId") UUID parentTaskId);
+
+    @Query(value = "SELECT * FROM sub_task_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
+    List<SubTask> getRecentActivities();
 }

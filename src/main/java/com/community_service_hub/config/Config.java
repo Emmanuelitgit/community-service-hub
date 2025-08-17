@@ -3,6 +3,7 @@ package com.community_service_hub.config;
 import com.community_service_hub.user_service.authentication.CustomFilter;
 import com.community_service_hub.user_service.authentication.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +42,11 @@ public class Config {
     private final CustomFilter customFilter;
     private final CorsConfiguration corsConfiguration;
 
+    @Value("${EMAIL_USERNAME}")
+    private String EMAIL_USERNAME;
+    @Value("${EMAIL_PASSWORD}")
+    private String EMAIL_PASSWORD;
+
     @Autowired
     public Config(UserDetailsService userDetailsService, CustomFilter customFilter, CorsConfiguration corsConfiguration) {
         this.userDetailsService = userDetailsService;
@@ -75,8 +81,8 @@ public class Config {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
-        mailSender.setUsername("eyidana001@gmail.com");
-        mailSender.setPassword("rukq qdrd enur cfrk");
+        mailSender.setUsername(EMAIL_USERNAME);
+        mailSender.setPassword(EMAIL_PASSWORD);
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.smtp.auth", "true");

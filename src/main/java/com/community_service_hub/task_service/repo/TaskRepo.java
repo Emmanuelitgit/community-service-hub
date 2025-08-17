@@ -68,4 +68,7 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
 
     @Query(value = "SELECT COUNT(*) FROM task_tb WHERE status='CLOSED' AND posted_by=:NGOId", nativeQuery = true)
     Integer totalCompletedTasksForNGO(@Param("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT * FROM task_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
+    List<Task> getRecentActivities();
 }

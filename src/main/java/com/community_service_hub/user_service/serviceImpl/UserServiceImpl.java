@@ -4,8 +4,11 @@ package com.community_service_hub.user_service.serviceImpl;
 import com.community_service_hub.config.AppProperties;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
+import com.community_service_hub.task_service.models.Applications;
+import com.community_service_hub.task_service.models.SubTask;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.ApplicationsRepo;
+import com.community_service_hub.task_service.repo.SubTaskRepo;
 import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.user_service.dto.*;
 import com.community_service_hub.exception.NotFoundException;
@@ -44,9 +47,11 @@ public class UserServiceImpl implements UserService {
     private final NGORepo ngoRepo;
     private final TaskRepo taskRepo;
     private final ApplicationsRepo applicationsRepo;
+    private final SubTaskRepo subTaskRepo;
+    private final ActivityRepo activityRepo;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo, SubTaskRepo subTaskRepo, SubTaskRepo subTaskRepo1, ActivityRepo activityRepo) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
@@ -60,6 +65,8 @@ public class UserServiceImpl implements UserService {
         this.ngoRepo = ngoRepo;
         this.taskRepo = taskRepo;
         this.applicationsRepo = applicationsRepo;
+        this.subTaskRepo = subTaskRepo1;
+        this.activityRepo = activityRepo;
     }
 
     /**
@@ -106,6 +113,17 @@ public class UserServiceImpl implements UserService {
            User userResponse = userRepo.save(user);
 
            /**
+            * update activity log
+            */
+           Activity activity = Activity
+                   .builder()
+                   .entityId(userResponse.getId())
+                   .activity("New User Created")
+                   .entityName(userResponse.getName())
+                   .build();
+           activityRepo.save(activity);
+
+           /**
             * sending an otp email notification to user
             */
            log.info("About to send an otp code to user->>>");
@@ -114,7 +132,7 @@ public class UserServiceImpl implements UserService {
                    .email(userResponse.getEmail())
                    .build();
 
-           otpService.sendOtp(otpPayload);
+//           otpService.sendOtp(otpPayload);
 
            /**
             * returning response if everything is successfully
@@ -220,6 +238,17 @@ public class UserServiceImpl implements UserService {
             User userResponse = userRepo.save(existingData);
 
             /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(userResponse.getId())
+                    .activity("User Records Updated")
+                    .entityName(userResponse.getName())
+                    .build();
+            activityRepo.save(activity);
+
+            /**
              * returning response if successfully
              */
             log.info("user records updated successfully:->>>>>>");
@@ -257,6 +286,17 @@ public class UserServiceImpl implements UserService {
             userRepo.deleteById(userId);
 
             log.info("user records removed successfully:->>>{}", userId);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(userOptional.get().getId())
+                    .activity("User Deleted")
+                    .entityName(userOptional.get().getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if successfully
@@ -298,7 +338,18 @@ public class UserServiceImpl implements UserService {
             if (user.isPresent()){
                 User existingUser = user.get();
                 existingUser.setPassword(passwordEncoder.encode(credentials.getPassword()));
-                userRepo.save(existingUser);
+                User userResponse = userRepo.save(existingUser);
+
+                /**
+                 * update activity log
+                 */
+                Activity activity = Activity
+                        .builder()
+                        .entityId(userResponse.getId())
+                        .activity("Password Reset")
+                        .entityName(userResponse.getName())
+                        .build();
+                activityRepo.save(activity);
             }
 
             /**
@@ -306,7 +357,18 @@ public class UserServiceImpl implements UserService {
              */
             if (ngo != null){
                 ngo.setPassword(passwordEncoder.encode(credentials.getPassword()));
-                ngoRepo.save(ngo);
+                NGO ngoResponse = ngoRepo.save(ngo);
+
+                /**
+                 * update activity log
+                 */
+                Activity activity = Activity
+                        .builder()
+                        .entityId(ngoResponse.getId())
+                        .activity("Password Reset")
+                        .entityName(ngoResponse.getOrganizationName())
+                        .build();
+                activityRepo.save(activity);
             }
 
             ResponseDTO responseDTO = AppUtils.getResponseDto("password reset was successfully", HttpStatus.OK);
@@ -423,16 +485,17 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(){
 
         /**
-         * an object to map the response to UI
-         */
-        Map<String, Integer> stats = new HashMap<>();
-
-        /**
          * getting details of logged-in user
          */
         UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
         String authenticatedUserRole = AppUtils.getAuthenticatedUserRole();
         log.info("user role->>>{}", authenticatedUserRole);
+
+        /**
+         * an object to map the response to UI
+         */
+        List<Activity> recentActivities = activityRepo.getRecentActivitiesByUserId(userId);
+        Map<String, Object> stats = new HashMap<>();
 
         /**
          * stats for NGO user
@@ -495,7 +558,11 @@ public class UserServiceImpl implements UserService {
             stats.put("totalApplications", totalApplications);
         }
 
-        ResponseDTO responseDTO = AppUtils.getResponseDto("stats", HttpStatus.OK, stats);
+        Map<String, Object> responseObject = new HashMap<>();
+        responseObject.put("recentActivities", recentActivities);
+        responseObject.put("stats", stats);
+
+        ResponseDTO responseDTO = AppUtils.getResponseDto("stats", HttpStatus.OK, responseObject);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 

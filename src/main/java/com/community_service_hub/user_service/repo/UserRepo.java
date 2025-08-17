@@ -49,4 +49,7 @@ public interface UserRepo extends JpaRepository<User, UUID> {
 
     @Query(value = "SELECT COUNT(*) FROM user_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
     Integer totalCreatedUsersForTheMonth();
+
+    @Query(value = "SELECT * FROM user_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
+    List<User> getRecentActivities();
 }

@@ -8,8 +8,10 @@ import com.community_service_hub.user_service.dto.UserRole;
 import com.community_service_hub.exception.BadRequestException;
 import com.community_service_hub.exception.NotFoundException;
 import com.community_service_hub.exception.ServerException;
+import com.community_service_hub.user_service.models.Activity;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.service.NGOService;
@@ -38,15 +40,17 @@ public class NGOServiceImpl implements NGOService {
     private final NGODTO ngodto;
     private final OTPServiceImpl otpService;
     private final AppUtils appUtils;
+    private final ActivityRepo activityRepo;
 
     @Autowired
-    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, OTPServiceImpl otpService, AppUtils appUtils) {
+    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, OTPServiceImpl otpService, AppUtils appUtils, ActivityRepo activityRepo) {
         this.ngoRepo = ngoRepo;
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
         this.ngodto = ngodto;
         this.otpService = otpService;
         this.appUtils = appUtils;
+        this.activityRepo = activityRepo;
     }
 
 
@@ -87,6 +91,17 @@ public class NGOServiceImpl implements NGOService {
             ngo.setRole(UserRole.NGO.toString());
             ngo.setIsApproved(Boolean.FALSE);
             NGO ngoResponse = ngoRepo.save(ngo);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(ngoResponse.getId())
+                    .activity("New NGO Created")
+                    .entityName(ngoResponse.getOrganizationName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * send otp to user
@@ -170,6 +185,18 @@ public class NGOServiceImpl implements NGOService {
              * saving updated records
              */
             NGO ngoResponse = ngoRepo.save(existingData);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(ngoResponse.getId())
+                    .activity("NGO Records Updated")
+                    .entityName(ngoResponse.getOrganizationName())
+                    .build();
+            activityRepo.save(activity);
+
             /**
              * returning response if everything is success
              */
@@ -269,6 +296,17 @@ public class NGOServiceImpl implements NGOService {
            ngoRepo.deleteById(ngoId);
 
            /**
+            * update activity log
+            */
+           Activity activity = Activity
+                   .builder()
+                   .entityId(ngo.get().getId())
+                   .activity("NGO Records Deleted")
+                   .entityName(ngo.get().getOrganizationName())
+                   .build();
+           activityRepo.save(activity);
+
+           /**
             * returning response if successfully
             */
            ResponseDTO  response = AppUtils.getResponseDto("ngo record deleted", HttpStatus.OK);
@@ -357,9 +395,24 @@ public class NGOServiceImpl implements NGOService {
             }
 
             /**
-             * returning response if success
+             * saving updated record
              */
             NGO ngoResponse = ngoRepo.save(existingData);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(ngoResponse.getId())
+                    .activity(ngoResponse.getIsApproved()?"NGO Records Approved" : "NGO Records Rejected")
+                    .entityName(ngoResponse.getOrganizationName())
+                    .build();
+            activityRepo.save(activity);
+
+            /**
+             * returning response if success
+             */
             ResponseDTO  response = AppUtils.getResponseDto("NGO status updated", HttpStatus.OK, ngoResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
 

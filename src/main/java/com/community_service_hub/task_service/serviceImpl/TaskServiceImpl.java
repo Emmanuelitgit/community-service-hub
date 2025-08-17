@@ -6,7 +6,9 @@ import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.task_service.service.TaskService;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.exception.ServerException;
+import com.community_service_hub.user_service.models.Activity;
 import com.community_service_hub.user_service.models.NGO;
+import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
@@ -26,12 +28,14 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepo taskRepo;
     private final NGORepo ngoRepo;
     private final AppUtils appUtils;
+    private final ActivityRepo activityRepo;
 
     @Autowired
-    public TaskServiceImpl(TaskRepo taskRepo, NGORepo ngoRepo, AppUtils appUtils) {
+    public TaskServiceImpl(TaskRepo taskRepo, NGORepo ngoRepo, AppUtils appUtils, ActivityRepo activityRepo) {
         this.taskRepo = taskRepo;
         this.ngoRepo = ngoRepo;
         this.appUtils = appUtils;
+        this.activityRepo = activityRepo;
     }
 
 
@@ -73,6 +77,17 @@ public class TaskServiceImpl implements TaskService {
             task.setRemainingPeopleNeeded(task.getNumberOfPeopleNeeded());
             task.setStatus(AppConstants.OPEN);
             Task taskResponse = taskRepo.save(task);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(taskResponse.getId())
+                    .activity("New Task Created")
+                    .entityName(taskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if successfully
@@ -258,6 +273,17 @@ public class TaskServiceImpl implements TaskService {
             Task taskResponse = taskRepo.save(existingData);
 
             /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(taskResponse.getId())
+                    .activity("Task Records Updated")
+                    .entityName(taskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
+
+            /**
              * returning response if successfully
              */
             ResponseDTO  response = AppUtils.getResponseDto("task record updated", HttpStatus.OK, taskResponse);
@@ -309,6 +335,16 @@ public class TaskServiceImpl implements TaskService {
              */
             taskRepo.deleteById(task.get().getId());
 
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(task.get().getId())
+                    .activity("Task Records Deleted")
+                    .entityName(task.get().getName())
+                    .build();
+            activityRepo.save(activity);
             /**
              * returning response if successfully
              */

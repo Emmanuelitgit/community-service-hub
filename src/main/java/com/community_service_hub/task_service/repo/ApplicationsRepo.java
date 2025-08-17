@@ -42,4 +42,7 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
     @Query(value = "SELECT COUNT(*) FROM applications_tb " +
             "WHERE status='PENDING' AND applicant_id=:applicantId", nativeQuery = true)
     Integer totalPendingApplicationsForApplicant(@Param("applicantId") UUID applicantId);
+
+    @Query(value = "SELECT * FROM applications_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
+    List<Applications> getRecentActivities();
 }

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class JWTAccess {
 
     String SECRET = "RKUGLRKBKBSKLGSFIJSBKFBKJSDJBVugdtyidvctyfktvgkuyrcggchvrydtxtxuvyvgghghhhjhkjkjjurtyvkgvK";
-    long MINUTES = TimeUnit.MINUTES.toMillis(60);
+    long MINUTES = TimeUnit.DAYS.toMillis(7);
 
     /**
      * @auther Emmanuel Yidana

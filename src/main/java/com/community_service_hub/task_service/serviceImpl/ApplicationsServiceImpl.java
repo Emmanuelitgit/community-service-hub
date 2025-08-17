@@ -7,8 +7,10 @@ import com.community_service_hub.task_service.repo.ApplicationsRepo;
 import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.task_service.service.ApplicationsService;
 import com.community_service_hub.user_service.dto.ResponseDTO;
+import com.community_service_hub.user_service.models.Activity;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.util.AppConstants;
@@ -31,14 +33,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     private final UserRepo userRepo;
     private final TaskRepo taskRepo;
     private final AppUtils appUtils;
+    private final ActivityRepo activityRepo;
 
     @Autowired
-    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo, AppUtils appUtils) {
+    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo, AppUtils appUtils, ActivityRepo activityRepo) {
         this.applicationsRepo = applicationsRepo;
         this.ngoRepo = ngoRepo;
         this.userRepo = userRepo;
         this.taskRepo = taskRepo;
         this.appUtils = appUtils;
+        this.activityRepo = activityRepo;
     }
 
 
@@ -130,7 +134,22 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }else {
                 task.setRemainingPeopleNeeded(task.getRemainingPeopleNeeded()-1);
             }
-            taskRepo.save(task);
+
+            /**
+             * saving record
+             */
+            Task taskResponse = taskRepo.save(task);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(taskResponse.getId())
+                    .activity("New Application Created")
+                    .entityName(taskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * saving application record
@@ -251,6 +270,27 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Applications applicationsResponse = applicationsRepo.save(existingData);
 
             /**
+             * retrieving task details to add to activity log
+             */
+            Optional<Task> taskOptional = taskRepo.findById(applicationsResponse.getTaskId());
+            if (taskOptional.isEmpty()){
+                log.info("task record cannot be found->>>{}", applications.getTaskId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(taskOptional.get().getId())
+                    .activity("Application Record Updated")
+                    .entityName(taskOptional.get().getName())
+                    .build();
+            activityRepo.save(activity);
+
+            /**
              * returning response if success
              */
             ResponseDTO responseDTO = AppUtils.getResponseDto("application record updated", HttpStatus.OK, applicationsResponse);
@@ -297,6 +337,27 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * deleting record
              */
             applicationsRepo.deleteById(applicationsOptional.get().getId());
+
+            /**
+             * retrieving task details to add to activity log
+             */
+            Optional<Task> taskOptional = taskRepo.findById(applicationsOptional.get().getTaskId());
+            if (taskOptional.isEmpty()){
+                log.info("task record cannot be found->>>{}", applicationsOptional.get().getTaskId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(taskOptional.get().getId())
+                    .activity("Application Record Deleted")
+                    .entityName(taskOptional.get().getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if success
@@ -361,6 +422,26 @@ public class ApplicationsServiceImpl implements ApplicationsService {
 
             Applications applicationResponse = applicationsRepo.save(existingData);
 
+            /**
+             * retrieving task details to add to activity log
+             */
+            Optional<Task> taskOptional = taskRepo.findById(applicationResponse.getTaskId());
+            if (taskOptional.isEmpty()){
+                log.info("task record cannot be found->>>{}", applicationResponse.getTaskId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(taskOptional.get().getId())
+                    .activity(applicationResponse.getStatus().equalsIgnoreCase(AppConstants.APPROVED)?"Application Approved" : "Application Rejected")
+                    .entityName(taskOptional.get().getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if success
