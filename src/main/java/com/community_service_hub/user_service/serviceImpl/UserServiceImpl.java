@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -482,7 +483,7 @@ public class UserServiceImpl implements UserService {
      * @atuher Emmanuel Yidana
      * @createdAt 16th August 2025
      */
-    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(){
+    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(LocalDate startDate, LocalDate endDate){
 
         /**
          * getting details of logged-in user
@@ -501,7 +502,7 @@ public class UserServiceImpl implements UserService {
          * stats for NGO user
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
-            Integer totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
+                Integer totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
             Integer totalTasksForNGO = taskRepo.totalTasksForNGO(userId);
             Integer totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGO(userId);
             Integer totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGO(userId);

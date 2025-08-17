@@ -3,8 +3,10 @@ package com.community_service_hub.user_service.repo;
 import com.community_service_hub.user_service.models.NGO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +29,10 @@ public interface NGORepo extends JpaRepository<NGO, UUID> {
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
     Integer totalCreatedNGOSForTheMonth();
 
-    @Query(value = "SELECT * FROM ngo_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
-    List<NGO> getRecentActivities();
+    @Query(value = "SELECT COUNT(*) " +
+            "FROM ngo_tb " +
+            "WHERE created_at >= date_trunc('month', CAST(COALESCE(:dateParam, CURRENT_DATE) AS DATE)) " +
+            "AND created_at < date_trunc('month', CAST(COALESCE(:dateParam, CURRENT_DATE) AS DATE)) + interval '1 month'",
+            nativeQuery = true)
+    Integer totalCreatedNGOSForTheMonth(@Param("dateParam") LocalDate dateParam);
 }

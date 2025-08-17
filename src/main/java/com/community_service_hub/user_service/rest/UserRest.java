@@ -10,11 +10,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Slf4j
@@ -77,9 +79,15 @@ public class UserRest {
         return userService.fetchListOfApprovedApplicantsForTask(taskId);
     }
 
-    @Operation(summary = "This endpoint is used to fetch stats for logged-in user")
+    @Operation(summary = "This endpoint is used to fetch stats for logged-in user." +
+            "It takes two optional request params, startDate and endDate." +
+            "This filters out items/activities that falls within the range." +
+            "When supply only startDate, it will filter out items within that month only." +
+            "By default it brings out items within the current month/date")
     @GetMapping("/stats")
-    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(){
-        return userService.fetchStatsForLoggedInUser();
+    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(
+            @RequestParam(name = "startDate", value = "startDate", required = false) LocalDate startDate,
+            @RequestParam(name = "endDate", value = "endDate", required = false) LocalDate endDate){
+        return userService.fetchStatsForLoggedInUser(startDate, endDate);
     }
 }
