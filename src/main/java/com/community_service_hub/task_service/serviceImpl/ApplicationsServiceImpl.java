@@ -146,7 +146,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Activity activity = Activity
                     .builder()
                     .entityId(taskResponse.getId())
-                    .activity("New Application Created")
+                    .activity("Created New Application")
                     .entityName(taskResponse.getName())
                     .build();
             activityRepo.save(activity);
@@ -285,7 +285,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Activity activity = Activity
                     .builder()
                     .entityId(taskOptional.get().getId())
-                    .activity("Application Record Updated")
+                    .activity("Updated Application Record")
                     .entityName(taskOptional.get().getName())
                     .build();
             activityRepo.save(activity);
@@ -354,7 +354,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Activity activity = Activity
                     .builder()
                     .entityId(taskOptional.get().getId())
-                    .activity("Application Record Deleted")
+                    .activity("Deleted Application Record")
                     .entityName(taskOptional.get().getName())
                     .build();
             activityRepo.save(activity);
@@ -438,7 +438,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Activity activity = Activity
                     .builder()
                     .entityId(taskOptional.get().getId())
-                    .activity(applicationResponse.getStatus().equalsIgnoreCase(AppConstants.APPROVED)?"Application Approved" : "Application Rejected")
+                    .activity(applicationResponse.getStatus().equalsIgnoreCase(AppConstants.APPROVED)?"Approved Application" : "Disapproved Application")
                     .entityName(taskOptional.get().getName())
                     .build();
             activityRepo.save(activity);

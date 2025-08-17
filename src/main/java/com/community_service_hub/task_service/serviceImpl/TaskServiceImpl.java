@@ -84,7 +84,7 @@ public class TaskServiceImpl implements TaskService {
             Activity activity = Activity
                     .builder()
                     .entityId(taskResponse.getId())
-                    .activity("New Task Created")
+                    .activity("Created New Task")
                     .entityName(taskResponse.getName())
                     .build();
             activityRepo.save(activity);
@@ -278,7 +278,7 @@ public class TaskServiceImpl implements TaskService {
             Activity activity = Activity
                     .builder()
                     .entityId(taskResponse.getId())
-                    .activity("Task Records Updated")
+                    .activity("Updated Task Record")
                     .entityName(taskResponse.getName())
                     .build();
             activityRepo.save(activity);
@@ -341,7 +341,7 @@ public class TaskServiceImpl implements TaskService {
             Activity activity = Activity
                     .builder()
                     .entityId(task.get().getId())
-                    .activity("Task Records Deleted")
+                    .activity("Deleted Task Record")
                     .entityName(task.get().getName())
                     .build();
             activityRepo.save(activity);

@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
            Activity activity = Activity
                    .builder()
                    .entityId(userResponse.getId())
-                   .activity("New User Created")
+                   .activity("Account Creation")
                    .entityName(userResponse.getName())
                    .build();
            activityRepo.save(activity);
@@ -243,7 +243,7 @@ public class UserServiceImpl implements UserService {
             Activity activity = Activity
                     .builder()
                     .entityId(userResponse.getId())
-                    .activity("User Records Updated")
+                    .activity("Updated Account Details")
                     .entityName(userResponse.getName())
                     .build();
             activityRepo.save(activity);
@@ -293,7 +293,7 @@ public class UserServiceImpl implements UserService {
             Activity activity = Activity
                     .builder()
                     .entityId(userOptional.get().getId())
-                    .activity("User Deleted")
+                    .activity("Deleted Account")
                     .entityName(userOptional.get().getName())
                     .build();
             activityRepo.save(activity);
@@ -346,7 +346,7 @@ public class UserServiceImpl implements UserService {
                 Activity activity = Activity
                         .builder()
                         .entityId(userResponse.getId())
-                        .activity("Password Reset")
+                        .activity("Changed Password")
                         .entityName(userResponse.getName())
                         .build();
                 activityRepo.save(activity);
@@ -365,7 +365,7 @@ public class UserServiceImpl implements UserService {
                 Activity activity = Activity
                         .builder()
                         .entityId(ngoResponse.getId())
-                        .activity("Password Reset")
+                        .activity("Changed Password")
                         .entityName(ngoResponse.getOrganizationName())
                         .build();
                 activityRepo.save(activity);

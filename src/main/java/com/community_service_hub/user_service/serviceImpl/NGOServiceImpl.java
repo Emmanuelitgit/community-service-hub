@@ -98,7 +98,7 @@ public class NGOServiceImpl implements NGOService {
             Activity activity = Activity
                     .builder()
                     .entityId(ngoResponse.getId())
-                    .activity("New NGO Created")
+                    .activity("Account Creation")
                     .entityName(ngoResponse.getOrganizationName())
                     .build();
             activityRepo.save(activity);
@@ -192,7 +192,7 @@ public class NGOServiceImpl implements NGOService {
             Activity activity = Activity
                     .builder()
                     .entityId(ngoResponse.getId())
-                    .activity("NGO Records Updated")
+                    .activity("Updated Account Details")
                     .entityName(ngoResponse.getOrganizationName())
                     .build();
             activityRepo.save(activity);
@@ -301,7 +301,7 @@ public class NGOServiceImpl implements NGOService {
            Activity activity = Activity
                    .builder()
                    .entityId(ngo.get().getId())
-                   .activity("NGO Records Deleted")
+                   .activity("Deleted Account")
                    .entityName(ngo.get().getOrganizationName())
                    .build();
            activityRepo.save(activity);
@@ -405,7 +405,7 @@ public class NGOServiceImpl implements NGOService {
             Activity activity = Activity
                     .builder()
                     .entityId(ngoResponse.getId())
-                    .activity(ngoResponse.getIsApproved()?"NGO Records Approved" : "NGO Records Rejected")
+                    .activity(ngoResponse.getIsApproved()?"Approved NGO Account" : "Disapproved NGO Account")
                     .entityName(ngoResponse.getOrganizationName())
                     .build();
             activityRepo.save(activity);
