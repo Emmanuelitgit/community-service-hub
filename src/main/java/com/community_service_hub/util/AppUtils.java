@@ -25,7 +25,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
@@ -216,6 +218,17 @@ public class AppUtils {
      */
     public static Pageable getPageRequest(PaginationPayload paginationPayload){
         return PageRequest.of(paginationPayload.getPage()-1, paginationPayload.getSize());
+    }
+
+    /**
+     * @description a method to convert a string date to local date on the (yyyy-MM-dd) date format
+     * @param startDate
+     * @return
+     */
+    public static LocalDate convertStringToLocalDateTime(String startDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(startDate, formatter);
+
     }
 
     /**

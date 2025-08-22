@@ -14,6 +14,8 @@ import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -109,17 +111,24 @@ public class TaskServiceImpl implements TaskService {
      * @createdAt 24h July 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> getTasks() {
+    public ResponseEntity<ResponseDTO> getTasks(Double lat, Double lng, Integer km, Pageable pageable) {
         try {
             log.info("In fetch all tasks method->>>");
 
             /**
              * loading tasks from db
              */
-            List<TaskProjection> tasks = taskRepo.fetchTasksWithNGOs();
+            List<TaskProjection> tasks;
+            if (lat!=null&&lng!=null&&km!=null){
+                tasks = taskRepo.fetchNearByTasksWithNGOs(lat, lng, km, pageable);
+                log.info("Fetching nearby tasks->>>");
+            }else {
+                tasks = taskRepo.fetchTasksWithNGOs(pageable);
+                log.info("Fetching all tasks->>>");
+            }
             if (tasks.isEmpty()){
-                log.info("no task record found->>>");
-                ResponseDTO  response = AppUtils.getResponseDto("no task record found-", HttpStatus.NOT_FOUND);
+                log.error("no task record found->>>");
+                ResponseDTO  response = AppUtils.getResponseDto("No task record found-", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 

@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Slf4j
@@ -483,7 +485,21 @@ public class UserServiceImpl implements UserService {
      * @atuher Emmanuel Yidana
      * @createdAt 16th August 2025
      */
-    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(LocalDate startDate, LocalDate endDate){
+    public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(String startDate, String endDate){
+
+        /**
+         * converting start and end dates to LocalDateTime if provided
+         */
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime=null;
+        if (startDate!=null&&endDate!=null){
+            LocalDate start = AppUtils.convertStringToLocalDateTime(startDate);
+            LocalDate end = AppUtils.convertStringToLocalDateTime(endDate);
+
+            startDateTime = start.atStartOfDay();
+            endDateTime = end.atTime(LocalTime.MAX);
+        }
+
 
         /**
          * getting details of logged-in user
@@ -503,7 +519,7 @@ public class UserServiceImpl implements UserService {
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
                 Integer totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
-            Integer totalTasksForNGO = taskRepo.totalTasksForNGO(userId);
+            Integer totalTasksForNGO = taskRepo.totalTasksForNGO(userId, startDateTime, endDateTime);
             Integer totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGO(userId);
             Integer totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGO(userId);
             Integer totalApplicationsForNGO = applicationsRepo.totalApplicationsForNGO(userId);
@@ -534,17 +550,38 @@ public class UserServiceImpl implements UserService {
          * stats for ADMIN user
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.ADMIN)){
-            Integer totalTasks = taskRepo.totalTasks();
-            Integer totalActiveTasks = taskRepo.totalActiveTasks();
-            Integer totalCompletedTasks = taskRepo.totalCompletedTasks();
-            Integer totalNGOSPendingApproval = ngoRepo.totalNGOSPendingApproval();
-            Integer totalNGOs = ngoRepo.totalNGOs();
-            Integer totalCreatedTasksForTheMonth = taskRepo.totalCreatedTasksForTheMonth();
-            Integer totalCreatedNGOSForTheMonth = ngoRepo.totalCreatedNGOSForTheMonth();
-            Integer totalUsers = userRepo.totalUsers();
-            Integer totalUsersCreatedForTheMonth = userRepo.totalCreatedUsersForTheMonth();
-            Integer totalApplications = applicationsRepo.totalApplications();
-            Integer totalApprovedNGOS = ngoRepo.totalApprovedNGOS();
+            Integer totalTasks=0;
+            Integer totalActiveTasks =0;
+            Integer totalCompletedTasks=0;
+            Integer totalNGOSPendingApproval=0;
+            Integer totalNGOs=0;
+            Integer totalCreatedTasksForTheMonth=0;
+            Integer totalCreatedNGOSForTheMonth=0;
+            Integer totalUsers=0;
+            Integer totalUsersCreatedForTheMonth=0;
+            Integer totalApplications=0;
+            Integer totalApprovedNGOS=0;
+
+            if (startDate!=null&&endDate!=null){
+                totalTasks= taskRepo.totalTasksWithRange(startDateTime, endDateTime);
+                totalActiveTasks = taskRepo.totalActiveTasksWithRange(startDateTime, endDateTime);
+                totalCompletedTasks = taskRepo.totalCompletedTasksWithRange(startDateTime, endDateTime);
+            }else {
+                totalTasks=taskRepo.totalTasks();
+                totalActiveTasks = taskRepo.totalActiveTasks();
+                totalCompletedTasks = taskRepo.totalCompletedTasks();
+                totalNGOSPendingApproval = ngoRepo.totalNGOSPendingApproval();
+                totalNGOs = ngoRepo.totalNGOs();
+                totalUsers = userRepo.totalUsers();
+                totalApplications = applicationsRepo.totalApplications();
+                totalApprovedNGOS = ngoRepo.totalApprovedNGOS();
+            }
+
+            totalUsersCreatedForTheMonth = userRepo.totalCreatedUsersForTheMonth();
+            totalCreatedTasksForTheMonth = taskRepo.totalCreatedTasksForTheMonth();
+            totalCreatedNGOSForTheMonth = ngoRepo.totalCreatedNGOSForTheMonth();
+
+
 
             stats.put("totalTasks", totalTasks);
             stats.put("totalActiveTasks", totalActiveTasks);

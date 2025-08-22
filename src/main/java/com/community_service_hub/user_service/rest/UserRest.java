@@ -86,8 +86,8 @@ public class UserRest {
             "By default it brings out items within the current month/date")
     @GetMapping("/stats")
     public ResponseEntity<ResponseDTO> fetchStatsForLoggedInUser(
-            @RequestParam(name = "startDate", value = "startDate", required = false) LocalDate startDate,
-            @RequestParam(name = "endDate", value = "endDate", required = false) LocalDate endDate){
+            @RequestParam(name = "startDate", value = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", value = "endDate", required = false) String endDate){
         return userService.fetchStatsForLoggedInUser(startDate, endDate);
     }
 }

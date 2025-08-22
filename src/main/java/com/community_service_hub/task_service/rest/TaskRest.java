@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +40,14 @@ public class TaskRest {
 
     @Operation(summary = "This endpoint is used to fetch all tasks")
     @GetMapping
-    public ResponseEntity<ResponseDTO> getTasks(){
-        return taskService.getTasks();
+    public ResponseEntity<ResponseDTO> getTasks(
+            @RequestParam(name = "lat", required = false) Double lat,
+            @RequestParam(name = "lng", required = false) Double lng,
+            @RequestParam(name = "km", required = false) Integer km,
+            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size){
+        Pageable pageable = PageRequest.of(page, size);
+        return taskService.getTasks(lat, lng, km, pageable);
     }
 
     @Operation(summary = "This endpoint is used to get a task record by id")
