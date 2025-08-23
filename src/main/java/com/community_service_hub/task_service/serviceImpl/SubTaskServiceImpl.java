@@ -7,7 +7,9 @@ import com.community_service_hub.task_service.repo.TaskRepo;
 import com.community_service_hub.task_service.service.SubTaskService;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.exception.ServerException;
+import com.community_service_hub.user_service.models.Activity;
 import com.community_service_hub.user_service.models.User;
+import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
@@ -30,13 +32,15 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final TaskRepo taskRepo;
     private final UserRepo userRepo;
     private final AppUtils appUtils;
+    private final ActivityRepo activityRepo;
 
     @Autowired
-    public SubTaskServiceImpl(SubTaskRepo subTaskRepo, TaskRepo taskRepo, UserRepo userRepo, AppUtils appUtils) {
+    public SubTaskServiceImpl(SubTaskRepo subTaskRepo, TaskRepo taskRepo, UserRepo userRepo, AppUtils appUtils, ActivityRepo activityRepo) {
         this.subTaskRepo = subTaskRepo;
         this.taskRepo = taskRepo;
         this.userRepo = userRepo;
         this.appUtils = appUtils;
+        this.activityRepo = activityRepo;
     }
 
 
@@ -83,7 +87,7 @@ public class SubTaskServiceImpl implements SubTaskService {
                    ResponseDTO  response = AppUtils.getResponseDto("assignee record cannot be found", HttpStatus.NOT_FOUND);
                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
                }
-               subTask.setStatus(AppConstants.ASSIGNED);
+               subTask.setStatus(AppConstants.PENDING);
            }else {
                subTask.setStatus(AppConstants.NOT_ASSIGNED);
            }
@@ -93,6 +97,16 @@ public class SubTaskServiceImpl implements SubTaskService {
              */
             SubTask subTaskResponse = subTaskRepo.save(subTask);
 
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(subTaskResponse.getId())
+                    .activity("Added SubTask for"+" "+taskOptional.get().getName())
+                    .entityName(subTaskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response i success
@@ -240,6 +254,17 @@ public class SubTaskServiceImpl implements SubTaskService {
             SubTask subTaskResponse = subTaskRepo.save(existingData);
 
             /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(subTaskResponse.getId())
+                    .activity("Updated SubTask")
+                    .entityName(subTaskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
+
+            /**
              * returning response if success
              */
             ResponseDTO responseDTO = AppUtils.getResponseDto("subtask updated", HttpStatus.OK, subTaskResponse);
@@ -289,6 +314,17 @@ public class SubTaskServiceImpl implements SubTaskService {
              * deleting record
              */
             subTaskRepo.deleteById(subTaskId);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(subTaskOptional.get().getId())
+                    .activity("Deleted SubTask")
+                    .entityName(subTaskOptional.get().getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if success
@@ -351,8 +387,19 @@ public class SubTaskServiceImpl implements SubTaskService {
              */
             SubTask subTask = subTaskOptional.get();
             subTask.setAssigneeId(assigneeId);
-            subTask.setStatus(AppConstants.ASSIGNED);
+            subTask.setStatus(AppConstants.PENDING);
             SubTask subTaskResponse = subTaskRepo.save(subTask);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(subTaskResponse.getId())
+                    .activity("Assigned SubTask to"+" "+userOptional.get().getName())
+                    .entityName(subTaskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if success
@@ -485,6 +532,17 @@ public class SubTaskServiceImpl implements SubTaskService {
              * saving updated record
              */
             SubTask subTaskResponse = subTaskRepo.save(subTask);
+
+            /**
+             * update activity log
+             */
+            Activity activity = Activity
+                    .builder()
+                    .entityId(subTaskResponse.getId())
+                    .activity("Changed SubTask status to"+" "+status.toUpperCase())
+                    .entityName(subTaskResponse.getName())
+                    .build();
+            activityRepo.save(activity);
 
             /**
              * returning response if successfully
