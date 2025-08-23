@@ -641,13 +641,14 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    /**
-     *  A chron method that will run every minute
-     *  in order to keep the server alive when deployed to render
-     */
-//    @Scheduled(fixedRate = 30000)
     public void keepServerAlive() {
         log.info("Hello server!");
+    }
+
+    @Scheduled(fixedRate = 30000)
+    private void keepServerServiceAlive(){
+        String url = "https://localhost:8080/keep-server-alive";
+        restTemplate.getForEntity(url, Object.class);
     }
 
 }
