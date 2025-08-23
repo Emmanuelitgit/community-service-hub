@@ -33,6 +33,12 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
     @Query(value = "SELECT COUNT(*) FROM applications_tb WHERE applicant_id=:userId", nativeQuery = true)
     Integer totalApplicationsForApplicant(@Param("userId") UUID userId);
 
+    @Query(value = "SELECT COUNT(*) FROM applications_tb WHERE applicant_id=:userId " +
+                    "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalApplicationsForApplicantWithRange(@Param("userId") UUID userId,
+                                                   @RequestParam("startDate") LocalDateTime startDate,
+                                                   @RequestParam("endDate") LocalDateTime endDate);
+
     @Query(value = "SELECT COUNT(*) FROM task_tb tk " +
             "JOIN applications_tb ap ON tk.id = ap.task_id " +
             "WHERE tk.posted_by = :NGOId", nativeQuery = true)
@@ -41,7 +47,7 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
     @Query(value = "SELECT COUNT(*) FROM task_tb tk " +
             "JOIN applications_tb ap ON tk.id = ap.task_id " +
             "WHERE tk.posted_by = :NGOId " +
-            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+            "AND ap.created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
     Integer totalApplicationsForNGOWithRange(@Param("NGOId") UUID NGOId,
                                              @RequestParam("startDate") LocalDateTime startDate,
                                              @RequestParam("endDate") LocalDateTime endDate);
@@ -51,12 +57,33 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
     Integer totalApprovedApplicationsForApplicant(@Param("applicantId") UUID applicantId);
 
     @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+            "WHERE status='APPROVED' AND applicant_id=:applicantId " +
+            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalApprovedApplicationsForApplicantWithRange(@Param("applicantId") UUID applicantId,
+                                                           @RequestParam("startDate") LocalDateTime startDate,
+                                                           @RequestParam("endDate") LocalDateTime endDate);
+
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
             "WHERE status='REJECTED' AND applicant_id=:applicantId", nativeQuery = true)
     Integer totalRejectedApplicationsForApplicant(@Param("applicantId") UUID applicantId);
 
     @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+            "WHERE status='REJECTED' AND applicant_id=:applicantId " +
+            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalRejectedApplicationsForApplicantWithRange(@RequestParam("applicantId") UUID applicantId,
+                                                           @RequestParam("startDate") LocalDateTime startDate,
+                                                           @RequestParam("endDate") LocalDateTime endDate);
+
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
             "WHERE status='PENDING' AND applicant_id=:applicantId", nativeQuery = true)
     Integer totalPendingApplicationsForApplicant(@Param("applicantId") UUID applicantId);
+
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+            "WHERE status='PENDING' AND applicant_id=:applicantId " +
+            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalPendingApplicationsForApplicantWithRange(@RequestParam("applicantId") UUID applicantId,
+                                                          @RequestParam("startDate") LocalDateTime startDate,
+                                                          @RequestParam("endDate") LocalDateTime endDate);
 
     @Query(value = "SELECT * FROM applications_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
     List<Applications> getRecentActivities();

@@ -519,7 +519,6 @@ public class UserServiceImpl implements UserService {
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
 
-
             Integer totalCreatedTasksForTheMonthForNGO = 0;
             Integer totalTasksForNGO = 0;
             Integer totalCompletedTasksForNGO = 0;
@@ -527,6 +526,7 @@ public class UserServiceImpl implements UserService {
             Integer totalApplicationsForNGO = 0;
 
             if(startDateTime!=null && endDateTime!=null){
+                log.info("Fetching stats for NGO with date rage->>{} to {}", startDate, endDate);
                 totalTasksForNGO = taskRepo.totalTasksForNGOWithRange(userId, startDateTime, endDateTime);
                 totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGOWithRange(userId,startDateTime, endDateTime);
                 totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGOWithRange(userId, startDateTime, endDateTime);
@@ -550,10 +550,24 @@ public class UserServiceImpl implements UserService {
          * stats for VOLUNTEER user type
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.VOLUNTEER)){
-            Integer totalApplicationsForApplicant = applicationsRepo.totalApplicationsForApplicant(userId);
-            Integer totalApprovedApplicationsForApplicant = applicationsRepo.totalApprovedApplicationsForApplicant(userId);
-            Integer totalRejectedApplicationsForApplicant = applicationsRepo.totalRejectedApplicationsForApplicant(userId);
-            Integer totalPendingApplicationsForApplicant = applicationsRepo.totalPendingApplicationsForApplicant(userId);
+
+            Integer totalApplicationsForApplicant = 0;
+            Integer totalApprovedApplicationsForApplicant = 0;
+            Integer totalRejectedApplicationsForApplicant = 0;
+            Integer totalPendingApplicationsForApplicant = 0;
+
+            if (startDateTime!=null && endDateTime!=null){
+                log.info("Fetching stats for VOLUNTEER with date rage->>{} to {}", startDate, endDate);
+                totalApplicationsForApplicant = applicationsRepo.totalApplicationsForApplicantWithRange(userId, startDateTime, endDateTime);
+                totalApprovedApplicationsForApplicant = applicationsRepo.totalApprovedApplicationsForApplicantWithRange(userId, startDateTime, endDateTime);
+                totalRejectedApplicationsForApplicant = applicationsRepo.totalRejectedApplicationsForApplicantWithRange(userId, startDateTime, endDateTime);
+                totalPendingApplicationsForApplicant = applicationsRepo.totalPendingApplicationsForApplicantWithRange(userId, startDateTime, endDateTime);
+            }else {
+                totalApplicationsForApplicant = applicationsRepo.totalApplicationsForApplicant(userId);
+                totalApprovedApplicationsForApplicant = applicationsRepo.totalApprovedApplicationsForApplicant(userId);
+                totalRejectedApplicationsForApplicant = applicationsRepo.totalRejectedApplicationsForApplicant(userId);
+                totalPendingApplicationsForApplicant = applicationsRepo.totalPendingApplicationsForApplicant(userId);
+            }
 
             stats.put("totalApplicationsForApplicant", totalApplicationsForApplicant);
             stats.put("totalApprovedApplicationsForApplicant", totalApprovedApplicationsForApplicant);
@@ -565,6 +579,7 @@ public class UserServiceImpl implements UserService {
          * stats for ADMIN user
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.ADMIN)){
+
             Integer totalTasks=0;
             Integer totalActiveTasks =0;
             Integer totalCompletedTasks=0;
@@ -578,6 +593,7 @@ public class UserServiceImpl implements UserService {
             Integer totalApprovedNGOS=0;
 
             if (startDate!=null&&endDate!=null){
+                log.info("Fetching stats for ADMIN with date rage->>{} to {}", startDate, endDate);
                 totalTasks= taskRepo.totalTasksWithRange(startDateTime, endDateTime);
                 totalActiveTasks = taskRepo.totalActiveTasksWithRange(startDateTime, endDateTime);
                 totalCompletedTasks = taskRepo.totalCompletedTasksWithRange(startDateTime, endDateTime);

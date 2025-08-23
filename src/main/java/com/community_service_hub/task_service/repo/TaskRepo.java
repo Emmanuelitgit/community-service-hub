@@ -91,9 +91,7 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
     Integer totalTasksWithRange(@Param("startDate") LocalDateTime startDate,
                        @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE posted_by=:NGOId " +
-                    "WHERE (:startDate=null OR created_at >= CAST(:startDate AS TIMESTAMP))" +
-                    "(:endDate=null OR created_at <= CAST(:endDate AS TIMESTAMP))", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM task_tb WHERE posted_by=:NGOId", nativeQuery = true)
     Integer totalTasksForNGO(@RequestParam("NGOId") UUID NGOId);
 
     @Query(value = "SELECT COUNT(*) FROM task_tb WHERE posted_by=:NGOId " +
