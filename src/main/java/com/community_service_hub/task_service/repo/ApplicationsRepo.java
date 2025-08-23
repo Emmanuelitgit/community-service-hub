@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,11 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
     @Query(value = "SELECT COUNT(*) FROM applications_tb", nativeQuery = true)
     Integer totalApplications();
 
+    @Query(value = "SELECT COUNT(*) FROM applications_tb " +
+            "WHERE created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalApplicationsWithRange(@RequestParam("startDate") LocalDateTime startDate,
+                                       @RequestParam("endDate") LocalDateTime endDate);
+
     @Query(value = "SELECT COUNT(*) FROM applications_tb WHERE applicant_id=:userId", nativeQuery = true)
     Integer totalApplicationsForApplicant(@Param("userId") UUID userId);
 
@@ -30,6 +37,14 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
             "JOIN applications_tb ap ON tk.id = ap.task_id " +
             "WHERE tk.posted_by = :NGOId", nativeQuery = true)
     Integer totalApplicationsForNGO(@Param("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT COUNT(*) FROM task_tb tk " +
+            "JOIN applications_tb ap ON tk.id = ap.task_id " +
+            "WHERE tk.posted_by = :NGOId " +
+            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalApplicationsForNGOWithRange(@Param("NGOId") UUID NGOId,
+                                             @RequestParam("startDate") LocalDateTime startDate,
+                                             @RequestParam("endDate") LocalDateTime endDate);
 
     @Query(value = "SELECT COUNT(*) FROM applications_tb " +
                    "WHERE status='APPROVED' AND applicant_id=:applicantId", nativeQuery = true)

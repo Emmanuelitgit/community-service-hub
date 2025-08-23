@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,11 +22,26 @@ public interface NGORepo extends JpaRepository<NGO, UUID> {
     @Query(value = "SELECT COUNT(*) FROM ngo_tb", nativeQuery = true)
     Integer totalNGOs();
 
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb " +
+            "WHERE created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalNGOsWithRange(@RequestParam("startDate") LocalDateTime startDate,
+                               @RequestParam("endDate") LocalDateTime endDate);
+
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS FALSE", nativeQuery = true)
     Integer totalNGOSPendingApproval();
 
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS FALSE " +
+            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalNGOSPendingApprovalWithRange(@RequestParam("startDate") LocalDateTime startDate,
+                                              @RequestParam("endDate") LocalDateTime endDate);
+
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS TRUE", nativeQuery = true)
     Integer totalApprovedNGOS();
+
+    @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE is_approved IS TRUE " +
+            "AND created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    Integer totalApprovedNGOSWithRange(@RequestParam("startDate") LocalDateTime startDate,
+                                       @RequestParam("endDate") LocalDateTime endDate);
 
     @Query(value = "SELECT COUNT(*) FROM ngo_tb WHERE created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
     Integer totalCreatedNGOSForTheMonth();

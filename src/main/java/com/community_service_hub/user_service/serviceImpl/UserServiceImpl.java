@@ -506,7 +506,7 @@ public class UserServiceImpl implements UserService {
          */
         UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
         String authenticatedUserRole = AppUtils.getAuthenticatedUserRole();
-        log.info("user role->>>{}", authenticatedUserRole);
+        log.info("Logged-in user role->>>{}", authenticatedUserRole);
 
         /**
          * an object to map the response to UI
@@ -518,11 +518,26 @@ public class UserServiceImpl implements UserService {
          * stats for NGO user
          */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
-                Integer totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
-            Integer totalTasksForNGO = taskRepo.totalTasksForNGO(userId, startDateTime, endDateTime);
-            Integer totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGO(userId);
-            Integer totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGO(userId);
-            Integer totalApplicationsForNGO = applicationsRepo.totalApplicationsForNGO(userId);
+
+
+            Integer totalCreatedTasksForTheMonthForNGO = 0;
+            Integer totalTasksForNGO = 0;
+            Integer totalCompletedTasksForNGO = 0;
+            Integer totalActiveTasksForNGO = 0;
+            Integer totalApplicationsForNGO = 0;
+
+            if(startDateTime!=null && endDateTime!=null){
+                totalTasksForNGO = taskRepo.totalTasksForNGOWithRange(userId, startDateTime, endDateTime);
+                totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGOWithRange(userId,startDateTime, endDateTime);
+                totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGOWithRange(userId, startDateTime, endDateTime);
+                totalApplicationsForNGO = applicationsRepo.totalApplicationsForNGOWithRange(userId, startDateTime, endDateTime);
+            }else {
+                totalTasksForNGO = taskRepo.totalTasksForNGO(userId);
+                totalCompletedTasksForNGO = taskRepo.totalCompletedTasksForNGO(userId);
+                totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGO(userId);
+                totalApplicationsForNGO = applicationsRepo.totalApplicationsForNGO(userId);
+            }
+            totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
 
             stats.put("totalCreatedTasksForTheMonthForNGO", totalCreatedTasksForTheMonthForNGO);
             stats.put("totalTasksForNGO", totalTasksForNGO);
@@ -566,6 +581,11 @@ public class UserServiceImpl implements UserService {
                 totalTasks= taskRepo.totalTasksWithRange(startDateTime, endDateTime);
                 totalActiveTasks = taskRepo.totalActiveTasksWithRange(startDateTime, endDateTime);
                 totalCompletedTasks = taskRepo.totalCompletedTasksWithRange(startDateTime, endDateTime);
+                totalNGOSPendingApproval = ngoRepo.totalNGOSPendingApprovalWithRange(startDateTime, endDateTime);
+                totalNGOs = ngoRepo.totalNGOsWithRange(startDateTime, endDateTime);
+                totalUsers = userRepo.totalUsersWithRange(startDateTime, endDateTime);
+                totalApplications = applicationsRepo.totalApplicationsWithRange(startDateTime, endDateTime);
+                totalApprovedNGOS = ngoRepo.totalApprovedNGOSWithRange(startDateTime, endDateTime);
             }else {
                 totalTasks=taskRepo.totalTasks();
                 totalActiveTasks = taskRepo.totalActiveTasks();
