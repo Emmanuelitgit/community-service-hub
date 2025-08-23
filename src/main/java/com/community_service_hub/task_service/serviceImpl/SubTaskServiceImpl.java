@@ -232,6 +232,7 @@ public class SubTaskServiceImpl implements SubTaskService {
             existingData.setParentTaskId(subTask.getParentTaskId()!=null?subTask.getParentTaskId():existingData.getParentTaskId());
             existingData.setName(subTask.getName()!=null?subTask.getName(): existingData.getName());
             existingData.setAssigneeId(subTask.getAssigneeId()!=null?subTask.getAssigneeId():existingData.getAssigneeId());
+            existingData.setDueDate(subTask.getDueDate()!=null?subTask.getDueDate():existingData.getDueDate());
 
             /**
              * saving updated record

@@ -2,6 +2,7 @@ package com.community_service_hub.task_service.models;
 
 import com.community_service_hub.config.AuditorData;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -30,4 +31,6 @@ public class SubTask extends AuditorData {
 //    @NotNull(message = "assignee id cannot be null")
     private UUID assigneeId;
     private String status;
+    @NotBlank(message = "Due date cannot be null or empty")
+    private String dueDate;
 }
