@@ -47,7 +47,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> createSubTask(SubTask subTask) {
         try{
@@ -184,7 +184,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateSubTask(SubTask subTask) {
         try {
@@ -259,7 +259,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN','NGO')")
+//    @PreAuthorize("hasAnyAuthority('ADMIN','NGO')")
     @Override
     public ResponseEntity<ResponseDTO> removeSubTask(UUID subTaskId) {
         try{
@@ -310,7 +310,7 @@ public class SubTaskServiceImpl implements SubTaskService {
      * @auther Emmanuel Yidana
      * @createdAt 26th July 2025
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'NGO')")
     @Override
     public ResponseEntity<ResponseDTO> assignTask(UUID subTaskId, UUID assigneeId) {
         try{
