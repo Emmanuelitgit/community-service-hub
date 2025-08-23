@@ -645,8 +645,8 @@ public class UserServiceImpl implements UserService {
      *  A chron method that will run every minute
      *  in order to keep the server alive when deployed to render
      */
-    @Scheduled(fixedRate = 30000)
-    public void fixedRateTask() {
+//    @Scheduled(fixedRate = 30000)
+    public void keepServerAlive() {
         log.info("Hello server!");
     }
 

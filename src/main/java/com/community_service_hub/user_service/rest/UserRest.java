@@ -90,4 +90,9 @@ public class UserRest {
             @RequestParam(name = "endDate", value = "endDate", required = false) String endDate){
         return userService.fetchStatsForLoggedInUser(startDate, endDate);
     }
+
+    @GetMapping("/keep-server-alive")
+    public void keepServerAlive(){
+        userService.keepServerAlive();
+    }
 }
