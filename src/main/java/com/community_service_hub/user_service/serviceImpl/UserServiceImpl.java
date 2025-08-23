@@ -647,7 +647,7 @@ public class UserServiceImpl implements UserService {
 
     @Scheduled(fixedRate = 30000)
     public void keepServerServiceAlive(){
-        String url = "https://localhost:8080/keep-server-alive";
+        String url = "https://server-service-6ab8.onrender.com/keep-server-alive";
         restTemplate.getForEntity(url, Object.class);
     }
 
