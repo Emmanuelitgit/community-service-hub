@@ -537,9 +537,9 @@ public class UserServiceImpl implements UserService {
                 totalActiveTasksForNGO = taskRepo.totalActiveTasksForNGO(userId);
                 totalApplicationsForNGO = applicationsRepo.totalApplicationsForNGO(userId);
             }
-            totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
+//            totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
 
-            stats.put("totalCreatedTasksForTheMonthForNGO", totalCreatedTasksForTheMonthForNGO);
+//            stats.put("totalCreatedTasksForTheMonthForNGO", totalCreatedTasksForTheMonthForNGO);
             stats.put("totalTasksForNGO", totalTasksForNGO);
             stats.put("totalCompletedTasksForNGO", totalCompletedTasksForNGO);
             stats.put("totalActiveTasksForNGO", totalActiveTasksForNGO);
@@ -613,9 +613,9 @@ public class UserServiceImpl implements UserService {
                 totalApprovedNGOS = ngoRepo.totalApprovedNGOS();
             }
 
-            totalUsersCreatedForTheMonth = userRepo.totalCreatedUsersForTheMonth();
-            totalCreatedTasksForTheMonth = taskRepo.totalCreatedTasksForTheMonth();
-            totalCreatedNGOSForTheMonth = ngoRepo.totalCreatedNGOSForTheMonth();
+//            totalUsersCreatedForTheMonth = userRepo.totalCreatedUsersForTheMonth();
+//            totalCreatedTasksForTheMonth = taskRepo.totalCreatedTasksForTheMonth();
+//            totalCreatedNGOSForTheMonth = ngoRepo.totalCreatedNGOSForTheMonth();
 
 
 
@@ -625,11 +625,11 @@ public class UserServiceImpl implements UserService {
             stats.put("totalNGOSPendingApproval", totalNGOSPendingApproval);
             stats.put("totalApprovedNGOS", totalApprovedNGOS);
             stats.put("totalNGOs", totalNGOs);
-            stats.put("totalCreatedTasksForTheMonth", totalCreatedTasksForTheMonth);
-            stats.put("totalCreatedNGOSForTheMonth", totalCreatedNGOSForTheMonth);
             stats.put("totalUsers", totalUsers);
-            stats.put("totalUsersCreatedForTheMonth", totalUsersCreatedForTheMonth);
             stats.put("totalApplications", totalApplications);
+//            stats.put("totalCreatedTasksForTheMonth", totalCreatedTasksForTheMonth);
+//            stats.put("totalCreatedNGOSForTheMonth", totalCreatedNGOSForTheMonth);
+//            stats.put("totalUsersCreatedForTheMonth", totalUsersCreatedForTheMonth);
         }
 
         Map<String, Object> responseObject = new HashMap<>();
