@@ -3,7 +3,9 @@ package com.community_service_hub.user_service.models;
 import com.community_service_hub.config.AuditorData;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.UUID;
@@ -19,6 +21,7 @@ public class NGO extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @NotBlank(message = "Organization name cannot be null")
     private String organizationName;
     private byte[] logo;
     private String state;
@@ -36,4 +39,5 @@ public class NGO extends AuditorData {
     private String description;
     private String role;
     private Boolean isApproved;
+    private String phone;
 }
