@@ -173,7 +173,7 @@ public class NGOServiceImpl implements NGOService {
             existingData.setSocialLinks(ngo.getSocialLinks() != null ? ngo.getSocialLinks() : existingData.getSocialLinks());
             existingData.setCertificate(ngo.getCertificate() != null ? ngo.getCertificate() : existingData.getCertificate());
             existingData.setEmail(ngo.getEmail() != null ? ngo.getEmail() : existingData.getEmail());
-            existingData.setPassword(ngo.getPassword() != null ? ngo.getPassword() : existingData.getPassword());
+//            existingData.setPassword(ngo.getPassword() != null ? ngo.getPassword() : existingData.getPassword());
             existingData.setAddress(ngo.getAddress() != null ? ngo.getAddress() : existingData.getAddress());
             existingData.setLatitude(ngo.getLatitude() != null ? ngo.getLatitude() : existingData.getLatitude());
             existingData.setLongitude(ngo.getLongitude() != null ? ngo.getLongitude() : existingData.getLongitude());
