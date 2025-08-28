@@ -4,13 +4,19 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Component
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserPayloadDTO {
     private UUID id;
     @NotNull(message = "name cannot be null")
