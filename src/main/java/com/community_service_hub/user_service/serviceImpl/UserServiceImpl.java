@@ -222,7 +222,7 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public ResponseEntity<ResponseDTO> updateUser(UserPayloadDTO userPayload) {
+    public ResponseEntity<ResponseDTO> updateUser(UserUpdateDTO userPayload) {
         try{
             log.info("In update user method:->>>>>>{}", userPayload);
 
@@ -238,6 +238,7 @@ public class UserServiceImpl implements UserService {
             existingData.setEmail(userPayload.getEmail() !=null ? userPayload.getEmail() : existingData.getEmail());
             existingData.setName(userPayload.getName() !=null ? userPayload.getName() : existingData.getName());
             existingData.setPhone(userPayload.getPhone() !=null ? userPayload.getPhone() : existingData.getPhone());
+            existingData.setAddress(userPayload.getAddress()!=null?userPayload.getAddress():existingData.getAddress());
             User userResponse = userRepo.save(existingData);
 
             /**
@@ -254,8 +255,9 @@ public class UserServiceImpl implements UserService {
             /**
              * returning response if successfully
              */
+            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse);
             log.info("user records updated successfully:->>>>>>");
-            ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userResponse);
+            ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {

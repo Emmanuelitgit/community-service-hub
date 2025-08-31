@@ -1,5 +1,6 @@
 package com.community_service_hub.user_service;
 
+import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
 import com.community_service_hub.user_service.dto.DTOMapper;
 import com.community_service_hub.user_service.dto.ResponseDTO;
@@ -10,6 +11,7 @@ import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,48 +56,56 @@ public class UserControllerTest {
      * this method is used to simulate the create user method
      */
     @Test
-    void createUserTest(){
-        User user = User
-                .builder()
+    @DisplayName("Simulating the create user method")
+    void createUserTest() {
+        User user = User.builder()
                 .email("eyidana001@gmail.com")
                 .phone("0597893082")
                 .password("1234")
-                .address("Accra")
                 .name("Emmanuel Yidana")
-                .latitude(0.864864)
-                .longitude(0.5564)
                 .userRole("ADMIN")
                 .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .build();
 
-        UserPayloadDTO dto =UserPayloadDTO
-                .builder()
+        UserPayloadDTO dto = UserPayloadDTO.builder()
                 .email("eyidana001@gmail.com")
                 .phone("0597893082")
                 .password("1234")
-                .address("Accra")
                 .name("Emmanuel Yidana")
-                .latitude(0.864864)
-                .longitude(0.5564)
                 .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .role("ADMIN")
                 .build();
 
-        Activity activity = Activity
-                .builder()
+        Activity activity = Activity.builder()
                 .activity("Account Creation")
                 .entityName("Test Entity")
                 .entityId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .build();
 
+        /**
+         * stubbing external dependencies
+         */
         when(userRepo.findUserByEmail("eyidana001@gmail.com")).thenReturn(Optional.empty());
         when(ngoRepo.findByEmail("eyidana001@gmail.com")).thenReturn(null);
-        when(userRepo.save(user)).thenReturn(user);
-        when(activityRepo.save(activity)).thenReturn(activity);
+        when(dtoMapper.toUserEntity(any(UserPayloadDTO.class))).thenReturn(user);
+        when(userRepo.save(any(User.class))).thenReturn(user);
+        when(activityRepo.save(any(Activity.class))).thenReturn(activity);
+        doNothing().when(otpService).sendOtp(any(OTPPayload.class));
 
         ResponseEntity<ResponseDTO> response = userService.createUser(dto);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
+        /**
+         * verify if they were actually called
+         */
+        verify(userRepo).findUserByEmail("eyidana001@gmail.com");
+        verify(ngoRepo).findByEmail("eyidana001@gmail.com");
+        verify(userRepo).save(user);
+        verify(activityRepo).save(activity);
+        verify(otpService).sendOtp(any(OTPPayload.class));
+
     }
+
+
 }

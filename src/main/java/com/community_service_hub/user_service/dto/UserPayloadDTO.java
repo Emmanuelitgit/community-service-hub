@@ -34,10 +34,6 @@ public class UserPayloadDTO {
     private String password;
     @NotNull(message = "role cannot be null")
     private String role;
-    @NotNull(message = "latitude cannot be null")
-    private Double latitude;
-    @NotNull(message = "longitude cannot be null")
-    private Double longitude;
     @NotNull(message = "address cannot be null")
     private String address;
 }

@@ -3,6 +3,7 @@ package com.community_service_hub.user_service.rest;
 import com.community_service_hub.user_service.dto.Credentials;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserPayloadDTO;
+import com.community_service_hub.user_service.dto.UserUpdateDTO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
 import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,7 +57,7 @@ public class UserRest {
 
     @Operation(summary = "This endpoint is used to update user")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDTO> updateUser(@RequestBody @Valid UserPayloadDTO user){
+    public ResponseEntity<ResponseDTO> updateUser(UserUpdateDTO user){
         return userService.updateUser(user);
     }
 

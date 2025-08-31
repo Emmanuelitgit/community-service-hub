@@ -1,6 +1,7 @@
 package com.community_service_hub.user_service.rest;
 
 import com.community_service_hub.user_service.dto.NGOPayload;
+import com.community_service_hub.user_service.dto.NGOUpdateDTO;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
@@ -65,7 +66,7 @@ public class NGORest {
 
     @Operation(summary = "This endpoint is used to update NGO record by id")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDTO> updateNGO(NGOPayload payload) throws IOException {
+    public ResponseEntity<ResponseDTO> updateNGO(NGOUpdateDTO payload) throws IOException {
 
         String socialLinks = payload.getSocialLinks()!=null?String.join(",", payload.getSocialLinks()):"";
 
@@ -77,11 +78,8 @@ public class NGORest {
                 .email(payload.getEmail())
                 .certificate(payload.getCertificate() !=null? ImageUtil.compressImage(payload.getCertificate().getBytes()) :null)
                 .state(payload.getState()!=null? payload.getState() : null)
-                .password(payload.getPassword())
                 .address(payload.getAddress()!=null? payload.getAddress() : null)
                 .description(payload.getDescription()!=null? payload.getDescription() : null)
-                .latitude(payload.getLatitude()!=null? payload.getLatitude() : null)
-                .longitude(payload.getLongitude()!=null? payload.getLongitude() : null)
                 .website(payload.getWebsite()!=null? payload.getWebsite() : null)
                 .country(payload.getCountry()!=null? payload.getCountry() : null)
                 .socialLinks(socialLinks)
