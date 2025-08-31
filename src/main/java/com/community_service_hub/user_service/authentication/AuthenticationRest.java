@@ -1,6 +1,6 @@
 package com.community_service_hub.user_service.authentication;
 
-import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
+import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.user_service.dto.Credentials;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.exception.UnAuthorizeException;
@@ -38,11 +38,11 @@ public class AuthenticationRest {
     private final JWTAccess jwtAccess;
     private final AuthenticationManager authenticationManager;
     private final UserRepo userRepo;
-    private final OTPServiceImpl otpService;
+    private final NotificationServiceImpl otpService;
     private final NGORepo ngoRepo;
 
     @Autowired
-    public AuthenticationRest(JWTAccess jwtAccess, AuthenticationManager authenticationManager, UserRepo userRepo, OTPServiceImpl otpService, NGORepo ngoRepo) {
+    public AuthenticationRest(JWTAccess jwtAccess, AuthenticationManager authenticationManager, UserRepo userRepo, NotificationServiceImpl otpService, NGORepo ngoRepo) {
         this.jwtAccess = jwtAccess;
         this.authenticationManager = authenticationManager;
         this.userRepo = userRepo;

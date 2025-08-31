@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface OTPRepo extends JpaRepository<OTP, UUID> {
+public interface NotificationRepo extends JpaRepository<OTP, UUID> {
     OTP findByUserId(UUID userId);
 }

@@ -1,7 +1,7 @@
 package com.community_service_hub.notification_service.rest;
 
 import com.community_service_hub.notification_service.dto.OTPPayload;
-import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
+import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.util.AppUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/otp")
 @Tag(name = "Notification Management", description = "This controller is responsible for handling all kinds of notification")
-public class OTPRest {
+public class NotificationRest {
 
-    private final OTPServiceImpl otpService;
+    private final NotificationServiceImpl otpService;
 
     @Autowired
-    public OTPRest(OTPServiceImpl otpService) {
+    public NotificationRest(NotificationServiceImpl otpService) {
         this.otpService = otpService;
     }
 

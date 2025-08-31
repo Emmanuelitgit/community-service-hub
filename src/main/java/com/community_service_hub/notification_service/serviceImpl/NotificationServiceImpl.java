@@ -1,9 +1,10 @@
 package com.community_service_hub.notification_service.serviceImpl;
 
+import com.community_service_hub.notification_service.dto.ApplicationConfirmationDTO;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.models.OTP;
-import com.community_service_hub.notification_service.repo.OTPRepo;
-import com.community_service_hub.notification_service.service.OTPService;
+import com.community_service_hub.notification_service.repo.NotificationRepo;
+import com.community_service_hub.notification_service.service.NotificationService;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.exception.BadRequestException;
 import com.community_service_hub.exception.NotFoundException;
@@ -31,20 +32,20 @@ import java.util.random.RandomGenerator;
 
 @Slf4j
 @Service
-public class OTPServiceImpl implements OTPService {
+public class NotificationServiceImpl implements NotificationService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final UserRepo userRepo;
-    private final OTPRepo otpRepo;
+    private final NotificationRepo notificationRepo;
     private final NGORepo ngoRepo;
 
     @Autowired
-    public OTPServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepo userRepo, OTPRepo otpRepo, NGORepo ngoRepo) {
+    public NotificationServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepo userRepo, NotificationRepo notificationRepo, NGORepo ngoRepo) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
         this.userRepo = userRepo;
-        this.otpRepo = otpRepo;
+        this.notificationRepo = notificationRepo;
         this.ngoRepo = ngoRepo;
     }
 
@@ -69,9 +70,9 @@ public class OTPServiceImpl implements OTPService {
             /**
              * check if user have a existing otp. delete it if exist before sending a new one.
              */
-            OTP otpExist = otpRepo.findByUserId(user.isPresent()?user.get().getId():ngo.getId());
+            OTP otpExist = notificationRepo.findByUserId(user.isPresent()?user.get().getId():ngo.getId());
             if (otpExist != null){
-               otpRepo.deleteById(otpExist.getId());
+               notificationRepo.deleteById(otpExist.getId());
             }
 
             /**
@@ -126,7 +127,7 @@ public class OTPServiceImpl implements OTPService {
         otp.setStatus(false);
         otp.setExpireAt(ZonedDateTime.now().plusMinutes(2));
         otp.setUserId(user.isPresent()?user.get().getId():ngo.getId());
-        return otpRepo.save(otp);
+        return notificationRepo.save(otp);
     }
 
     /**
@@ -152,7 +153,7 @@ public class OTPServiceImpl implements OTPService {
            /**
             * check if otp exist
             */
-           OTP otpExist = otpRepo.findByUserId(user.isPresent()?user.get().getId():ngo.getId());
+           OTP otpExist = notificationRepo.findByUserId(user.isPresent()?user.get().getId():ngo.getId());
            if (otpExist == null){
                ResponseDTO response = AppUtils.getResponseDto("OTP record not found", HttpStatus.NOT_FOUND);
                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -178,7 +179,7 @@ public class OTPServiceImpl implements OTPService {
             * remove otp after verification
             */
            otpExist.setStatus(true);
-           otpRepo.deleteById(otpExist.getId());
+           notificationRepo.deleteById(otpExist.getId());
 
            ResponseDTO response = AppUtils.getResponseDto("OTP verified", HttpStatus.OK);
            return new ResponseEntity<>(response, HttpStatus.OK);
@@ -212,7 +213,7 @@ public class OTPServiceImpl implements OTPService {
             throw new NotFoundException("User record not found");
         }
 
-        OTP otpExist = otpRepo.findByUserId(userOptional.isPresent()?userOptional.get().getId():ngoOptional.get().getId());
+        OTP otpExist = notificationRepo.findByUserId(userOptional.isPresent()?userOptional.get().getId():ngoOptional.get().getId());
 
         return otpExist == null;
     }
@@ -233,8 +234,8 @@ public class OTPServiceImpl implements OTPService {
             Optional<User> user = userRepo.findUserByEmail(email);
 
             if (user.isEmpty()){
-                log.info("no user email provide with the email provided->>>{}", email);
-                throw new NotFoundException("no user record found with the email provide");
+                log.info("No user found with the email provided->>>{}", email);
+                throw new NotFoundException("No user record found with the email provide");
             }
 
             /**
@@ -256,12 +257,57 @@ public class OTPServiceImpl implements OTPService {
             String htmlContent = templateEngine.process("PasswordResetTemplate", context);
             helper.setText(htmlContent, true);
 
-            log.info("Otp sent to:->>>{}", email);
+            log.info("Password rest link sent to:->>>{}", email);
             mailSender.send(message);
 
         } catch (Exception e) {
             log.info("Message->>>{}", e.getMessage());
             throw new ServerException("error occurred while trying to send password reset link");
+        }
+    }
+
+    public void sendApplicationConfirmation(ApplicationConfirmationDTO confirmationDTO){
+        try {
+
+            /**
+             * loading the user data from the db by the user email
+             */
+            Optional<User> user = userRepo.findUserByEmail(confirmationDTO.getUserEmail());
+
+            if (user.isEmpty()){
+                log.info("No user found with the email provided->>>{}", confirmationDTO.getUserEmail());
+                throw new NotFoundException("No user record found with the email provide");
+            }
+
+            /**
+             * setting email items
+             */
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setSubject("Application Confirmation");
+            helper.setFrom("eyidana001@gmail.com");
+            helper.setTo(confirmationDTO.getEmail());
+
+            /**
+             * setting variables values to passed to the template
+             */
+            Context context = new Context();
+            context.setVariable("name", user.get().getName());
+            context.setVariable("task", confirmationDTO.getTask());
+            context.setVariable("category", confirmationDTO.getCategory());
+            context.setVariable("status", confirmationDTO.getStatus());
+            context.setVariable("startDate", confirmationDTO.getStartDate());
+            context.setVariable("location", confirmationDTO.getLocation());
+
+            String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
+            helper.setText(htmlContent, true);
+
+            log.info("Application confirmation sent to:->>>{}", confirmationDTO.getEmail());
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            log.info("Error message->>>{}", e.getMessage());
+            throw new ServerException("Error occurred while trying to send password reset link");
         }
     }
 }

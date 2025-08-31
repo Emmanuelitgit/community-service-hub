@@ -3,9 +3,7 @@ package com.community_service_hub.user_service.serviceImpl;
 
 import com.community_service_hub.config.AppProperties;
 import com.community_service_hub.notification_service.dto.OTPPayload;
-import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
-import com.community_service_hub.task_service.models.Applications;
-import com.community_service_hub.task_service.models.SubTask;
+import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.ApplicationsRepo;
 import com.community_service_hub.task_service.repo.SubTaskRepo;
@@ -46,7 +44,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepo userRoleRepo;
     private final RestTemplate restTemplate;
     private final AppProperties appProperties;
-    private final OTPServiceImpl otpService;
+    private final NotificationServiceImpl otpService;
     private final NGORepo ngoRepo;
     private final TaskRepo taskRepo;
     private final ApplicationsRepo applicationsRepo;
@@ -54,7 +52,7 @@ public class UserServiceImpl implements UserService {
     private final ActivityRepo activityRepo;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, OTPServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo, SubTaskRepo subTaskRepo, SubTaskRepo subTaskRepo1, ActivityRepo activityRepo) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, NotificationServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo, SubTaskRepo subTaskRepo, SubTaskRepo subTaskRepo1, ActivityRepo activityRepo) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;

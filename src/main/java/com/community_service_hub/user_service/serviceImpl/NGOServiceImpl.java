@@ -1,7 +1,7 @@
 package com.community_service_hub.user_service.serviceImpl;
 
 import com.community_service_hub.notification_service.dto.OTPPayload;
-import com.community_service_hub.notification_service.serviceImpl.OTPServiceImpl;
+import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.user_service.dto.NGODTO;
 import com.community_service_hub.user_service.dto.ResponseDTO;
 import com.community_service_hub.user_service.dto.UserRole;
@@ -38,12 +38,12 @@ public class NGOServiceImpl implements NGOService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepo userRepo;
     private final NGODTO ngodto;
-    private final OTPServiceImpl otpService;
+    private final NotificationServiceImpl otpService;
     private final AppUtils appUtils;
     private final ActivityRepo activityRepo;
 
     @Autowired
-    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, OTPServiceImpl otpService, AppUtils appUtils, ActivityRepo activityRepo) {
+    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, NotificationServiceImpl otpService, AppUtils appUtils, ActivityRepo activityRepo) {
         this.ngoRepo = ngoRepo;
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;

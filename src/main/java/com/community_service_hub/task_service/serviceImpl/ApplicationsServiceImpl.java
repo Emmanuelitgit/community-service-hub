@@ -1,6 +1,8 @@
 package com.community_service_hub.task_service.serviceImpl;
 
 import com.community_service_hub.exception.NotFoundException;
+import com.community_service_hub.notification_service.dto.ApplicationConfirmationDTO;
+import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.task_service.models.Applications;
 import com.community_service_hub.task_service.models.Task;
 import com.community_service_hub.task_service.repo.ApplicationsRepo;
@@ -34,15 +36,17 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     private final TaskRepo taskRepo;
     private final AppUtils appUtils;
     private final ActivityRepo activityRepo;
+    private final NotificationServiceImpl notificationService;
 
     @Autowired
-    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo, AppUtils appUtils, ActivityRepo activityRepo) {
+    public ApplicationsServiceImpl(ApplicationsRepo applicationsRepo, NGORepo ngoRepo, UserRepo userRepo, TaskRepo taskRepo, AppUtils appUtils, ActivityRepo activityRepo, NotificationServiceImpl notificationService) {
         this.applicationsRepo = applicationsRepo;
         this.ngoRepo = ngoRepo;
         this.userRepo = userRepo;
         this.taskRepo = taskRepo;
         this.appUtils = appUtils;
         this.activityRepo = activityRepo;
+        this.notificationService = notificationService;
     }
 
 
@@ -141,6 +145,12 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             Task taskResponse = taskRepo.save(task);
 
             /**
+             * saving application record
+             */
+            applications.setStatus(AppConstants.PENDING);
+            Applications applicationsResponse  = applicationsRepo.save(applications);
+
+            /**
              * update activity log
              */
             Activity activity = Activity
@@ -152,11 +162,19 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             activityRepo.save(activity);
 
             /**
-             * saving application record
+             * sending application confirmation message
              */
-            applications.setStatus(AppConstants.PENDING);
-            Applications applicationsResponse  = applicationsRepo.save(applications);
-
+            ApplicationConfirmationDTO confirmationDTO = ApplicationConfirmationDTO
+                    .builder()
+                    .task(taskResponse.getName())
+                    .email(applicationsResponse.getEmail())
+                    .category(taskResponse.getCategory())
+                    .location(taskResponse.getAddress())
+                    .status(applicationsResponse.getStatus())
+                    .startDate(taskResponse.getStartDate())
+                    .userEmail(userOptional.get().getEmail())
+                    .build();
+            notificationService.sendApplicationConfirmation(confirmationDTO);
             /**
              * returning response if success
              */
