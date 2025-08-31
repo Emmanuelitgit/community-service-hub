@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface TaskService {
     ResponseEntity<ResponseDTO> createTask(Task task);
-    ResponseEntity<ResponseDTO> getTasks(Double lat, Double lng, Integer km, Pageable pageable);
+    ResponseEntity<ResponseDTO> getTasks(Double lat, Double lng, Integer km, Pageable pageable, String search);
     ResponseEntity<ResponseDTO> getTaskById(UUID taskId);
     ResponseEntity<ResponseDTO> updateTask(Task task);
     ResponseEntity<ResponseDTO> removeTask(UUID taskId);

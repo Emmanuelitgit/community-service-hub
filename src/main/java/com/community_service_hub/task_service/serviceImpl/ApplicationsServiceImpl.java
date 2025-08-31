@@ -398,7 +398,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
      * @auther Emmanuel Yidana
      * @createdAt 25th July 2025
      */
-//    @PreAuthorize("hasAnyAuthority('NGO')")
+    @PreAuthorize("hasAnyAuthority('NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateApplicationStatus(String status, UUID applicationId){
         try{
@@ -417,12 +417,12 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * checking user authorization levels
              */
-//            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, applicationsOptional.get().getTaskId());
-//            if (Boolean.FALSE.equals(isUserAuthorized)){
-//                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
-//                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
-//                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
-//            }
+            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, applicationsOptional.get().getTaskId());
+            if (Boolean.FALSE.equals(isUserAuthorized)){
+                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
 
             /**
              * updating status
@@ -573,6 +573,3 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     }
 
 }
-
-
-

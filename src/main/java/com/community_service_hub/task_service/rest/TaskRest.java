@@ -45,9 +45,10 @@ public class TaskRest {
             @RequestParam(name = "lng", required = false) Double lng,
             @RequestParam(name = "km", required = false) Integer km,
             @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size){
+            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(name = "search", required = false) String search){
         Pageable pageable = PageRequest.of(page, size);
-        return taskService.getTasks(lat, lng, km, pageable);
+        return taskService.getTasks(lat, lng, km, pageable, search);
     }
 
     @Operation(summary = "This endpoint is used to get a task record by id")

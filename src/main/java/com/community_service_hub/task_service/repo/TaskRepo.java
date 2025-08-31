@@ -44,8 +44,12 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "        ng.description AS ngoDescription," +
             "        ng.social_links" +
             "    FROM task_tb t" +
-            "    JOIN ngo_tb ng ON ng.id=t.posted_by", nativeQuery = true)
-    List<TaskProjection> fetchTasksWithNGOs(Pageable pageable);
+            "    JOIN ngo_tb ng ON ng.id=t.posted_by" +
+            "    WHERE (:search IS NULL " +
+            "    OR t.name ILIKE CONCAT('%', :search, '%') " +
+            "    OR t.category ILIKE CONCAT('%', :search, '%'))", nativeQuery = true)
+    List<TaskProjection> fetchTasksWithNGOs(Pageable pageable,
+                                            @RequestParam("search") String search);
 
 
     @Query(value = "SELECT" +
@@ -77,8 +81,14 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "    JOIN ngo_tb ng ON ng.id=t.posted_by" +
             "    WHERE (6371 * acos(cos(radians(:lat)) * cos(radians(t.latitude)) * " +
             "    cos(radians(t.longitude) - radians(:lng))+ sin(radians(:lat)) * " +
-            "    sin(radians(t.latitude)))) <= :km", nativeQuery = true)
-    List<TaskProjection> fetchNearByTasksWithNGOs(Double lat, Double lng, Integer km, Pageable pageable);
+            "    sin(radians(t.latitude)))) <= :km" +
+            "    AND (:search IS NULL OR t.name ILIKE CONCAT('%', :search, '%')" +
+            "    OR t.category ILIKE CONCAT('%', :search, '%'))", nativeQuery = true)
+    List<TaskProjection> fetchNearByTasksWithNGOs(Double lat,
+                                                  Double lng,
+                                                  Integer km,
+                                                  Pageable pageable,
+                                                  @RequestParam("search") String search);
 
 
     @Query(value = "SELECT COUNT(*) FROM task_tb",

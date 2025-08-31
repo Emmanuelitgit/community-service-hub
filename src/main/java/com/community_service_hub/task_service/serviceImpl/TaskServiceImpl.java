@@ -111,7 +111,7 @@ public class TaskServiceImpl implements TaskService {
      * @createdAt 24h July 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> getTasks(Double lat, Double lng, Integer km, Pageable pageable) {
+    public ResponseEntity<ResponseDTO> getTasks(Double lat, Double lng, Integer km, Pageable pageable, String search) {
         try {
             log.info("In fetch all tasks method->>>");
 
@@ -120,10 +120,10 @@ public class TaskServiceImpl implements TaskService {
              */
             List<TaskProjection> tasks;
             if (lat!=null&&lng!=null&&km!=null){
-                tasks = taskRepo.fetchNearByTasksWithNGOs(lat, lng, km, pageable);
+                tasks = taskRepo.fetchNearByTasksWithNGOs(lat, lng, km, pageable, search);
                 log.info("Fetching nearby tasks->>>");
             }else {
-                tasks = taskRepo.fetchTasksWithNGOs(pageable);
+                tasks = taskRepo.fetchTasksWithNGOs(pageable, search);
                 log.info("Fetching all tasks->>>");
             }
             if (tasks.isEmpty()){
