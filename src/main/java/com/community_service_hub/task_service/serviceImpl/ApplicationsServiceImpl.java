@@ -398,7 +398,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
      * @auther Emmanuel Yidana
      * @createdAt 25th July 2025
      */
-    @PreAuthorize("hasAnyAuthority('NGO')")
+//    @PreAuthorize("hasAnyAuthority('NGO')")
     @Override
     public ResponseEntity<ResponseDTO> updateApplicationStatus(String status, UUID applicationId){
         try{
@@ -417,12 +417,12 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * checking user authorization levels
              */
-            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, applicationsOptional.get().getTaskId());
-            if (Boolean.FALSE.equals(isUserAuthorized)){
-                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
-                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
-                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
-            }
+//            Boolean isUserAuthorized = appUtils.isUserAuthorized(null, applicationsOptional.get().getTaskId());
+//            if (Boolean.FALSE.equals(isUserAuthorized)){
+//                log.info("User not authorized to application->>>{}", applicationsOptional.get().getId());
+//                ResponseDTO responseDTO = AppUtils.getResponseDto("User not authorized to application", HttpStatus.UNAUTHORIZED);
+//                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+//            }
 
             /**
              * updating status
@@ -445,8 +445,18 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              */
             Optional<Task> taskOptional = taskRepo.findById(applicationResponse.getTaskId());
             if (taskOptional.isEmpty()){
-                log.info("task record cannot be found->>>{}", applicationResponse.getTaskId());
-                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
+                log.info("Task record cannot be found->>>{}", applicationResponse.getTaskId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Task record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * retrieving user details to get user email for the notification purpose
+             */
+            Optional<User> user = userRepo.findById(applicationResponse.getApplicantId());
+            if (user.isEmpty()){
+                log.info("Applicant record cannot be found->>>{}", applicationResponse.getTaskId());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("Applicant record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
 
@@ -460,6 +470,21 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                     .entityName(taskOptional.get().getName())
                     .build();
             activityRepo.save(activity);
+
+            /**
+             * notify user on application status
+             */
+            ApplicationConfirmationDTO confirmationDTO = ApplicationConfirmationDTO
+                    .builder()
+                    .task(taskOptional.get().getName())
+                    .email(applicationResponse.getEmail())
+                    .category(taskOptional.get().getCategory())
+                    .location(taskOptional.get().getAddress())
+                    .status(applicationResponse.getStatus())
+                    .startDate(taskOptional.get().getStartDate())
+                    .userEmail(user.get().getEmail())
+                    .build();
+            notificationService.sendApplicationConfirmation(confirmationDTO);
 
             /**
              * returning response if success

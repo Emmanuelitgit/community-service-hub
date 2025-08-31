@@ -13,6 +13,7 @@ import com.community_service_hub.user_service.models.NGO;
 import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
+import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -284,12 +285,11 @@ public class NotificationServiceImpl implements NotificationService {
              */
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setSubject("Application Confirmation");
             helper.setFrom("eyidana001@gmail.com");
             helper.setTo(confirmationDTO.getEmail());
 
             /**
-             * setting variables values to passed to the template
+             * setting variables values to be passed to the template
              */
             Context context = new Context();
             context.setVariable("name", user.get().getName());
@@ -299,11 +299,28 @@ public class NotificationServiceImpl implements NotificationService {
             context.setVariable("startDate", confirmationDTO.getStartDate());
             context.setVariable("location", confirmationDTO.getLocation());
 
-            String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
-            helper.setText(htmlContent, true);
+            /**
+             * determine which template to use base on status
+             */
+            if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
+                log.info("Sending approval notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("Application Decision");
+                String htmlContent = templateEngine.process("ApplicationApprovalTemplate", context);
+                helper.setText(htmlContent, true);
+            } else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.REJECTED)) {
+                log.info("Sending rejection notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("Application Decision");
+                String htmlContent = templateEngine.process("ApplicationRejectionTemplate", context);
+                helper.setText(htmlContent, true);
+            }else {
+                log.info("Sending confirmation notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("Application Confirmation");
+                String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
+                helper.setText(htmlContent, true);
+            }
 
-            log.info("Application confirmation sent to:->>>{}", confirmationDTO.getEmail());
             mailSender.send(message);
+            log.info("Application confirmation sent to:->>>{}", confirmationDTO.getEmail());
 
         } catch (Exception e) {
             log.info("Error message->>>{}", e.getMessage());
