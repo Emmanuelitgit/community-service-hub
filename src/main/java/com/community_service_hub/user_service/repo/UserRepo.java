@@ -60,4 +60,10 @@ public interface UserRepo extends JpaRepository<User, UUID> {
 
     @Query(value = "SELECT * FROM user_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
     List<User> getRecentActivities();
+
+    @Query(value = "SELECT u.* FROM  user_tb u " +
+            "JOIN applications_tb a ON a.applicant_id=u.id " +
+            "JOIN task_tb t ON t.id=a.task_id " +
+            "WHERE t.posted_by=:NGOId ORDER BY a.created_at ", nativeQuery = true)
+    List<UserDTOProjection> getActiveVolunteersOfTaskForLoggedInNGO(@RequestParam("NGOId") UUID NGOId);
 }

@@ -5,6 +5,7 @@ import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.user_service.dto.NGODTO;
 import com.community_service_hub.user_service.dto.ResponseDTO;
+import com.community_service_hub.user_service.dto.UserDTOProjection;
 import com.community_service_hub.user_service.dto.UserRole;
 import com.community_service_hub.exception.BadRequestException;
 import com.community_service_hub.exception.NotFoundException;
@@ -28,9 +29,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -355,6 +355,46 @@ public class NGOServiceImpl implements NGOService {
            throw new ServerException(e.getMessage());
        }
 
+    }
+
+    /**
+     * @description this method is used to get all active volunteers of task created by the logged-in NGO
+     * @return ResponseEntity containing the list of volunteers and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 2nd September 2025
+     */
+    public ResponseEntity<ResponseDTO> getActiveVolunteersForLoggedNGO(){
+     try {
+         log.info("In get active volunteers for NGO method:");
+         UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+         log.debug("About to fetch volunteers for:->>>{}", userId);
+         List<UserDTOProjection> volunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
+         log.debug("Fetching active volunteers for NGO:->>>{}", volunteers);
+
+         /**
+          * if no record found
+          */
+         if (volunteers.isEmpty()){
+             log.error("No active volunteer found for:->>>{}", userId);
+             ResponseDTO responseDTO = AppUtils.getResponseDto("No active volunteer found", HttpStatus.NOT_FOUND);
+             return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+         }
+
+         /**
+          * returning response if successfully
+          */
+         //remove duplicates
+         Collection<UserDTOProjection> setResponse = volunteers.stream()
+                 .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
+                 .values();
+
+         ResponseDTO responseDTO = AppUtils.getResponseDto("Active volunteers", HttpStatus.OK, setResponse);
+         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+     } catch (Exception e) {
+         log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+         throw new ServerException(e.getMessage());
+     }
     }
 
 

@@ -100,10 +100,18 @@ public class NGORest {
         return ngoService.deleteNGO(ngoId);
     }
 
-    @Operation(summary = "This endpoint is used to approve or reject NGO request.it takes[TRUE(APPROVED) OR FALSE(REJECTED)]")
+    @Operation(summary = "This endpoint is used to approve or reject NGO request." +
+            "it takes[TRUE(APPROVED) OR FALSE(REJECTED)]")
     @PutMapping("/status")
     public ResponseEntity<ResponseDTO> approveOrRejectNGO(UUID NGOId, Boolean status){
         return ngoService.approveOrRejectNGO(NGOId, status);
+    }
+
+    @Operation(summary = "This endpoint is used to get all active " +
+            "volunteers of task created by the logged-in NGO")
+    @GetMapping("/volunteers")
+    public ResponseEntity<ResponseDTO> getActiveVolunteersForLoggedNGO(){
+        return ngoService.getActiveVolunteersForLoggedNGO();
     }
 
     @Operation(summary = "This endpoint is used to to get NGO certificate in image form")

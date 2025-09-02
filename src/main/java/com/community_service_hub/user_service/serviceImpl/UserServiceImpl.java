@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -512,6 +513,7 @@ public class UserServiceImpl implements UserService {
          * an object to map the response to UI
          */
         List<Activity> recentActivities = activityRepo.getRecentActivitiesByUserId(userId);
+        List<UserDTOProjection> volunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
         Map<String, Object> stats = new HashMap<>();
 
         /**
@@ -632,9 +634,22 @@ public class UserServiceImpl implements UserService {
 //            stats.put("totalUsersCreatedForTheMonth", totalUsersCreatedForTheMonth);
         }
 
+        /**
+         * building the general response object
+         */
         Map<String, Object> responseObject = new HashMap<>();
         responseObject.put("recentActivities", recentActivities);
         responseObject.put("stats", stats);
+
+        // available to only NGOs
+        if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
+            //remove duplicates
+            Collection<UserDTOProjection> setResponse = volunteers.stream()
+                    .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
+                    .values();
+
+            responseObject.put("volunteers", setResponse);
+        }
 
         ResponseDTO responseDTO = AppUtils.getResponseDto("stats", HttpStatus.OK, responseObject);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
