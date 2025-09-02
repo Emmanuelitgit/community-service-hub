@@ -69,7 +69,8 @@ public class AuthenticationRest {
             Boolean isUserVerified = otpService.checkOTPStatusDuringLogin(credentials.getEmail());
             if (Boolean.FALSE.equals(isUserVerified)){
                 log.info("user not verified->>>{}", credentials.getEmail());
-                throw new UnAuthorizeException("user not verified");
+                ResponseDTO  response = AppUtils.getResponseDto("User not verified", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
 
             /**

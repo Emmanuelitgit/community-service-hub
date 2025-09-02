@@ -267,6 +267,14 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    /**
+     * @description this method is used tp=o notify user either on
+     * Application Rejection, Application Approval, Application Confirmation OR
+     * NGO Account Approval, NGO Account Rejection
+     * @param confirmationDTO the payload to be sent to the notification template
+     * @atuher Emmanuel Yidana
+     * @createdAt 31 August 2025
+     */
     public void sendApplicationConfirmation(ApplicationConfirmationDTO confirmationDTO){
         try {
 
@@ -274,8 +282,9 @@ public class NotificationServiceImpl implements NotificationService {
              * loading the user data from the db by the user email
              */
             Optional<User> user = userRepo.findUserByEmail(confirmationDTO.getUserEmail());
+            NGO ngo = ngoRepo.findByEmail(confirmationDTO.getUserEmail());
 
-            if (user.isEmpty()){
+            if (user.isEmpty() && ngo==null){
                 log.info("No user found with the email provided->>>{}", confirmationDTO.getUserEmail());
                 throw new NotFoundException("No user record found with the email provide");
             }
@@ -292,33 +301,53 @@ public class NotificationServiceImpl implements NotificationService {
              * setting variables values to be passed to the template
              */
             Context context = new Context();
-            context.setVariable("name", user.get().getName());
-            context.setVariable("task", confirmationDTO.getTask());
-            context.setVariable("category", confirmationDTO.getCategory());
-            context.setVariable("status", confirmationDTO.getStatus());
-            context.setVariable("startDate", confirmationDTO.getStartDate());
-            context.setVariable("location", confirmationDTO.getLocation());
+            context.setVariable("name", ngo.getOrganizationName()!=null?ngo.getOrganizationName():user.get().getName());
+            context.setVariable("task", confirmationDTO.getTask()!=null?confirmationDTO.getTask():null);
+            context.setVariable("category", confirmationDTO.getCategory()!=null?confirmationDTO.getCategory():null);
+            context.setVariable("status", confirmationDTO.getStatus()!=null?confirmationDTO.getStatus():null);
+            context.setVariable("startDate", confirmationDTO.getStartDate()!=null?confirmationDTO.getStartDate():null);
+            context.setVariable("location", confirmationDTO.getLocation()!=null?confirmationDTO.getLocation():null);
 
             /**
-             * determine which template to use base on status
+             * determine which template to use base on type and status
              */
-            if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
-                log.info("Sending approval notification->>>{}", confirmationDTO.getStatus());
-                helper.setSubject("Application Decision");
-                String htmlContent = templateEngine.process("ApplicationApprovalTemplate", context);
-                helper.setText(htmlContent, true);
-            } else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.REJECTED)) {
-                log.info("Sending rejection notification->>>{}", confirmationDTO.getStatus());
-                helper.setSubject("Application Decision");
-                String htmlContent = templateEngine.process("ApplicationRejectionTemplate", context);
-                helper.setText(htmlContent, true);
-            }else {
-                log.info("Sending confirmation notification->>>{}", confirmationDTO.getStatus());
-                helper.setSubject("Application Confirmation");
-                String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
-                helper.setText(htmlContent, true);
-            }
+           if (confirmationDTO.getType().equalsIgnoreCase(AppConstants.APPLICATION)){
+               if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
+                   log.info("Sending application approval notification->>>{}", confirmationDTO.getStatus());
+                   helper.setSubject("Application Decision");
+                   String htmlContent = templateEngine.process("ApplicationApprovalTemplate", context);
+                   helper.setText(htmlContent, true);
+               } else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.REJECTED)) {
+                   log.info("Sending application rejection notification->>>{}", confirmationDTO.getStatus());
+                   helper.setSubject("Application Decision");
+                   String htmlContent = templateEngine.process("ApplicationRejectionTemplate", context);
+                   helper.setText(htmlContent, true);
+               }else {
+                   log.info("Sending application confirmation notification->>>{}", confirmationDTO.getStatus());
+                   helper.setSubject("Application Confirmation");
+                   String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
+                   helper.setText(htmlContent, true);
+               }
+           }else if (confirmationDTO.getType().equalsIgnoreCase(AppConstants.NGO)){
+              if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
+                  log.info("Sending NGO approval notification->>>{}", confirmationDTO.getStatus());
+                  helper.setSubject("Application Confirmation");
+                  String htmlContent = templateEngine.process("NGOApprovalTemplate", context);
+                  helper.setText(htmlContent, true);
+              }else {
+                  log.info("Sending NGO rejection notification->>>{}", confirmationDTO.getStatus());
+                  helper.setSubject("Application Confirmation");
+                  String htmlContent = templateEngine.process("NGORejectionTemplate", context);
+                  helper.setText(htmlContent, true);
+              }
+           }else {
+               log.info("Notification found does not exist->>>{}", confirmationDTO.getType());
+               throw new NotFoundException("Notification type does not exist");
+           }
 
+            /**
+             * send notification here
+             */
             mailSender.send(message);
             log.info("Application confirmation sent to:->>>{}", confirmationDTO.getEmail());
 

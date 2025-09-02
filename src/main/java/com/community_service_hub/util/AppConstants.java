@@ -25,4 +25,6 @@ public interface AppConstants {
     public final String NOT_ASSIGNED = "NOT_ASSIGNED";
 
     public final String ASSIGNED = "ASSIGNED";
+
+    public final String APPLICATION = "APPLICATION";
 }

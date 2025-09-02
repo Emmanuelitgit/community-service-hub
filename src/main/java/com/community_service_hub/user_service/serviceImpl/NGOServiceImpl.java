@@ -1,5 +1,6 @@
 package com.community_service_hub.user_service.serviceImpl;
 
+import com.community_service_hub.notification_service.dto.ApplicationConfirmationDTO;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.user_service.dto.NGODTO;
@@ -15,6 +16,7 @@ import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.service.NGOService;
+import com.community_service_hub.util.AppConstants;
 import com.community_service_hub.util.AppUtils;
 import com.community_service_hub.util.ImageUtil;
 import jakarta.transaction.Transactional;
@@ -38,17 +40,17 @@ public class NGOServiceImpl implements NGOService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepo userRepo;
     private final NGODTO ngodto;
-    private final NotificationServiceImpl otpService;
+    private final NotificationServiceImpl notificationService;
     private final AppUtils appUtils;
     private final ActivityRepo activityRepo;
 
     @Autowired
-    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, NotificationServiceImpl otpService, AppUtils appUtils, ActivityRepo activityRepo) {
+    public NGOServiceImpl(NGORepo ngoRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, NGODTO ngodto, NotificationServiceImpl notificationService, AppUtils appUtils, ActivityRepo activityRepo) {
         this.ngoRepo = ngoRepo;
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
         this.ngodto = ngodto;
-        this.otpService = otpService;
+        this.notificationService = notificationService;
         this.appUtils = appUtils;
         this.activityRepo = activityRepo;
     }
@@ -110,7 +112,7 @@ public class NGOServiceImpl implements NGOService {
                     .builder()
                     .email(ngoResponse.getEmail())
                     .build();
-            otpService.sendOtp(otpPayload);
+            notificationService.sendOtp(otpPayload);
 
             /**
              * returning response if everything is success
@@ -409,6 +411,18 @@ public class NGOServiceImpl implements NGOService {
                     .entityName(ngoResponse.getOrganizationName())
                     .build();
             activityRepo.save(activity);
+
+            /**
+             * notify user on application status
+             */
+            ApplicationConfirmationDTO confirmationDTO = ApplicationConfirmationDTO
+                    .builder()
+                    .email(ngoResponse.getEmail())
+                    .status(ngoResponse.getIsApproved().equals(Boolean.TRUE)?
+                            AppConstants.APPROVED:AppConstants.REJECTED)
+                    .userEmail(ngoResponse.getEmail())
+                    .build();
+            notificationService.sendApplicationConfirmation(confirmationDTO);
 
             /**
              * returning response if success
