@@ -513,7 +513,8 @@ public class UserServiceImpl implements UserService {
          * an object to map the response to UI
          */
         List<Activity> recentActivities = activityRepo.getRecentActivitiesByUserId(userId);
-        List<UserDTOProjection> volunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
+        List<UserDTOProjection> activeVolunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
+        List<UserDTOProjection> allVolunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
         Map<String, Object> stats = new HashMap<>();
 
         /**
@@ -526,6 +527,8 @@ public class UserServiceImpl implements UserService {
             Integer totalCompletedTasksForNGO = 0;
             Integer totalActiveTasksForNGO = 0;
             Integer totalApplicationsForNGO = 0;
+            Integer totalActiveVolunteers = 0;
+            Integer totalVolunteers = 0;
 
             if(startDateTime!=null && endDateTime!=null){
                 log.info("Fetching stats for NGO with date rage->>{} to {}", startDate, endDate);
@@ -541,11 +544,32 @@ public class UserServiceImpl implements UserService {
             }
 //            totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
 
+            /**
+             * remove duplicates for active volunteers
+             */
+            Collection<UserDTOProjection> activeSetResponse = activeVolunteers.stream()
+                    .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
+                    .values();
+            totalActiveVolunteers = activeSetResponse.size();
+
+            /**
+             * remove duplicates for all voulunteers
+             */
+            Collection<UserDTOProjection> totalSetResponse = allVolunteers.stream()
+                    .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
+                    .values();
+
+            totalActiveVolunteers = activeSetResponse.size();
+            totalVolunteers = totalSetResponse.size();
+
+
 //            stats.put("totalCreatedTasksForTheMonthForNGO", totalCreatedTasksForTheMonthForNGO);
             stats.put("totalTasksForNGO", totalTasksForNGO);
             stats.put("totalCompletedTasksForNGO", totalCompletedTasksForNGO);
             stats.put("totalActiveTasksForNGO", totalActiveTasksForNGO);
             stats.put("totalApplicationsForNGO", totalApplicationsForNGO);
+            stats.put("totalActiveVolunteers", totalActiveVolunteers);
+            stats.put("totalVolunteers", totalVolunteers);
         }
 
         /**
@@ -644,7 +668,7 @@ public class UserServiceImpl implements UserService {
         // available to only NGOs
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
             //remove duplicates
-            Collection<UserDTOProjection> setResponse = volunteers.stream()
+            Collection<UserDTOProjection> setResponse = activeVolunteers.stream()
                     .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
                     .values();
 
