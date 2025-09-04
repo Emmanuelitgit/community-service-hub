@@ -19,9 +19,9 @@ import java.util.UUID;
 public class UserUpdateDTO {
     private UUID id;
     private String name;
-    @Email(message = "invalid email")
+    @Email(message = "Invalid email")
     private String email;
-    @Size(max = 10, min = 10)
+    @Size(max = 10, min = 10, message = "Phone number must be 10 digits maximum")
     private String phone;
 //    private String role;
     private String address;

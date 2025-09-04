@@ -1,6 +1,7 @@
 package com.community_service_hub.user_service.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Data
 public class NGOPayload {
     private UUID id;
-    @NotNull(message = "organization name cannot be null")
+    @NotBlank(message = "Organization name cannot be null or empty")
     private String organizationName;
     private MultipartFile logo;
     private String state;
@@ -21,10 +22,10 @@ public class NGOPayload {
     private String website;
     private List<String> socialLinks;
     private MultipartFile certificate;
-    @Email(message = "invalid email")
-    @NotNull(message = "email cannot be null")
+    @Email(message = "Invalid email")
+    @NotBlank(message = "Email cannot be null or empty")
     private String email;
-    @NotNull(message = "password cannot be null")
+    @NotBlank(message = "Password cannot be null or empty")
     private String password;
     private String address;
     private Double latitude;

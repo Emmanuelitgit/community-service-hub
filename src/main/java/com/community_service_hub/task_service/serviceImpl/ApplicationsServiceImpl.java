@@ -97,14 +97,16 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     public ResponseEntity<ResponseDTO> createApplication(Applications applications) {
         try {
             log.info("In create application method->>>{}", applications);
+            UUID applicantId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+            log.info("Fetching logged-in userId:->>>{}", applicantId);
 
             /**
              * checking if applicant exist in the system
              */
-            Optional<NGO> ngoOptional = ngoRepo.findById(applications.getApplicantId());
-            Optional<User> userOptional = userRepo.findById(applications.getApplicantId());
+            Optional<NGO> ngoOptional = ngoRepo.findById(applicantId);
+            Optional<User> userOptional = userRepo.findById(applicantId);
             if (ngoOptional.isEmpty() && userOptional.isEmpty()){
-                log.info("applicant record cannot be found->>>{}", applications.getApplicantId());
+                log.info("Applicant record cannot be found->>>{}", applicantId);
                 ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
@@ -148,6 +150,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
              * saving application record
              */
             applications.setStatus(AppConstants.PENDING);
+            applications.setApplicantId(applicantId);
             Applications applicationsResponse  = applicationsRepo.save(applications);
 
             /**
@@ -255,17 +258,6 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             /**
-             * checking if applicant exist in the system
-             */
-            Optional<NGO> ngoOptional = ngoRepo.findById(applications.getApplicantId());
-            Optional<User> userOptional = userRepo.findById(applications.getApplicantId());
-            if (ngoOptional.isEmpty() && userOptional.isEmpty()){
-                log.info("applicant record cannot be found->>>{}", applications.getApplicantId());
-                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
-
-            /**
              * checking user authorization levels
              */
             Boolean isUserAuthorized = appUtils.isUserAuthorized(applicationsOptional.get().getApplicantId(), applicationsOptional.get().getTaskId());
@@ -276,7 +268,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             Applications existingData = applicationsOptional.get();
-            existingData.setApplicantId(applications.getApplicantId() != null ? applications.getApplicantId() : existingData.getApplicantId());
+//            existingData.setApplicantId(applications.getApplicantId() != null ? applications.getApplicantId() : existingData.getApplicantId());
             existingData.setApplicantName(applications.getApplicantName() != null ? applications.getApplicantName() : existingData.getApplicantName());
             existingData.setReasonForApplication(applications.getReasonForApplication() != null ? applications.getReasonForApplication() : existingData.getReasonForApplication());
             existingData.setPhone(applications.getPhone() != null ? applications.getPhone() : existingData.getPhone());

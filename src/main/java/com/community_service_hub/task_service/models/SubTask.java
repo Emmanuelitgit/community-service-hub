@@ -20,11 +20,11 @@ public class SubTask extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @NotNull(message = "parent task id cannot be null")
+    @NotBlank(message = "Parent task id cannot be null or empty")
     private UUID parentTaskId;
-    @NotNull(message = "name cannot be null")
+    @NotBlank(message = "Name cannot be null or empty")
     private String name;
-    @NotNull(message = "description cannot be null")
+    @NotBlank(message = "Description cannot be null or empty")
     @Size(max = 1000, message = "Description must be at most 1000 characters long")
     @Column(length = 1000)
     private String description;

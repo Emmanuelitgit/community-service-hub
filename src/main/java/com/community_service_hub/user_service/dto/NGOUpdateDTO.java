@@ -20,7 +20,7 @@ public class NGOUpdateDTO {
     private String website;
     private List<String> socialLinks;
     private MultipartFile certificate;
-    @Email(message = "invalid email")
+    @Email(message = "Invalid email")
     private String email;
     private String address;
     @Size(max = 1000, message = "Description must be at most 1000 characters long")

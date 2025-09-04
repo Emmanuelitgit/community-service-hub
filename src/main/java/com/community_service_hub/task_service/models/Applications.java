@@ -3,6 +3,7 @@ package com.community_service_hub.task_service.models;
 
 import com.community_service_hub.config.AuditorData;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -19,16 +20,15 @@ public class Applications extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @NotNull(message = "applicant id cannot be null")
     private UUID applicantId;
-    @NotNull(message = "applicant name cannot be null")
+    @NotBlank(message = "Applicant name cannot be null or empty")
     private String applicantName;
     private String reasonForApplication;
-    @NotNull(message = "phone cannot be null")
+    @NotBlank(message = "Phone cannot be null or empty")
     private String phone;
-    @NotNull(message = "email cannot be null")
+    @NotBlank(message = "Email cannot be null or empty")
     private String email;
     private String status;
-    @NotNull(message = "task id cannot be null")
+    @NotBlank(message = "Task id cannot be null or empty")
     private UUID taskId;
 }
