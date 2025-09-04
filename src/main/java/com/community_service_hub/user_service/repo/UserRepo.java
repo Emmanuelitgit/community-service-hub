@@ -66,8 +66,16 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "JOIN task_tb t ON t.id=a.task_id " +
             "WHERE t.posted_by=:NGOId AND " +
             "(a.status='PENDING')" +
-            "ORDER BY a.created_at ", nativeQuery = true)
+            "ORDER BY a.created_at DESC ", nativeQuery = true)
     List<UserDTOProjection> getActiveVolunteersOfTaskForLoggedInNGO(@RequestParam("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT u.* FROM  user_tb u " +
+            "JOIN applications_tb a ON a.applicant_id=u.id " +
+            "JOIN task_tb t ON t.id=a.task_id " +
+            "WHERE t.posted_by=:NGOId AND " +
+            "(a.status='PENDING')" +
+            "ORDER BY a.created_at DESC LIMIT 5", nativeQuery = true)
+    List<UserDTOProjection> getTopFiveActiveVolunteersOfTaskForLoggedInNGO(@RequestParam("NGOId") UUID NGOId);
 
     @Query(value = "SELECT u.* FROM  user_tb u " +
             "JOIN applications_tb a ON a.applicant_id=u.id " +

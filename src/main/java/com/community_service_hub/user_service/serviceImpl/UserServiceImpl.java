@@ -514,7 +514,7 @@ public class UserServiceImpl implements UserService {
          */
         List<Activity> recentActivities = activityRepo.getRecentActivitiesByUserId(userId);
         List<UserDTOProjection> activeVolunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
-        List<UserDTOProjection> allVolunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
+        List<UserDTOProjection> allVolunteers = userRepo.getTopFiveActiveVolunteersOfTaskForLoggedInNGO(userId);
         Map<String, Object> stats = new HashMap<>();
 
         /**
@@ -665,14 +665,19 @@ public class UserServiceImpl implements UserService {
         responseObject.put("recentActivities", recentActivities);
         responseObject.put("stats", stats);
 
-        // available to only NGOs
+        /**
+         * available to only NGOs
+         */
         if (authenticatedUserRole.equalsIgnoreCase(AppConstants.NGO)){
             //remove duplicates
             Collection<UserDTOProjection> setResponse = activeVolunteers.stream()
                     .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
                     .values();
 
-            responseObject.put("volunteers", setResponse);
+            // fetching recent tasks for logged-in NGO
+            List<Task> recentTasks = taskRepo.fetchRecentTasksForNGO(userId);
+            responseObject.put("recentVolunteers", setResponse);
+            responseObject.put("recentTasks", recentTasks);
         }
 
         ResponseDTO responseDTO = AppUtils.getResponseDto("stats", HttpStatus.OK, responseObject);
