@@ -513,8 +513,8 @@ public class UserServiceImpl implements UserService {
          * specifically for logged-in NGOs
          */
         List<Activity> recentActivities = activityRepo.getRecentActivitiesByUserId(userId);
-        List<UserDTOProjection> activeVolunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
-        List<UserDTOProjection> allVolunteers = userRepo.getTopFiveActiveVolunteersOfTaskForLoggedInNGO(userId);
+        List<UserDTOProjection> activeVolunteers = userRepo.getActiveVolunteersForLoggedInNGO(userId);
+        List<UserDTOProjection> allVolunteers = userRepo.getRecentActiveVolunteersForLoggedInNGO(userId);
         List<Task> recentTasks = taskRepo.fetchRecentTasksForNGO(userId);
 
         /**

@@ -368,7 +368,7 @@ public class NGOServiceImpl implements NGOService {
          log.info("In get active volunteers for NGO method:");
          UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
          log.debug("About to fetch volunteers for:->>>{}", userId);
-         List<UserDTOProjection> volunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
+         List<UserDTOProjection> volunteers = userRepo.getActiveVolunteersForLoggedInNGO(userId);
          log.debug("Fetching active volunteers for NGO:->>>{}", volunteers);
 
          /**
