@@ -13,12 +13,9 @@ import java.util.UUID;
 @Repository
 public interface SubTaskRepo extends JpaRepository<SubTask, UUID> {
 
-    @Query(value = "SELECT * FROM sub_task_tb WHERE assignee_id=:userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM sub_task_tb WHERE assignee_id=:userId ORDER BY created_at DESC", nativeQuery = true)
     List<SubTask> fetchSubTasksForAssignee(@Param("userId") UUID userId);
 
-    @Query(value = "SELECT * FROM sub_task_tb WHERE parent_task_id=:parentTaskId", nativeQuery = true)
+    @Query(value = "SELECT * FROM sub_task_tb WHERE parent_task_id=:parentTaskId ORDER BY created_at DESC", nativeQuery = true)
     List<SubTask> fetchSubTasksByParentTaskId(@Param("parentTaskId") UUID parentTaskId);
-
-    @Query(value = "SELECT * FROM sub_task_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
-    List<SubTask> getRecentActivities();
 }

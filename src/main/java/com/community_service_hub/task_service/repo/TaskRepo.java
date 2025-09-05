@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public interface TaskRepo extends JpaRepository<Task, UUID> {
 
-    @Query(value = "SELECT * FROM task_tb WHERE posted_by=:NGOId", nativeQuery = true)
+    @Query(value = "SELECT * FROM task_tb WHERE posted_by=:NGOId ORDER BY created_at DESC", nativeQuery = true)
     List<Task> fetchTasksForNGO(@Param("NGOId") UUID NGOId);
 
     @Query(value = " SELECT" +
@@ -47,7 +47,8 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "    JOIN ngo_tb ng ON ng.id=t.posted_by" +
             "    WHERE (:search IS NULL " +
             "    OR t.name ILIKE CONCAT('%', :search, '%') " +
-            "    OR t.category ILIKE CONCAT('%', :search, '%'))", nativeQuery = true)
+            "    OR t.category ILIKE CONCAT('%', :search, '%')) " +
+            "    ORDER BY t.created_at DESC", nativeQuery = true)
     List<TaskProjection> fetchTasksWithNGOs(Pageable pageable,
                                             @RequestParam("search") String search);
 
@@ -83,7 +84,8 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
             "    cos(radians(t.longitude) - radians(:lng))+ sin(radians(:lat)) * " +
             "    sin(radians(t.latitude)))) <= :km" +
             "    AND (:search IS NULL OR t.name ILIKE CONCAT('%', :search, '%')" +
-            "    OR t.category ILIKE CONCAT('%', :search, '%'))", nativeQuery = true)
+            "    OR t.category ILIKE CONCAT('%', :search, '%'))" +
+            "    ORDER BY t.created_at DESC", nativeQuery = true)
     List<TaskProjection> fetchNearByTasksWithNGOs(Double lat,
                                                   Double lng,
                                                   Integer km,

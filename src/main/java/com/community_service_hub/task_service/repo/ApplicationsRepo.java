@@ -14,12 +14,12 @@ import java.util.UUID;
 @Repository
 public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
 
-    @Query(value = "SELECT * FROM applications_tb WHERE applicant_id=:userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM applications_tb WHERE applicant_id=:userId ORDER BY created_at DESC", nativeQuery = true)
     List<Applications> fetchApplicationsForUser(@Param("userId") UUID userId);
 
     @Query(value = "SELECT ap.* FROM task_tb tk " +
             "JOIN applications_tb ap ON tk.id = ap.task_id " +
-            "WHERE tk.posted_by = :NGOId", nativeQuery = true)
+            "WHERE tk.posted_by = :NGOId ORDER BY created_at DESC", nativeQuery = true)
     List<Applications> fetchApplicationsForNGO(@Param("NGOId") UUID NGOId);
 
     @Query(value = "SELECT COUNT(*) FROM applications_tb", nativeQuery = true)

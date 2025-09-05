@@ -510,11 +510,16 @@ public class UserServiceImpl implements UserService {
         log.info("Logged-in user role->>>{}", authenticatedUserRole);
 
         /**
-         * an object to map the response to UI
+         * specifically for logged-in NGOs
          */
         List<Activity> recentActivities = activityRepo.getRecentActivitiesByUserId(userId);
         List<UserDTOProjection> activeVolunteers = userRepo.getActiveVolunteersOfTaskForLoggedInNGO(userId);
         List<UserDTOProjection> allVolunteers = userRepo.getTopFiveActiveVolunteersOfTaskForLoggedInNGO(userId);
+        List<Task> recentTasks = taskRepo.fetchRecentTasksForNGO(userId);
+
+        /**
+         * an object to group the stats
+         */
         Map<String, Object> stats = new HashMap<>();
 
         /**
@@ -545,7 +550,7 @@ public class UserServiceImpl implements UserService {
 //            totalCreatedTasksForTheMonthForNGO = taskRepo.totalCreatedTasksForTheMonthForNGO(userId);
 
             /**
-             * remove duplicates for active volunteers
+             * remove duplicates for active volunteers and the total size
              */
             Collection<UserDTOProjection> activeSetResponse = activeVolunteers.stream()
                     .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
@@ -553,7 +558,7 @@ public class UserServiceImpl implements UserService {
             totalActiveVolunteers = activeSetResponse.size();
 
             /**
-             * remove duplicates for all voulunteers
+             * remove duplicates for all volunteers band get the total size
              */
             Collection<UserDTOProjection> totalSetResponse = allVolunteers.stream()
                     .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
@@ -674,8 +679,6 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.toMap(UserDTOProjection::getId, v -> v, (v1, v2) -> v1))
                     .values();
 
-            // fetching recent tasks for logged-in NGO
-            List<Task> recentTasks = taskRepo.fetchRecentTasksForNGO(userId);
             responseObject.put("recentVolunteers", setResponse);
             responseObject.put("recentTasks", recentTasks);
         }
