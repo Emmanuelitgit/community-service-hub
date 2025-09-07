@@ -82,13 +82,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ResponseDTO> createUser(UserPayloadDTO userPayloadDTO) {
        try {
-           log.info("In create user method:->>>>>>{}", userPayloadDTO);
+           log.info("In create user method:->>>{}", userPayloadDTO);
 
            /**
             * check if payload is null
             */
            if (userPayloadDTO  == null){
-               ResponseDTO  response = AppUtils.getResponseDto("user payload cannot be null", HttpStatus.BAD_REQUEST);
+               log.error("User payload cannot be null:->>>{}", userPayloadDTO);
+               ResponseDTO  response = AppUtils.getResponseDto("User payload cannot be null", HttpStatus.BAD_REQUEST);
                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
            }
 
@@ -98,7 +99,8 @@ public class UserServiceImpl implements UserService {
            Optional<User> userEmailExist =  userRepo.findUserByEmail(userPayloadDTO.getEmail());
            NGO ngo = ngoRepo.findByEmail(userPayloadDTO.getEmail());
            if (userEmailExist.isPresent() || ngo != null){
-               ResponseDTO  response = AppUtils.getResponseDto("email already exist", HttpStatus.ALREADY_REPORTED);
+               log.error("User already exist with this email:->>>{}", userPayloadDTO.getEmail());
+               ResponseDTO  response = AppUtils.getResponseDto("Email already exist", HttpStatus.ALREADY_REPORTED);
                return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
            }
 
@@ -139,7 +141,7 @@ public class UserServiceImpl implements UserService {
            /**
             * returning response if everything is successfully
             */
-           UserDTO userDTOResponse = DTOMapper.toUserDTO(user);
+           UserDTO userDTOResponse = dtoMapper.toUserDTO(user);
            ResponseDTO  response = AppUtils.getResponseDto("user record added successfully", HttpStatus.CREATED, userDTOResponse);
            return new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -254,7 +256,7 @@ public class UserServiceImpl implements UserService {
             /**
              * returning response if successfully
              */
-            UserDTO userDTOResponse = DTOMapper.toUserDTO(userResponse);
+            UserDTO userDTOResponse = dtoMapper.toUserDTO(userResponse);
             log.info("user records updated successfully:->>>>>>");
             ResponseDTO  response = AppUtils.getResponseDto("user records updated successfully", HttpStatus.OK, userDTOResponse);
             return new ResponseEntity<>(response, HttpStatus.OK);

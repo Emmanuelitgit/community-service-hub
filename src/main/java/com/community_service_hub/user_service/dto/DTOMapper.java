@@ -11,7 +11,7 @@ public class DTOMapper {
      * @param user
      * @return
      */
-    public static UserDTO toUserDTO(User user){
+    public UserDTO toUserDTO(User user){
        return UserDTO
                 .builder()
                 .id(user.getId())
@@ -21,6 +21,7 @@ public class DTOMapper {
                 .phone(user.getPhone())
                 .build();
     }
+
 
     /**
      * @description his method takes userDTO object and transform it to user entity
