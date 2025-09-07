@@ -199,7 +199,6 @@ public class NGOControllerTest {
         /**
          * stubbing dependencies
          */
-
         when(ngoRepo.save(ngo)).thenReturn(ngo);
         when(activityRepo.save(activity)).thenReturn(activity);
         when(ngoRepo.findById(Id)).thenReturn(Optional.of(ngo));

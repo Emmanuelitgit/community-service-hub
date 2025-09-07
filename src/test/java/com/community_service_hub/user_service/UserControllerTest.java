@@ -102,6 +102,9 @@ public class UserControllerTest {
 
         ResponseEntity<ResponseDTO> response = userService.createUser(dto);
 
+        /**
+         * assertions
+         */
         assertNotNull(Objects.requireNonNull(response.getBody()).getData());
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
@@ -148,6 +151,9 @@ public class UserControllerTest {
 
         ResponseEntity<ResponseDTO> response = userService.createUser(dto);
 
+        /**
+         * assertions
+         */
         assertNotNull(Objects.requireNonNull(response.getBody()).getMessage());
         assertEquals("Email already exist", response.getBody().getMessage());
         assertEquals(HttpStatus.ALREADY_REPORTED, response.getStatusCode());
@@ -169,6 +175,9 @@ public class UserControllerTest {
 
         ResponseEntity<ResponseDTO> response = userService.createUser(null);
 
+        /**
+         * assertions
+         */
         assertNotNull(Objects.requireNonNull(response.getBody()).getMessage());
         assertEquals("User payload cannot be null", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -223,6 +232,9 @@ public class UserControllerTest {
 
         ResponseEntity<ResponseDTO> response = userService.updateUser(dto);
 
+        /**
+         * assertions
+         */
         assertNotNull(Objects.requireNonNull(response.getBody()).getData());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -251,9 +263,15 @@ public class UserControllerTest {
 
         ResponseEntity<ResponseDTO> response = userService.getUsers();
 
+        /**
+         * assertions
+         */
         assertNotNull(Objects.requireNonNull(response.getBody()).getData());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
+        /**
+         * verify if it was actually called
+         */
         verify(userRepo).getUsersDetails();
 
 
