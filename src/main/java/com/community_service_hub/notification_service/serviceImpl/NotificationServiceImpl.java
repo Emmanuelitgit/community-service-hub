@@ -60,7 +60,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendOtp(OTPPayload otpPayload) {
         try {
-            log.info("In send otp method:->>>>>>");
+            log.info("In send otp method:->>>{}", otpPayload);
             Optional<User> user = userRepo.findUserByEmail(otpPayload.getEmail());
             NGO ngo = ngoRepo.findByEmail(otpPayload.getEmail());
 
@@ -76,6 +76,7 @@ public class NotificationServiceImpl implements NotificationService {
                notificationRepo.deleteById(otpExist.getId());
             }
 
+            log.info("About to send otp to:->>>{}", otpPayload.getEmail());
             /**
              * setting email items
              */
@@ -101,7 +102,7 @@ public class NotificationServiceImpl implements NotificationService {
                 throw new BadRequestException("fail to save otp record");
             }
 
-            log.info("Otp sent:->>>");
+            log.info("Otp sent to:->>>{}", otpPayload.getEmail());
             mailSender.send(message);
 
         } catch (Exception e) {

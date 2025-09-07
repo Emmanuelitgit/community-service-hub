@@ -307,7 +307,7 @@ public class UserServiceImpl implements UserService {
             /**
              * returning response if successfully
              */
-            ResponseDTO  response = AppUtils.getResponseDto("user record removed successfully", HttpStatus.OK);
+            ResponseDTO  response = AppUtils.getResponseDto("User record removed successfully", HttpStatus.OK);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {

@@ -259,5 +259,39 @@ public class UserControllerTest {
 
     }
 
+    /**
+     * This method is used to simulate the method for removing user records
+     */
+    @DisplayName("Simulating the method for deleting user")
+    @Test
+    void shouldDeleteUserSuccessfully(){
+        UUID Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        User user = User.builder()
+                .email("eyidana001@gmail.com")
+                .phone("0597893082")
+                .password("1234")
+                .name("Emmanuel Yidana")
+                .userRole("ADMIN")
+                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .build();
 
+        Activity activity = Activity.builder()
+                .activity("Deleted Account")
+                .entityName("Emmanuel Yidana")
+                .entityId(Id)
+                .build();
+
+        when(userRepo.findById(Id)).thenReturn(Optional.of(user));
+        doNothing().when(userRepo).deleteById(Id);
+        when(activityRepo.save(activity)).thenReturn(activity);
+
+        ResponseEntity<ResponseDTO> response = userService.removeUser(Id);
+
+        assertEquals("User record removed successfully", response.getBody().getMessage());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        verify(userRepo).findById(Id);
+        verify(activityRepo).save(activity);
+        verify(userRepo).deleteById(Id);
+    }
 }

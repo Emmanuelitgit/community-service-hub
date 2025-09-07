@@ -72,7 +72,8 @@ public class NGOServiceImpl implements NGOService {
              */
             if (ngo == null){
                 log.info("payload is null->>>{}", HttpStatus.BAD_REQUEST);
-                throw new BadRequestException("NGO payload cannot be null");
+                ResponseDTO  response = AppUtils.getResponseDto("NGO payload cannot be null", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
 
             /**
@@ -81,8 +82,8 @@ public class NGOServiceImpl implements NGOService {
             NGO ngoEmailAlreadyExist = ngoRepo.findByEmail(ngo.getEmail());
             Optional<User> user = userRepo.findUserByEmail(ngo.getEmail());
             if (ngoEmailAlreadyExist != null || user.isPresent()){
-                log.info("email already exist->>>{}", ngo.getEmail());
-                ResponseDTO  response = AppUtils.getResponseDto("email already exist", HttpStatus.ALREADY_REPORTED);
+                log.info("Email already exist->>>{}", ngo.getEmail());
+                ResponseDTO  response = AppUtils.getResponseDto("Email already exist", HttpStatus.ALREADY_REPORTED);
                 return new ResponseEntity<>(response, HttpStatus.ALREADY_REPORTED);
             }
 
@@ -203,8 +204,8 @@ public class NGOServiceImpl implements NGOService {
              * returning response if everything is success
              */
             NGODTO data = NGODTO.toNGODTO(ngoResponse);
-            ResponseDTO responseDTO = AppUtils.getResponseDto("NGO added successfully", HttpStatus.CREATED, data);
-            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+            ResponseDTO responseDTO = AppUtils.getResponseDto("NGO updated successfully", HttpStatus.CREATED, data);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }catch (Exception e) {
             log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
@@ -311,7 +312,8 @@ public class NGOServiceImpl implements NGOService {
            /**
             * returning response if successfully
             */
-           ResponseDTO  response = AppUtils.getResponseDto("ngo record deleted", HttpStatus.OK);
+           log.info("NGO record deleted successfully");
+           ResponseDTO  response = AppUtils.getResponseDto("NGO record deleted", HttpStatus.OK);
            return new ResponseEntity<>(response, HttpStatus.OK);
 
        }catch (Exception e) {
