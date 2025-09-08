@@ -1,19 +1,15 @@
-package com.community_service_hub.user_service;
+package com.community_service_hub.user_service.service;
 
-import com.community_service_hub.exception.ServerException;
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
 import com.community_service_hub.user_service.dto.*;
 import com.community_service_hub.user_service.models.Activity;
 import com.community_service_hub.user_service.models.NGO;
-import com.community_service_hub.user_service.models.User;
 import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.serviceImpl.NGOServiceImpl;
-import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
 import com.community_service_hub.util.AppUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NGOControllerTest {
+public class NGOServiceTest {
 
     @Mock
     private NGORepo ngoRepo;

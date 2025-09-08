@@ -1,4 +1,4 @@
-package com.community_service_hub.user_service;
+package com.community_service_hub.user_service.service;
 
 import com.community_service_hub.notification_service.dto.OTPPayload;
 import com.community_service_hub.notification_service.serviceImpl.NotificationServiceImpl;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class UserControllerTest {
+public class UserServiceTest {
 
     @Mock
     private UserRepo userRepo;

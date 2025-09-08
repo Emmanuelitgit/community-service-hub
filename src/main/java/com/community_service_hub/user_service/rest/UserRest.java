@@ -64,6 +64,7 @@ public class UserRest {
     @Operation(summary = "This endpoint is used to delete user given the user id")
     @DeleteMapping("/{userId}")
     public ResponseEntity<ResponseDTO> removeUser(@PathVariable UUID userId){
+        log.info("In delete user controller:->>{}", userId);
         return userService.removeUser(userId);
     }
 
