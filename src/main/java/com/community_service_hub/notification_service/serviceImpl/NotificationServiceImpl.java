@@ -302,7 +302,11 @@ public class NotificationServiceImpl implements NotificationService {
              * setting variables values to be passed to the template
              */
             Context context = new Context();
-            context.setVariable("name", ngo.getOrganizationName()!=null?ngo.getOrganizationName():user.get().getName());
+            if (ngo!=null){
+                context.setVariable("name", ngo.getOrganizationName());
+            }else{
+                context.setVariable("name", user.get().getName());
+            }
             context.setVariable("task", confirmationDTO.getTask()!=null?confirmationDTO.getTask():null);
             context.setVariable("category", confirmationDTO.getCategory()!=null?confirmationDTO.getCategory():null);
             context.setVariable("status", confirmationDTO.getStatus()!=null?confirmationDTO.getStatus():null);
@@ -354,7 +358,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         } catch (Exception e) {
             log.info("Error message->>>{}", e.getMessage());
-            throw new ServerException("Error occurred while trying to send password reset link");
+            throw new ServerException("Error occurred while trying to send notification");
         }
     }
 }
