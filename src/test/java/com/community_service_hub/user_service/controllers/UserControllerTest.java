@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @WebMvcTest(UserRest.class)
-@AutoConfigureMockMvc(addFilters = false)
+//@AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
 
     @Autowired
