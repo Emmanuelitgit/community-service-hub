@@ -114,6 +114,8 @@ public class UserServiceImpl implements UserService {
             * saving user record
             */
            userPayloadDTO.setRole(userPayloadDTO.getRole().toUpperCase());
+           userPayloadDTO.setCreatedAt(LocalDateTime.now());
+           userPayloadDTO.setUpdatedAt(LocalDateTime.now());
            User userResponse = userRepo.save(user);
 
            /**
@@ -240,6 +242,8 @@ public class UserServiceImpl implements UserService {
             existingData.setName(userPayload.getName() !=null ? userPayload.getName() : existingData.getName());
             existingData.setPhone(userPayload.getPhone() !=null ? userPayload.getPhone() : existingData.getPhone());
             existingData.setAddress(userPayload.getAddress()!=null?userPayload.getAddress():existingData.getAddress());
+            existingData.setUpdatedAt(LocalDateTime.now());
+            existingData.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
             User userResponse = userRepo.save(existingData);
 
             /**
@@ -344,6 +348,8 @@ public class UserServiceImpl implements UserService {
             if (user.isPresent()){
                 User existingUser = user.get();
                 existingUser.setPassword(passwordEncoder.encode(credentials.getPassword()));
+                existingUser.setUpdatedAt(LocalDateTime.now());
+                existingUser.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
                 User userResponse = userRepo.save(existingUser);
 
                 /**
@@ -363,6 +369,8 @@ public class UserServiceImpl implements UserService {
              */
             if (ngo != null){
                 ngo.setPassword(passwordEncoder.encode(credentials.getPassword()));
+                ngo.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                ngo.setUpdatedAt(LocalDateTime.now());
                 NGO ngoResponse = ngoRepo.save(ngo);
 
                 /**

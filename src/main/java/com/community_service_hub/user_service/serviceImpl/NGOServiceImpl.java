@@ -29,6 +29,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -93,6 +94,8 @@ public class NGOServiceImpl implements NGOService {
             ngo.setPassword(passwordEncoder.encode(ngo.getPassword()));
             ngo.setRole(UserRole.NGO.toString());
             ngo.setIsApproved(Boolean.FALSE);
+            ngo.setCreatedAt(LocalDateTime.now());
+            ngo.setUpdatedAt(LocalDateTime.now());
             NGO ngoResponse = ngoRepo.save(ngo);
 
             /**
@@ -183,6 +186,8 @@ public class NGOServiceImpl implements NGOService {
             existingData.setDescription(ngo.getDescription() != null ? ngo.getDescription() : existingData.getDescription());
             existingData.setRole(ngo.getRole() != null ? ngo.getRole() : existingData.getRole());
             existingData.setCountry(ngo.getCountry()!=null?ngo.getCountry(): existingData.getCountry());
+            existingData.setUpdatedAt(LocalDateTime.now());
+            existingData.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
 
             /**
              * saving updated records
@@ -441,6 +446,8 @@ public class NGOServiceImpl implements NGOService {
             /**
              * saving updated record
              */
+            existingData.setUpdatedAt(LocalDateTime.now());
+            existingData.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
             NGO ngoResponse = ngoRepo.save(existingData);
 
             /**

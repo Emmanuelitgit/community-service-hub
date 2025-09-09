@@ -7,17 +7,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ngo_tb")
-public class NGO extends AuditorData {
+public class NGO {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -40,4 +44,7 @@ public class NGO extends AuditorData {
     private String role;
     private Boolean isApproved;
     private String phone;
+    private UUID updatedBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

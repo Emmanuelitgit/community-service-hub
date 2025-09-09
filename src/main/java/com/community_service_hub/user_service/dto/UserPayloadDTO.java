@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -33,4 +35,6 @@ public class UserPayloadDTO {
     private String role;
     @NotBlank(message = "Address cannot be null or empty")
     private String address;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
