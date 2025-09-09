@@ -101,13 +101,13 @@ public class NGOServiceImpl implements NGOService {
             /**
              * update activity log
              */
-            Activity activity = Activity
-                    .builder()
-                    .entityId(ngoResponse.getId())
-                    .activity("Account Creation")
-                    .entityName(ngoResponse.getOrganizationName())
-                    .build();
-            activityRepo.save(activity);
+//            Activity activity = Activity
+//                    .builder()
+//                    .entityId(ngoResponse.getId())
+//                    .activity("Account Creation")
+//                    .entityName(ngoResponse.getOrganizationName())
+//                    .build();
+//            activityRepo.save(activity);
 
             /**
              * send otp to user

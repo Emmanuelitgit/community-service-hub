@@ -121,13 +121,13 @@ public class UserServiceImpl implements UserService {
            /**
             * update activity log
             */
-           Activity activity = Activity
-                   .builder()
-                   .entityId(userResponse.getId())
-                   .activity("Account Creation")
-                   .entityName(userResponse.getName())
-                   .build();
-           activityRepo.save(activity);
+//           Activity activity = Activity
+//                   .builder()
+//                   .entityId(userResponse.getId())
+//                   .activity("Account Creation")
+//                   .entityName(userResponse.getName())
+//                   .build();
+//           activityRepo.save(activity);
 
            /**
             * sending an otp email notification to user
