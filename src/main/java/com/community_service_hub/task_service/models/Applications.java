@@ -29,6 +29,6 @@ public class Applications extends AuditorData {
     @NotBlank(message = "Email cannot be null or empty")
     private String email;
     private String status;
-    @NotBlank(message = "Task id cannot be null or empty")
+    @NotNull(message = "Task id cannot be null or empty")
     private UUID taskId;
 }

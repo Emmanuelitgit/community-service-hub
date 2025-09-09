@@ -20,7 +20,7 @@ public class SubTask extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @NotBlank(message = "Parent task id cannot be null or empty")
+    @NotNull(message = "Parent task id cannot be null or empty")
     private UUID parentTaskId;
     @NotBlank(message = "Name cannot be null or empty")
     private String name;

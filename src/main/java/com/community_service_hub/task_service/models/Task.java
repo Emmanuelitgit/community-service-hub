@@ -20,7 +20,7 @@ public class Task extends AuditorData {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @NotBlank(message = "Posted by cannot be null or empty")
+    @NotNull(message = "Posted by cannot be null or empty")
     private UUID postedBy;
     @NotBlank(message = "Name cannot be null or empty")
     private String name;
@@ -33,7 +33,7 @@ public class Task extends AuditorData {
     private Double latitude;
     private Double longitude;
     private String startDate;
-    @NotBlank(message = "Number of people needed cannot be null or empty")
+    @NotNull(message = "Number of people needed cannot be null or empty")
     private Integer numberOfPeopleNeeded;
     private Integer remainingPeopleNeeded;
     private String status;
