@@ -480,7 +480,11 @@ public class NGOServiceImpl implements NGOService {
         log.info("In get image method:->>>>");
         NGO dbImage = ngoRepo.findById(id)
                 .orElseThrow(()-> new NotFoundException("ngo record not found"));
-        return ImageUtil.decompressImage(dbImage.getCertificate());
+
+        if (dbImage.getCertificate()!=null){
+            return ImageUtil.decompressImage(dbImage.getCertificate());
+        }
+        return null;
     }
 
     @Transactional
@@ -488,6 +492,10 @@ public class NGOServiceImpl implements NGOService {
         log.info("In get image method:->>>>");
         NGO dbImage = ngoRepo.findById(id)
                 .orElseThrow(()-> new NotFoundException("ngo record not found"));
-        return ImageUtil.decompressImage(dbImage.getLogo());
+
+        if (dbImage.getLogo()!=null){
+            return ImageUtil.decompressImage(dbImage.getLogo());
+        }
+        return null;
     }
 }

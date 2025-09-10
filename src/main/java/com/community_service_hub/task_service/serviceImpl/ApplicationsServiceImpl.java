@@ -187,7 +187,6 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                     .location(taskResponse.getAddress())
                     .status(applicationsResponse.getStatus())
                     .startDate(taskResponse.getStartDate())
-                    .type(AppConstants.CONFIRMATION)
                     .userEmail(userOptional.get().getEmail())
                     .build();
             notificationService.sendApplicationNotificationToUser(confirmationDTO);

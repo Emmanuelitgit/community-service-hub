@@ -320,7 +320,7 @@ public class NotificationServiceImpl implements NotificationService {
                 helper.setSubject("Application Decision");
                 String htmlContent = templateEngine.process("ApplicationRejectionTemplate", context);
                 helper.setText(htmlContent, true);
-            }else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.CONFIRMATION)){
+            }else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.PENDING)){
                 log.info("Sending application confirmation notification->>>{}", confirmationDTO.getStatus());
                 helper.setSubject("Application Confirmation");
                 String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
