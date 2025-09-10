@@ -84,4 +84,7 @@ public interface UserRepo extends JpaRepository<User, UUID> {
             "(a.status IN ('PENDING', 'APPROVED', 'REJECTED'))" +
             "ORDER BY a.created_at ", nativeQuery = true)
     List<UserDTOProjection> getTotalVolunteersOfTaskForLoggedInNGO(@RequestParam("NGOId") UUID NGOId);
+
+    @Query(value = "SELECT * FROM user_tb WHERE user_role IN ('Admin', 'admin', 'ADMIN')", nativeQuery = true)
+    List<User> findAdminUsers();
 }

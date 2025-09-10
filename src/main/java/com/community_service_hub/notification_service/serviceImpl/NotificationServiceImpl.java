@@ -27,6 +27,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.random.RandomGenerator;
@@ -143,13 +144,21 @@ public class NotificationServiceImpl implements NotificationService {
     public ResponseEntity<ResponseDTO> verifyOtp(OTPPayload otpPayload) {
        try {
            /**
+            * validating payload
+            */
+           if (otpPayload==null){
+               log.error("OTP payload is null");
+               throw new BadRequestException("OTP payload cannot be null");
+           }
+
+           /**
             * checking if user exist
             */
            Optional<User> user = userRepo.findUserByEmail(otpPayload.getEmail());
            NGO ngo = ngoRepo.findByEmail(otpPayload.getEmail());
-
            if (user.isEmpty() && ngo==null){
-               throw new NotFoundException("user record not found to send email");
+               log.error("User record not found:->>>{}", otpPayload.getEmail());
+               throw new NotFoundException("User record not found to send email");
            }
 
            /**
@@ -183,8 +192,20 @@ public class NotificationServiceImpl implements NotificationService {
            otpExist.setStatus(true);
            notificationRepo.deleteById(otpExist.getId());
 
+           /**
+            * notify admin if account type is NGO
+            */
+           if (ngo!=null){
+               ApplicationConfirmationDTO applicationConfirmationDTO = ApplicationConfirmationDTO
+                       .builder()
+                       .email(ngo.getEmail())
+                       .build();
+               sendNGOAccountNotificationToAmin(applicationConfirmationDTO);
+           }
+
            ResponseDTO response = AppUtils.getResponseDto("OTP verified", HttpStatus.OK);
            return new ResponseEntity<>(response, HttpStatus.OK);
+
        } catch (Exception e) {
            throw new ServerException(e.getMessage());
        }
@@ -454,6 +475,67 @@ public class NotificationServiceImpl implements NotificationService {
              */
             mailSender.send(message);
             log.info("NGO Account decision sent sent to:->>>{}", ngoOptional.get().getEmail());
+
+        } catch (Exception e) {
+            log.info("Error message->>>{}", e.getMessage());
+            throw new ServerException("Error occurred while trying to send notification");
+        }
+    }
+
+
+    /**
+     * @description this method is used to notify admin when new NGO account is created
+     * @param confirmationDTO the payload to be sent to the notification template
+     * @atuher Emmanuel Yidana
+     * @createdAt 10th September 2025
+     */
+    public void sendNGOAccountNotificationToAmin(ApplicationConfirmationDTO confirmationDTO){
+        try {
+
+            /**
+             * loading admin users from DB
+             */
+            List<User> adminUsers = userRepo.findAdminUsers();
+            if (adminUsers.isEmpty()){
+                log.error("No admin user found");
+                throw new NotFoundException("No admin user found");
+            }
+
+            /**
+             * iterating to send mail to admin users
+             */
+            adminUsers.forEach((admin)->{
+              try {
+                  /**
+                   * setting email items
+                   */
+                  MimeMessage message = mailSender.createMimeMessage();
+                  MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                  helper.setFrom("eyidana001@gmail.com");
+                  helper.setTo(admin.getEmail());
+
+                  /**
+                   * setting variables values to be passed to the template
+                   */
+                  Context context = new Context();
+                  context.setVariable("name", admin.getName());
+                  context.setVariable("email", confirmationDTO.getEmail());
+
+                  helper.setSubject("NGO Account Decision");
+                  String htmlContent = templateEngine.process("AdminNotificationTemplate", context);
+                  helper.setText(htmlContent, true);
+
+                  /**
+                   * send notification here
+                   */
+                  mailSender.send(message);
+                  log.info("NGO Account decision sent sent to:->>>{}", confirmationDTO.getEmail());
+
+              } catch (Exception e) {
+                  log.info("Error message->>>{}", e.getMessage());
+                  throw new ServerException("Error occurred while trying to send notification");
+              }
+            });
 
         } catch (Exception e) {
             log.info("Error message->>>{}", e.getMessage());
