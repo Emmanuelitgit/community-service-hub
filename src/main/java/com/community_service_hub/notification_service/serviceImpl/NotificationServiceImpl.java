@@ -281,10 +281,9 @@ public class NotificationServiceImpl implements NotificationService {
             /**
              * loading the user data from the db by the user email
              */
-            Optional<User> user = userRepo.findUserByEmail(confirmationDTO.getUserEmail());
-
+            Optional<User> user = userRepo.findById(confirmationDTO.getUserId());
             if (user.isEmpty()){
-                log.info("No user found with the email provided->>>{}", confirmationDTO.getUserEmail());
+                log.info("No user found with the ID provided->>>{}",confirmationDTO.getUserId());
                 throw new NotFoundException("No user record found with the email provide");
             }
 
@@ -353,28 +352,26 @@ public class NotificationServiceImpl implements NotificationService {
         try {
 
             /**
-             * loading the user data from the db by the user email
+             * loading NGO data from DB
              */
-            NGO ngo = ngoRepo.findByEmail(confirmationDTO.getUserEmail());
-
-            if (ngo==null){
-                log.info("No NGO found with the email provided->>>{}", confirmationDTO.getUserEmail());
-                throw new NotFoundException("No NGO record found with the email provide");
+            Optional<NGO> ngoOptional = ngoRepo.findById(confirmationDTO.getUserId());
+            if (ngoOptional.isEmpty()){
+                log.error("No NGO found with the provided ID:->>>{}", confirmationDTO.getUserId());
+                throw new NotFoundException("NGO record cannot be found");
             }
-
             /**
              * setting email items
              */
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom("eyidana001@gmail.com");
-            helper.setTo(ngo.getEmail());
+            helper.setTo(ngoOptional.get().getEmail());
 
             /**
              * setting variables values to be passed to the template
              */
             Context context = new Context();
-            context.setVariable("name", ngo.getOrganizationName());
+            context.setVariable("name", ngoOptional.get().getOrganizationName());
             context.setVariable("task", confirmationDTO.getTask()!=null?confirmationDTO.getTask():null);
             context.setVariable("category", confirmationDTO.getCategory()!=null?confirmationDTO.getCategory():null);
             context.setVariable("status", confirmationDTO.getStatus()!=null?confirmationDTO.getStatus():null);
@@ -391,7 +388,7 @@ public class NotificationServiceImpl implements NotificationService {
              * send notification here
              */
             mailSender.send(message);
-            log.info("Application notification sent to NGO:->>>{}", ngo.getEmail());
+            log.info("Application notification sent to NGO:->>>{}", ngoOptional.get().getEmail());
 
         } catch (Exception e) {
             log.info("Error message->>>{}", e.getMessage());
@@ -411,12 +408,11 @@ public class NotificationServiceImpl implements NotificationService {
         try {
 
             /**
-             * loading the user data from the db by the user email
+             * loading NGO data from DB
              */
-            NGO ngo = ngoRepo.findByEmail(confirmationDTO.getUserEmail());
-
-            if (ngo==null){
-                log.info("No NGO found with the email provided->>>{}", confirmationDTO.getUserEmail());
+            Optional<NGO> ngoOptional = ngoRepo.findById(confirmationDTO.getUserId());
+            if (ngoOptional.isEmpty()){
+                log.info("No NGO found with the ID provided->>>{}", confirmationDTO.getUserId());
                 throw new NotFoundException("No NGO record found with the email provide");
             }
 
@@ -426,14 +422,14 @@ public class NotificationServiceImpl implements NotificationService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom("eyidana001@gmail.com");
-            helper.setTo(confirmationDTO.getEmail());
+            helper.setTo(ngoOptional.get().getEmail());
 
             /**
              * setting variables values to be passed to the template
              */
             Context context = new Context();
-            context.setVariable("name", ngo.getOrganizationName());
-            context.setVariable("email", ngo.getEmail());
+            context.setVariable("name", ngoOptional.get().getOrganizationName());
+            context.setVariable("email", ngoOptional.get().getEmail());
 
             /**
              * determine which template to use base on type and status
@@ -457,7 +453,7 @@ public class NotificationServiceImpl implements NotificationService {
              * send notification here
              */
             mailSender.send(message);
-            log.info("NGO Account decision sent sent to:->>>{}", confirmationDTO.getEmail());
+            log.info("NGO Account decision sent sent to:->>>{}", ngoOptional.get().getEmail());
 
         } catch (Exception e) {
             log.info("Error message->>>{}", e.getMessage());

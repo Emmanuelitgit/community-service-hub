@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -17,8 +19,8 @@ public class ApplicationConfirmationDTO {
     private String category;
     private String email;
     private String startDate;
-    private String userEmail;
     private String type;
     private String reason;
     private String applicant;
+    private UUID userId;
 }

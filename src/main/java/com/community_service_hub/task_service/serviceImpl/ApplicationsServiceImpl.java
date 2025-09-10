@@ -101,17 +101,6 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             log.info("Fetching logged-in userId:->>>{}", applicantId);
 
             /**
-             * checking if applicant exist in the system
-             */
-            Optional<NGO> ngoOptional = ngoRepo.findById(applicantId);
-            Optional<User> userOptional = userRepo.findById(applicantId);
-            if (ngoOptional.isEmpty() && userOptional.isEmpty()){
-                log.info("Applicant record cannot be found->>>{}", applicantId);
-                ResponseDTO responseDTO = AppUtils.getResponseDto("applicant record cannot be found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
-
-            /**
              * checking if task exist by id
              */
             Optional<Task> taskOptional = taskRepo.findById(applications.getTaskId());
@@ -187,7 +176,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                     .location(taskResponse.getAddress())
                     .status(applicationsResponse.getStatus())
                     .startDate(taskResponse.getStartDate())
-                    .userEmail(userOptional.get().getEmail())
+                    .userId(applicantId)
                     .build();
             notificationService.sendApplicationNotificationToUser(confirmationDTO);
 
@@ -198,12 +187,11 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             ApplicationConfirmationDTO ngoNotification = ApplicationConfirmationDTO
                     .builder()
                     .task(taskResponse.getName())
-                    .email(ngoOptional.get().getEmail())
                     .category(taskResponse.getCategory())
                     .location(taskResponse.getAddress())
                     .status(applicationsResponse.getStatus())
                     .startDate(taskResponse.getStartDate())
-                    .userEmail(ngoOptional.get().getEmail())
+                    .userId(taskOptional.get().getPostedBy())
                     .reason(applicationsResponse.getReasonForApplication())
                     .applicant(applicationsResponse.getApplicantName())
                     .build();
@@ -508,7 +496,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                     .type(applicationResponse.getStatus().equalsIgnoreCase(AppConstants.APPROVED)?
                             AppConstants.APPROVED:AppConstants.REJECTED)
                     .startDate(taskOptional.get().getStartDate())
-                    .userEmail(user.get().getEmail())
+                    .userId(applicationResponse.getApplicantId())
                     .build();
             notificationService.sendApplicationNotificationToUser(confirmationDTO);
 
