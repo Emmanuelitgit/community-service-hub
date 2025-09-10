@@ -27,4 +27,6 @@ public interface AppConstants {
     public final String ASSIGNED = "ASSIGNED";
 
     public final String APPLICATION = "APPLICATION";
+
+    public final String CONFIRMATION = "CONFIRMATION";
 }

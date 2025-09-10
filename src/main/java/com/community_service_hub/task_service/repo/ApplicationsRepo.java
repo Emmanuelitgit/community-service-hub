@@ -85,6 +85,6 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
                                                           @RequestParam("startDate") LocalDateTime startDate,
                                                           @RequestParam("endDate") LocalDateTime endDate);
 
-    @Query(value = "SELECT * FROM applications_tb ORDER BY updated_at DESC LIMIT 3", nativeQuery = true)
-    List<Applications> getRecentActivities();
+    Boolean findApplicationsByApplicantIdAndTaskIdExists(UUID applicantId, UUID taskId);
+
 }

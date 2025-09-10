@@ -269,23 +269,21 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /**
-     * @description this method is used tp=o notify user either on
-     * Application Rejection, Application Approval, Application Confirmation OR
-     * NGO Account Approval, NGO Account Rejection
+     * @description this method is used to notify user either on
+     * Application Rejection, Application Approval, Application Confirmation
      * @param confirmationDTO the payload to be sent to the notification template
      * @atuher Emmanuel Yidana
      * @createdAt 31 August 2025
      */
-    public void sendApplicationConfirmation(ApplicationConfirmationDTO confirmationDTO){
+    public void sendApplicationNotificationToUser(ApplicationConfirmationDTO confirmationDTO){
         try {
 
             /**
              * loading the user data from the db by the user email
              */
             Optional<User> user = userRepo.findUserByEmail(confirmationDTO.getUserEmail());
-            NGO ngo = ngoRepo.findByEmail(confirmationDTO.getUserEmail());
 
-            if (user.isEmpty() && ngo==null){
+            if (user.isEmpty()){
                 log.info("No user found with the email provided->>>{}", confirmationDTO.getUserEmail());
                 throw new NotFoundException("No user record found with the email provide");
             }
@@ -302,11 +300,7 @@ public class NotificationServiceImpl implements NotificationService {
              * setting variables values to be passed to the template
              */
             Context context = new Context();
-            if (ngo!=null){
-                context.setVariable("name", ngo.getOrganizationName());
-            }else{
-                context.setVariable("name", user.get().getName());
-            }
+            context.setVariable("name", user.get().getName());
             context.setVariable("task", confirmationDTO.getTask()!=null?confirmationDTO.getTask():null);
             context.setVariable("category", confirmationDTO.getCategory()!=null?confirmationDTO.getCategory():null);
             context.setVariable("status", confirmationDTO.getStatus()!=null?confirmationDTO.getStatus():null);
@@ -314,47 +308,156 @@ public class NotificationServiceImpl implements NotificationService {
             context.setVariable("location", confirmationDTO.getLocation()!=null?confirmationDTO.getLocation():null);
 
             /**
-             * determine which template to use base on type and status
+             * determine which template to use base on status
              */
-           if (confirmationDTO.getType().equalsIgnoreCase(AppConstants.APPLICATION)){
-               if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
-                   log.info("Sending application approval notification->>>{}", confirmationDTO.getStatus());
-                   helper.setSubject("Application Decision");
-                   String htmlContent = templateEngine.process("ApplicationApprovalTemplate", context);
-                   helper.setText(htmlContent, true);
-               } else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.REJECTED)) {
-                   log.info("Sending application rejection notification->>>{}", confirmationDTO.getStatus());
-                   helper.setSubject("Application Decision");
-                   String htmlContent = templateEngine.process("ApplicationRejectionTemplate", context);
-                   helper.setText(htmlContent, true);
-               }else {
-                   log.info("Sending application confirmation notification->>>{}", confirmationDTO.getStatus());
-                   helper.setSubject("Application Confirmation");
-                   String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
-                   helper.setText(htmlContent, true);
-               }
-           }else if (confirmationDTO.getType().equalsIgnoreCase(AppConstants.NGO)){
-              if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
-                  log.info("Sending NGO approval notification->>>{}", confirmationDTO.getStatus());
-                  helper.setSubject("Application Confirmation");
-                  String htmlContent = templateEngine.process("NGOApprovalTemplate", context);
-                  helper.setText(htmlContent, true);
-              }else {
-                  log.info("Sending NGO rejection notification->>>{}", confirmationDTO.getStatus());
-                  helper.setSubject("Application Confirmation");
-                  String htmlContent = templateEngine.process("NGORejectionTemplate", context);
-                  helper.setText(htmlContent, true);
-              }
+            if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
+                log.info("Sending application approval notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("Application Decision");
+                String htmlContent = templateEngine.process("ApplicationApprovalTemplate", context);
+                helper.setText(htmlContent, true);
+            } else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.REJECTED)) {
+                log.info("Sending application rejection notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("Application Decision");
+                String htmlContent = templateEngine.process("ApplicationRejectionTemplate", context);
+                helper.setText(htmlContent, true);
+            }else if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.CONFIRMATION)){
+                log.info("Sending application confirmation notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("Application Confirmation");
+                String htmlContent = templateEngine.process("ApplicationConfirmationTemplate", context);
+                helper.setText(htmlContent, true);
            }else {
-               log.info("Notification found does not exist->>>{}", confirmationDTO.getType());
-               throw new NotFoundException("Notification type does not exist");
-           }
+                log.error("Status provided does not exist:->>>{}", confirmationDTO.getStatus());
+                throw new BadRequestException("Status does not exist");
+            }
 
             /**
              * send notification here
              */
             mailSender.send(message);
             log.info("Application confirmation sent to:->>>{}", confirmationDTO.getEmail());
+
+        } catch (Exception e) {
+            log.info("Error message->>>{}", e.getMessage());
+            throw new ServerException("Error occurred while trying to send notification");
+        }
+    }
+
+
+    /**
+     * @description this method is used to notify NGO on Task application by volunteer
+     * @param confirmationDTO the payload to be sent to the notification template
+     * @atuher Emmanuel Yidana
+     * @createdAt 31 August 2025
+     */
+    public void sendApplicationNotificationToNGO(ApplicationConfirmationDTO confirmationDTO){
+        try {
+
+            /**
+             * loading the user data from the db by the user email
+             */
+            NGO ngo = ngoRepo.findByEmail(confirmationDTO.getUserEmail());
+
+            if (ngo==null){
+                log.info("No NGO found with the email provided->>>{}", confirmationDTO.getUserEmail());
+                throw new NotFoundException("No NGO record found with the email provide");
+            }
+
+            /**
+             * setting email items
+             */
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom("eyidana001@gmail.com");
+            helper.setTo(ngo.getEmail());
+
+            /**
+             * setting variables values to be passed to the template
+             */
+            Context context = new Context();
+            context.setVariable("name", ngo.getOrganizationName());
+            context.setVariable("task", confirmationDTO.getTask()!=null?confirmationDTO.getTask():null);
+            context.setVariable("category", confirmationDTO.getCategory()!=null?confirmationDTO.getCategory():null);
+            context.setVariable("status", confirmationDTO.getStatus()!=null?confirmationDTO.getStatus():null);
+            context.setVariable("startDate", confirmationDTO.getStartDate()!=null?confirmationDTO.getStartDate():null);
+            context.setVariable("reason", confirmationDTO.getReason()!=null?confirmationDTO.getReason():null);
+            context.setVariable("applicant", confirmationDTO.getApplicant()!=null?confirmationDTO.getApplicant():null);
+
+
+            helper.setSubject("Task Application Decision");
+            String htmlContent = templateEngine.process("NGOApplicationNotificationTemplate", context);
+            helper.setText(htmlContent, true);
+
+            /**
+             * send notification here
+             */
+            mailSender.send(message);
+            log.info("Application notification sent to NGO:->>>{}", ngo.getEmail());
+
+        } catch (Exception e) {
+            log.info("Error message->>>{}", e.getMessage());
+            throw new ServerException("Error occurred while trying to send notification");
+        }
+    }
+
+
+    /**
+     * @description this method is used to notify NGO either on
+     * Account Rejection OR Account Approval
+     * @param confirmationDTO the payload to be sent to the notification template
+     * @atuher Emmanuel Yidana
+     * @createdAt 31 August 2025
+     */
+    public void sendAccountDecisionNotificationToNGO(ApplicationConfirmationDTO confirmationDTO){
+        try {
+
+            /**
+             * loading the user data from the db by the user email
+             */
+            NGO ngo = ngoRepo.findByEmail(confirmationDTO.getUserEmail());
+
+            if (ngo==null){
+                log.info("No NGO found with the email provided->>>{}", confirmationDTO.getUserEmail());
+                throw new NotFoundException("No NGO record found with the email provide");
+            }
+
+            /**
+             * setting email items
+             */
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom("eyidana001@gmail.com");
+            helper.setTo(confirmationDTO.getEmail());
+
+            /**
+             * setting variables values to be passed to the template
+             */
+            Context context = new Context();
+            context.setVariable("name", ngo.getOrganizationName());
+            context.setVariable("email", ngo.getEmail());
+
+            /**
+             * determine which template to use base on type and status
+             */
+            if (confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.APPROVED)){
+                log.info("Sending NGO account approval notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("NGO Account Decision");
+                String htmlContent = templateEngine.process("NGOApprovalTemplate", context);
+                helper.setText(htmlContent, true);
+            }else if(confirmationDTO.getStatus().equalsIgnoreCase(AppConstants.REJECTED)){
+                log.info("Sending NGO account rejection notification->>>{}", confirmationDTO.getStatus());
+                helper.setSubject("NGO Account Decision");
+                String htmlContent = templateEngine.process("NGORejectionTemplate", context);
+                helper.setText(htmlContent, true);
+            }else {
+                log.error("Status provided does not exist:->>>{}", confirmationDTO.getStatus());
+                throw new BadRequestException("Status does not exist");
+            }
+
+            /**
+             * send notification here
+             */
+            mailSender.send(message);
+            log.info("NGO Account decision sent sent to:->>>{}", confirmationDTO.getEmail());
 
         } catch (Exception e) {
             log.info("Error message->>>{}", e.getMessage());

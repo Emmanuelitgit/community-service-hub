@@ -122,6 +122,17 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             }
 
             /**
+             * checking if user already applied for the task
+             */
+            Boolean alreadyAppliedTask = applicationsRepo
+                    .findApplicationsByApplicantIdAndTaskIdExists(applicantId, taskOptional.get().getId());
+            if (alreadyAppliedTask.equals(Boolean.TRUE)){
+                log.info("You already applied for this task->>>{}", taskOptional.get().getName());
+                ResponseDTO responseDTO = AppUtils.getResponseDto("You already applied for this task", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            /**
              * checking if task is closed for application
              */
             if (taskOptional.get().getStatus().equalsIgnoreCase(AppConstants.CLOSED)){
@@ -165,20 +176,40 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             activityRepo.save(activity);
 
             /**
-             * sending application confirmation message
+             * sending application confirmation to applicant
              */
+            log.info("About to notify applicant");
             ApplicationConfirmationDTO confirmationDTO = ApplicationConfirmationDTO
                     .builder()
                     .task(taskResponse.getName())
                     .email(applicationsResponse.getEmail())
                     .category(taskResponse.getCategory())
-                    .type(AppConstants.APPLICATION)
                     .location(taskResponse.getAddress())
                     .status(applicationsResponse.getStatus())
                     .startDate(taskResponse.getStartDate())
+                    .type(AppConstants.CONFIRMATION)
                     .userEmail(userOptional.get().getEmail())
                     .build();
-            notificationService.sendApplicationConfirmation(confirmationDTO);
+            notificationService.sendApplicationNotificationToUser(confirmationDTO);
+
+            /**
+             * sending application notification to NGO
+             */
+            log.info("About to notify NGO");
+            ApplicationConfirmationDTO ngoNotification = ApplicationConfirmationDTO
+                    .builder()
+                    .task(taskResponse.getName())
+                    .email(ngoOptional.get().getEmail())
+                    .category(taskResponse.getCategory())
+                    .location(taskResponse.getAddress())
+                    .status(applicationsResponse.getStatus())
+                    .startDate(taskResponse.getStartDate())
+                    .userEmail(ngoOptional.get().getEmail())
+                    .reason(applicationsResponse.getReasonForApplication())
+                    .applicant(applicationsResponse.getApplicantName())
+                    .build();
+            notificationService.sendApplicationNotificationToNGO(ngoNotification);
+
             /**
              * returning response if success
              */
@@ -467,18 +498,20 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * notify user on application status
              */
+            log.info("About to notify applicant:->>");
             ApplicationConfirmationDTO confirmationDTO = ApplicationConfirmationDTO
                     .builder()
                     .task(taskOptional.get().getName())
                     .email(applicationResponse.getEmail())
                     .category(taskOptional.get().getCategory())
-                    .type(AppConstants.APPLICATION)
                     .location(taskOptional.get().getAddress())
                     .status(applicationResponse.getStatus())
+                    .type(applicationResponse.getStatus().equalsIgnoreCase(AppConstants.APPROVED)?
+                            AppConstants.APPROVED:AppConstants.REJECTED)
                     .startDate(taskOptional.get().getStartDate())
                     .userEmail(user.get().getEmail())
                     .build();
-            notificationService.sendApplicationConfirmation(confirmationDTO);
+            notificationService.sendApplicationNotificationToUser(confirmationDTO);
 
             /**
              * returning response if success

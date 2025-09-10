@@ -19,4 +19,6 @@ public class ApplicationConfirmationDTO {
     private String startDate;
     private String userEmail;
     private String type;
+    private String reason;
+    private String applicant;
 }

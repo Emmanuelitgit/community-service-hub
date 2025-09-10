@@ -99,17 +99,6 @@ public class NGOServiceImpl implements NGOService {
             NGO ngoResponse = ngoRepo.save(ngo);
 
             /**
-             * update activity log
-             */
-//            Activity activity = Activity
-//                    .builder()
-//                    .entityId(ngoResponse.getId())
-//                    .activity("Account Creation")
-//                    .entityName(ngoResponse.getOrganizationName())
-//                    .build();
-//            activityRepo.save(activity);
-
-            /**
              * send otp to user
              */
             OTPPayload otpPayload = OTPPayload
@@ -470,9 +459,8 @@ public class NGOServiceImpl implements NGOService {
                     .status(ngoResponse.getIsApproved().equals(Boolean.TRUE)?
                             AppConstants.APPROVED:AppConstants.REJECTED)
                     .userEmail(ngoResponse.getEmail())
-                    .type(AppConstants.NGO)
                     .build();
-            notificationService.sendApplicationConfirmation(confirmationDTO);
+            notificationService.sendAccountDecisionNotificationToNGO(confirmationDTO);
 
             /**
              * returning response if success
