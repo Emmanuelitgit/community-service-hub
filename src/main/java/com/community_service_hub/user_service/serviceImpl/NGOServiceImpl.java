@@ -458,7 +458,6 @@ public class NGOServiceImpl implements NGOService {
                     .email(ngoResponse.getEmail())
                     .status(ngoResponse.getIsApproved().equals(Boolean.TRUE)?
                             AppConstants.APPROVED:AppConstants.REJECTED)
-                    .userEmail(ngoResponse.getEmail())
                     .build();
             notificationService.sendAccountDecisionNotificationToNGO(confirmationDTO);
 
