@@ -85,6 +85,9 @@ public interface ApplicationsRepo extends JpaRepository<Applications, UUID> {
                                                           @RequestParam("startDate") LocalDateTime startDate,
                                                           @RequestParam("endDate") LocalDateTime endDate);
 
-    Boolean findApplicationsByApplicantIdAndTaskIdExists(UUID applicantId, UUID taskId);
+    @Query(value ="SELECT count(*) FROM applications_tb " +
+            "WHERE applicant_id=:applicantId AND task_id=:taskId", nativeQuery = true)
+    Integer findApplicationsByApplicantIdAndTaskIdExists(@RequestParam("applicantId") UUID applicantId,
+                                                         @RequestParam("taskId") UUID taskId);
 
 }

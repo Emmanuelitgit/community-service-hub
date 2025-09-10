@@ -124,9 +124,9 @@ public class ApplicationsServiceImpl implements ApplicationsService {
             /**
              * checking if user already applied for the task
              */
-            Boolean alreadyAppliedTask = applicationsRepo
+            Integer alreadyAppliedTask = applicationsRepo
                     .findApplicationsByApplicantIdAndTaskIdExists(applicantId, taskOptional.get().getId());
-            if (alreadyAppliedTask.equals(Boolean.TRUE)){
+            if (alreadyAppliedTask>0){
                 log.info("You already applied for this task->>>{}", taskOptional.get().getName());
                 ResponseDTO responseDTO = AppUtils.getResponseDto("You already applied for this task", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
