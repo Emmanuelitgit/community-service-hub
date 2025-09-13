@@ -176,7 +176,7 @@ public class NGOServiceImpl implements NGOService {
             existingData.setRole(ngo.getRole() != null ? ngo.getRole() : existingData.getRole());
             existingData.setCountry(ngo.getCountry()!=null?ngo.getCountry(): existingData.getCountry());
             existingData.setUpdatedAt(LocalDateTime.now());
-            existingData.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            existingData.setUpdatedBy(UUID.fromString(appUtils.getAuthenticatedUserId()));
 
             /**
              * saving updated records
@@ -362,7 +362,7 @@ public class NGOServiceImpl implements NGOService {
     public ResponseEntity<ResponseDTO> getActiveVolunteersForLoggedNGO(){
      try {
          log.info("In get active volunteers for NGO method:");
-         UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+         UUID userId = UUID.fromString(appUtils.getAuthenticatedUserId());
          log.debug("About to fetch volunteers for:->>>{}", userId);
          List<UserDTOProjection> volunteers = userRepo.getActiveVolunteersForLoggedInNGO(userId);
          log.debug("Fetching active volunteers for NGO:->>>{}", volunteers);
@@ -436,7 +436,7 @@ public class NGOServiceImpl implements NGOService {
              * saving updated record
              */
             existingData.setUpdatedAt(LocalDateTime.now());
-            existingData.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            existingData.setUpdatedBy(UUID.fromString(appUtils.getAuthenticatedUserId()));
             NGO ngoResponse = ngoRepo.save(existingData);
 
             /**

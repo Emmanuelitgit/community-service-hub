@@ -97,7 +97,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     public ResponseEntity<ResponseDTO> createApplication(Applications applications) {
         try {
             log.info("In create application method->>>{}", applications);
-            UUID applicantId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+            UUID applicantId = UUID.fromString(appUtils.getAuthenticatedUserId());
             log.info("Fetching logged-in userId:->>>{}", applicantId);
 
             /**
@@ -524,15 +524,15 @@ public class ApplicationsServiceImpl implements ApplicationsService {
     @Override
     public ResponseEntity<ResponseDTO> fetchUserApplications() {
         try {
-            log.info("In fetch user applications status method->>>{}", AppUtils.getAuthenticatedUserId());
+            log.info("In fetch user applications status method->>>{}", appUtils.getAuthenticatedUserId());
 
             /**
              * checking if application exist by id
              */
-            List<Applications> applicationsForUser = applicationsRepo.fetchApplicationsForUser(UUID.fromString(AppUtils.getAuthenticatedUserId()));
-            List<Applications> applicationsForNGO = applicationsRepo.fetchApplicationsForNGO(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            List<Applications> applicationsForUser = applicationsRepo.fetchApplicationsForUser(UUID.fromString(appUtils.getAuthenticatedUserId()));
+            List<Applications> applicationsForNGO = applicationsRepo.fetchApplicationsForNGO(UUID.fromString(appUtils.getAuthenticatedUserId()));
             if (applicationsForUser.isEmpty() && applicationsForNGO.isEmpty()){
-                log.info("application record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                log.info("application record cannot be found->>>{}", UUID.fromString(appUtils.getAuthenticatedUserId()));
                 ResponseDTO responseDTO = AppUtils.getResponseDto("Application record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
@@ -559,7 +559,7 @@ public class ApplicationsServiceImpl implements ApplicationsService {
                      */
                     Optional<Task> taskOptional = taskRepo.findById(app.getTaskId());
                     if (taskOptional.isEmpty()){
-                        log.info("Task record cannot be found->>>{}", UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                        log.info("Task record cannot be found->>>{}", UUID.fromString(appUtils.getAuthenticatedUserId()));
                         throw new NotFoundException("Task record cannot be found");
                     }
                     application.put("task", taskOptional.get());

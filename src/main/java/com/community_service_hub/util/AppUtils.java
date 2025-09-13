@@ -237,7 +237,7 @@ public class AppUtils {
      * @auther Emmanuel Yidana
      * @createdAt 19h May 2025
      */
-    public static String getAuthenticatedUserId(){
+    public String getAuthenticatedUserId(){
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 

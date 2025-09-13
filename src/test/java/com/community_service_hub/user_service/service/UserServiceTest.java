@@ -9,6 +9,7 @@ import com.community_service_hub.user_service.repo.ActivityRepo;
 import com.community_service_hub.user_service.repo.NGORepo;
 import com.community_service_hub.user_service.repo.UserRepo;
 import com.community_service_hub.user_service.serviceImpl.UserServiceImpl;
+import com.community_service_hub.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,16 +38,14 @@ public class UserServiceTest {
 
     @Mock
     private ActivityRepo activityRepo;
-
     @Mock
     private DTOMapper dtoMapper;
-
     @Mock
     private NotificationServiceImpl otpService;
-
     @Mock
     private PasswordEncoder passwordEncoder;
-
+    @Mock
+    private AppUtils appUtils;
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -56,13 +55,16 @@ public class UserServiceTest {
     @Test
     @DisplayName("Simulating the create user method")
     void shouldCreateUserSuccessfully() {
+
+        UUID Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         User user = User.builder()
                 .email("eyidana001@gmail.com")
                 .phone("0597893082")
                 .password("1234")
                 .name("Emmanuel Yidana")
                 .userRole("ADMIN")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         UserPayloadDTO dto = UserPayloadDTO.builder()
@@ -70,7 +72,7 @@ public class UserServiceTest {
                 .phone("0597893082")
                 .password("1234")
                 .name("Emmanuel Yidana")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .role("ADMIN")
                 .build();
 
@@ -80,13 +82,7 @@ public class UserServiceTest {
                 .phone("0597893082")
                 .name("Emmanuel Yidana")
                 .role("Admin")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .build();
-
-        Activity activity = Activity.builder()
-                .activity("Account Creation")
-                .entityName("Emmanuel Yidana")
-                .entityId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         /**
@@ -97,7 +93,6 @@ public class UserServiceTest {
         when(dtoMapper.toUserEntity(dto)).thenReturn(user);
         when(dtoMapper.toUserDTO(user)).thenReturn(userDTO);
         when(userRepo.save(user)).thenReturn(user);
-        when(activityRepo.save(activity)).thenReturn(activity);
         doNothing().when(otpService).sendOtp(any(OTPPayload.class));
 
         ResponseEntity<ResponseDTO> response = userService.createUser(dto);
@@ -114,7 +109,6 @@ public class UserServiceTest {
         verify(userRepo).findUserByEmail("eyidana001@gmail.com");
         verify(ngoRepo).findByEmail("eyidana001@gmail.com");
         verify(userRepo).save(user);
-        verify(activityRepo).save(activity);
         verify(otpService).sendOtp(any(OTPPayload.class));
 
     }
@@ -125,13 +119,16 @@ public class UserServiceTest {
     @Test
     @DisplayName("Simulating the create user method when user already exist")
     void shouldFailWhenUserAlreadyExists() {
+
+        UUID Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         User user = User.builder()
                 .email("eyidana001@gmail.com")
                 .phone("0597893082")
                 .password("1234")
                 .name("Emmanuel Yidana")
                 .userRole("ADMIN")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         UserPayloadDTO dto = UserPayloadDTO.builder()
@@ -139,7 +136,7 @@ public class UserServiceTest {
                 .phone("0597893082")
                 .password("1234")
                 .name("Emmanuel Yidana")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .role("ADMIN")
                 .build();
 
@@ -189,13 +186,16 @@ public class UserServiceTest {
     @Test
     @DisplayName("Simulating the update user method")
     void shouldUpdateUserSuccessfully() {
+
+        UUID Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         User user = User.builder()
                 .email("eyidana001@gmail.com")
                 .phone("0597893082")
                 .password("1234")
                 .name("Emmanuel Yidana")
                 .userRole("ADMIN")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         UserUpdateDTO dto = UserUpdateDTO.builder()
@@ -203,7 +203,7 @@ public class UserServiceTest {
                 .phone("0597893082")
                 .name("Emmanuel Yidana")
                 .address("WaleWale")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         UserDTO userDTO = UserDTO
@@ -212,22 +212,23 @@ public class UserServiceTest {
                 .phone("0597893082")
                 .name("Emmanuel Yidana")
                 .role("Admin")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         Activity activity = Activity.builder()
                 .activity("Updated Account Details")
                 .entityName("Emmanuel Yidana")
-                .entityId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .entityId(Id)
                 .build();
 
         /**
          * stubbing external dependencies
          */
-        when(userRepo.findById(UUID.fromString("123e4567-e89b-12d3-a456-426614174000")))
+        when(userRepo.findById(Id))
                 .thenReturn(Optional.of(user));
         when(userRepo.save(any(User.class))).thenReturn(user);
         when(activityRepo.save(activity)).thenReturn(activity);
+        when(appUtils.getAuthenticatedUserId()).thenReturn(Id.toString());
         when(dtoMapper.toUserDTO(user)).thenReturn(userDTO);
 
         ResponseEntity<ResponseDTO> response = userService.updateUser(dto);
@@ -241,7 +242,7 @@ public class UserServiceTest {
         /**
          * verify if they were actually called
          */
-        verify(userRepo).findById(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+        verify(userRepo).findById(Id);
         verify(userRepo).save(user);
         verify(activityRepo).save(activity);
     }
@@ -283,14 +284,16 @@ public class UserServiceTest {
     @DisplayName("Simulating the method for deleting user")
     @Test
     void shouldDeleteUserSuccessfully(){
+
         UUID Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         User user = User.builder()
                 .email("eyidana001@gmail.com")
                 .phone("0597893082")
                 .password("1234")
                 .name("Emmanuel Yidana")
                 .userRole("ADMIN")
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         Activity activity = Activity.builder()

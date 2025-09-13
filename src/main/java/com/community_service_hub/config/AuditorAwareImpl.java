@@ -1,7 +1,9 @@
 package com.community_service_hub.config;
 
 import com.community_service_hub.util.AppUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -9,10 +11,11 @@ import java.util.UUID;
 
 @Component
 public class AuditorAwareImpl implements AuditorAware {
+
     @Override
     public Optional getCurrentAuditor() {
         String testId = "33712b37-466e-4b68-98b6-639f8888a8d6";
-        String userId = AppUtils.getAuthenticatedUserId();
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return Optional.of(UUID.fromString(userId));
     }
 }

@@ -424,7 +424,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     public ResponseEntity<ResponseDTO> fetchSubTasksForAssignee(){
         try{
             log.info("In fetch subtasks for assignee method");
-            UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+            UUID userId = UUID.fromString(appUtils.getAuthenticatedUserId());
             log.info("Fetching logged-in user id:->>>{}", userId);
 
             /**

@@ -51,9 +51,10 @@ public class UserServiceImpl implements UserService {
     private final ApplicationsRepo applicationsRepo;
     private final SubTaskRepo subTaskRepo;
     private final ActivityRepo activityRepo;
+    private final AppUtils appUtils;
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, NotificationServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo, SubTaskRepo subTaskRepo, SubTaskRepo subTaskRepo1, ActivityRepo activityRepo) {
+    public UserServiceImpl(UserRepo userRepo, DTOMapper dtoMapper, PasswordEncoder passwordEncoder, UserRoleServiceImpl userRoleServiceImpl, RoleSetupRepo roleSetupRepo, RoleSetupServiceImpl roleSetupServiceImpl, UserRoleRepo userRoleRepo, RestTemplate restTemplate, AppProperties appProperties, NotificationServiceImpl otpService, NGORepo ngoRepo, TaskRepo taskRepo, ApplicationsRepo applicationsRepo, SubTaskRepo subTaskRepo, SubTaskRepo subTaskRepo1, ActivityRepo activityRepo, AppUtils appUtils) {
         this.userRepo = userRepo;
         this.dtoMapper = dtoMapper;
         this.passwordEncoder = passwordEncoder;
@@ -69,6 +70,7 @@ public class UserServiceImpl implements UserService {
         this.applicationsRepo = applicationsRepo;
         this.subTaskRepo = subTaskRepo1;
         this.activityRepo = activityRepo;
+        this.appUtils = appUtils;
     }
 
     /**
@@ -243,7 +245,7 @@ public class UserServiceImpl implements UserService {
             existingData.setPhone(userPayload.getPhone() !=null ? userPayload.getPhone() : existingData.getPhone());
             existingData.setAddress(userPayload.getAddress()!=null?userPayload.getAddress():existingData.getAddress());
             existingData.setUpdatedAt(LocalDateTime.now());
-            existingData.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+            existingData.setUpdatedBy(UUID.fromString(appUtils.getAuthenticatedUserId()));
             User userResponse = userRepo.save(existingData);
 
             /**
@@ -349,7 +351,7 @@ public class UserServiceImpl implements UserService {
                 User existingUser = user.get();
                 existingUser.setPassword(passwordEncoder.encode(credentials.getPassword()));
                 existingUser.setUpdatedAt(LocalDateTime.now());
-                existingUser.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                existingUser.setUpdatedBy(UUID.fromString(appUtils.getAuthenticatedUserId()));
                 User userResponse = userRepo.save(existingUser);
 
                 /**
@@ -369,7 +371,7 @@ public class UserServiceImpl implements UserService {
              */
             if (ngo != null){
                 ngo.setPassword(passwordEncoder.encode(credentials.getPassword()));
-                ngo.setUpdatedBy(UUID.fromString(AppUtils.getAuthenticatedUserId()));
+                ngo.setUpdatedBy(UUID.fromString(appUtils.getAuthenticatedUserId()));
                 ngo.setUpdatedAt(LocalDateTime.now());
                 NGO ngoResponse = ngoRepo.save(ngo);
 
@@ -515,7 +517,7 @@ public class UserServiceImpl implements UserService {
         /**
          * getting details of logged-in user
          */
-        UUID userId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+        UUID userId = UUID.fromString(appUtils.getAuthenticatedUserId());
         String authenticatedUserRole = AppUtils.getAuthenticatedUserRole();
         log.info("Logged-in user role->>>{}", authenticatedUserRole);
 

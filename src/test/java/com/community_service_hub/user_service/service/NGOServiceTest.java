@@ -50,6 +50,7 @@ public class NGOServiceTest {
     @DisplayName("Simulating the save NGO method")
     @Test
     void shouldSaveNGOSuccessfully(){
+        UUID Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         NGO ngo = NGO
                 .builder()
                 .socialLinks("")
@@ -63,13 +64,7 @@ public class NGOServiceTest {
                 .city("Accra")
                 .organizationName("Test NGO")
                 .isApproved(Boolean.TRUE)
-                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .build();
-
-        Activity activity = Activity.builder()
-                .activity("Account Creation")
-                .entityName("Test NGO")
-                .entityId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .id(Id)
                 .build();
 
         /**
@@ -78,7 +73,6 @@ public class NGOServiceTest {
         when(ngoRepo.findByEmail("eyidana001@gmail.com")).thenReturn(null);
         when(userRepo.findUserByEmail("eyidana001@gmail.com")).thenReturn(Optional.empty());
         when(ngoRepo.save(ngo)).thenReturn(ngo);
-        when(activityRepo.save(activity)).thenReturn(activity);
         doNothing().when(notificationService).sendOtp(any(OTPPayload.class));
 
         ResponseEntity<ResponseDTO> response = ngoService.saveNGO(ngo);
@@ -96,7 +90,6 @@ public class NGOServiceTest {
         verify(ngoRepo).findByEmail("eyidana001@gmail.com");
         verify(userRepo).findUserByEmail("eyidana001@gmail.com");
         verify(ngoRepo).save(ngo);
-        verify(activityRepo).save(activity);
     }
 
     /**
@@ -198,6 +191,7 @@ public class NGOServiceTest {
         when(ngoRepo.save(ngo)).thenReturn(ngo);
         when(activityRepo.save(activity)).thenReturn(activity);
         when(ngoRepo.findById(Id)).thenReturn(Optional.of(ngo));
+        when(appUtils.getAuthenticatedUserId()).thenReturn(Id.toString());
         when(appUtils.isUserAuthorized(Id, null)).thenReturn(Boolean.TRUE);
 
         ResponseEntity<ResponseDTO> response = ngoService.updateNGO(ngo, Id);

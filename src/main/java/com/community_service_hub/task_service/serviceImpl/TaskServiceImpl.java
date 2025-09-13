@@ -379,7 +379,7 @@ public class TaskServiceImpl implements TaskService {
         try {
             log.info("In fetch tasks for NGO method->>>");
 
-            UUID NGOId = UUID.fromString(AppUtils.getAuthenticatedUserId());
+            UUID NGOId = UUID.fromString(appUtils.getAuthenticatedUserId());
 
             /**
              * loading tasks from db
