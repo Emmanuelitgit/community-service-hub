@@ -704,10 +704,10 @@ public class UserServiceImpl implements UserService {
         log.info("Hello server!");
     }
 
-    @Scheduled(fixedRate = 30000)
-    public void keepServerServiceAlive(){
-        String url = "https://server-service-6ab8.onrender.com/keep-server-alive";
-        restTemplate.getForEntity(url, Object.class);
-    }
+//    @Scheduled(fixedRate = 30000)
+//    public void keepServerServiceAlive(){
+//        String url = "https://server-service-6ab8.onrender.com/keep-server-alive";
+//        restTemplate.getForEntity(url, Object.class);
+//    }
 
 }
