@@ -5,6 +5,7 @@ import com.community_service_hub.user_service.authentication.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -28,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Properties;
 
 @Configuration
+@EnableCaching
 @EnableConfigurationProperties
 @EnableWebSecurity
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")

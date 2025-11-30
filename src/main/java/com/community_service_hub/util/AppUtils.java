@@ -228,7 +228,6 @@ public class AppUtils {
     public static LocalDate convertStringToLocalDateTime(String startDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(startDate, formatter);
-
     }
 
     /**

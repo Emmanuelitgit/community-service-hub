@@ -20,6 +20,7 @@ import com.community_service_hub.util.AppUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -700,14 +701,9 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public void keepServerAlive() {
-        log.info("Hello server!");
+    @Cacheable(value = "userDetails", key = "#username")
+    public String testCaching(String username){
+        log.info("Fetching from db....");
+        return "Emmanuel Yidana";
     }
-
-//    @Scheduled(fixedRate = 30000)
-//    public void keepServerServiceAlive(){
-//        String url = "https://server-service-6ab8.onrender.com/keep-server-alive";
-//        restTemplate.getForEntity(url, Object.class);
-//    }
-
 }

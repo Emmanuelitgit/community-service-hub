@@ -93,8 +93,9 @@ public class UserRest {
         return userService.fetchStatsForLoggedInUser(startDate, endDate);
     }
 
-    @GetMapping("/keep-server-alive")
-    public void keepServerAlive(){
-        userService.keepServerAlive();
+    @GetMapping("/test-cache")
+    public ResponseEntity<?> testCaching(){
+        String username = userService.testCaching("eyidana");
+        return ResponseEntity.ok(username);
     }
 }
